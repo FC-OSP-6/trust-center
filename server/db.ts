@@ -145,19 +145,19 @@ export default pool;
 /* ================================
   USAGE EXAMPLES:
   
-  // In services.ts:
+  In services.ts:
   import { query } from './db.js';
   
-  // Simple query:
+  Simple query:
   const result = await query('SELECT * FROM controls');
   
-  // Parameterized query (safe from SQL injection):
+  Parameterized query (safe from SQL injection):
   const result = await query(
     'SELECT * FROM controls WHERE category = $1',
     ['Security']
   );
   
-  // In seed.ts:
+  In seed.ts:
   await query(`
     CREATE TABLE IF NOT EXISTS controls (
       id SERIAL PRIMARY KEY,
