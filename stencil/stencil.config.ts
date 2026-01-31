@@ -1,13 +1,12 @@
 /* ================================
   TL;DR  -->  TLDR - Creating custom elements w/react wrappers 
-
+TODO: Shadow dom must be set to "true" per component as shadow dom shim has been drepecated
     - Custom elements = reusable product artifact
     - React wrappers = MVP DX layer
     - Stencil components own all rendering & behavior 
 ================================ */
 
 /* 
-
 ! CHOICE MADE - ADD TO READ ME: BOTH
 We treat Stencil custom elements as the canonical UI layer and ship 
 them framework-agnostically. For our React app, we optionally wrap 
@@ -19,38 +18,33 @@ import { Config } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
 
 export const config: Config = {
-    namespace: 'trust-center',
+  namespace: 'trust-center',
 
-    //Enable shadow DOM to encapsulate style - safe for reuse inside client systems
-    extras: {
-        shadowDomShim: false,
-    }, 
-
-    outputTargets: [ 
-         /* 
+  outputTargets: [
+    /* 
          Custom Elements Output
           - Framework-agnostic web components.
           - This is the artifact the client can reuse directly.
         */
-        {
-            type: 'dist',
-            esmLoaderPath: '../loader',
-        },
+    {
+      type: 'dist',
+      esmLoaderPath: '../loader',
+    },
 
-        /* 
+    /* 
         React Wrapper Output
-        - thin adapters for MVP dev experience - basically a translation layer
+        - thin adapters for MVP dev experience - basically a
         - No logic/state/styling 
         */
-       reactOutputTarget({
-        componentCorePackage: '@trustcenter/components', 
-        //this is the file path and file that will be auto-generated
-        proxiesFile: '../client/src/stencil/components.ts'
-       }), 
+    reactOutputTarget({
+      // Relative path to where the React components will be generated
+      outDir: '../client/src/stencil',
+    }),
 
-       //Loader Ouput type ensure custom elements are registered once + used by react/any future consumers. 
-       {
-        type: 'dist-custom-elements',
-       },
-    ]
-}
+    //Loader Ouput type ensure custom elements are registered once + used by react/any future consumers.
+    {
+      type: 'dist-custom-elements',
+      externalRuntime: false,
+    },
+  ],
+};
