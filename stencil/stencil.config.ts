@@ -19,6 +19,7 @@ import { reactOutputTarget } from '@stencil/react-output-target';
 
 export const config: Config = {
   namespace: 'trust-center',
+  tsconfig: 'tsconfig.stencil.json',
 
   outputTargets: [
     /* 
