@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\" \" npm run dev:stencil\"",
     "dev:server": "tsx watch server/server.ts",
     "dev:client": "vite",
-    "seed": "tsx server/seed.ts",
+    "db:seed": "tsx server/seed.ts",
+    "db:migrate": "",
     "build": "vite build",
     "preview": "vite preview",
     "test": "echo \"No tests yet\"",
-    "stencil": "stencil build --dev --watch"
+    "dev:stencil": "stencil build --dev --watch"
   },
   "dependencies": {
     "cors": "^2.8.5",
