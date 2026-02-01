@@ -16,6 +16,9 @@
 
 {
   "compilerOptions": {
+    "jsx": "react", // these two settings enable jsx in tsx files
+    "jsxFactory":"h", 
+    "jsxFragmentFactory": "Fragment", //ability to use fragments
     "module": "esnext",
     "declaration": true,
     "noImplicitAny": false,
