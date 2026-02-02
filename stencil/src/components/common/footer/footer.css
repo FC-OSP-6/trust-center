@@ -1,3 +1,27 @@
 /* ================================
   TL;DR  -->  styling for the very bottom section of Aon's mockup
 ================================ */
+
+/* 1) Aon Logo
+*/
+{
+  fill: Signature Red;
+}
+/*
+2) Legal Links
+style: Extra Small Paragraph
+color: Teal Dark
+3) Copyright Icon
+font-face: Font Awesome 6 Pro Light
+font-size: 12px
+line-height: 16px
+color: See states below
+code: copyright (f1f9)
+4) Copyright Text
+style: Extra Small Paragraph
+color: See states below
+5) Container
+background-color: See states below
+6) States
+border: 1px
+border-color: See states below */
