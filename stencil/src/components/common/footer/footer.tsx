@@ -22,7 +22,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 // Defines the <aon-footer> Web Component
 @Component({
   tag: 'aon-footer', // registers the custom element <aon-footer>
-  styleUrl: './footer.css', // associates component-scoped styles at build time
+  styleUrls: ['./footer.css','../global-stencil.css'], // associates component-scoped styles at build time
   shadow: true, // enables Shadow DOM for DOM and style encapsulation
 })
 
