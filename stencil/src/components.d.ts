@@ -6,19 +6,38 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface AonFooter {
+        "copyright": string;
+        "privacyPolicy": string;
+        "termsAndConditions": string;
+    }
 }
 declare global {
+    interface HTMLAonFooterElement extends Components.AonFooter, HTMLStencilElement {
+    }
+    var HTMLAonFooterElement: {
+        prototype: HTMLAonFooterElement;
+        new (): HTMLAonFooterElement;
+    };
     interface HTMLElementTagNameMap {
+        "aon-footer": HTMLAonFooterElement;
     }
 }
 declare namespace LocalJSX {
+    interface AonFooter {
+        "copyright": string;
+        "privacyPolicy": string;
+        "termsAndConditions": string;
+    }
     interface IntrinsicElements {
+        "aon-footer": AonFooter;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "aon-footer": LocalJSX.AonFooter & JSXBase.HTMLAttributes<HTMLAonFooterElement>;
         }
     }
 }

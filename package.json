@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": ["stencil"],
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:all": "concurrently -n server,client,stencil -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\"",
