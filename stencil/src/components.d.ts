@@ -7,9 +7,26 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface AonFooter {
+        /**
+          * @default '© Aon plc'
+         */
         "copyright": string;
+        /**
+          * @default 'Privacy Policy'
+         */
         "privacyPolicy": string;
+        /**
+          * @default '/privacy-policy'
+         */
+        "privacyPolicyHref": string;
+        /**
+          * @default 'Terms & Conditions'
+         */
         "termsAndConditions": string;
+        /**
+          * @default '/terms-and-conditions'
+         */
+        "termsHref": string;
     }
 }
 declare global {
@@ -25,9 +42,26 @@ declare global {
 }
 declare namespace LocalJSX {
     interface AonFooter {
-        "copyright": string;
-        "privacyPolicy": string;
-        "termsAndConditions": string;
+        /**
+          * @default '© Aon plc'
+         */
+        "copyright"?: string;
+        /**
+          * @default 'Privacy Policy'
+         */
+        "privacyPolicy"?: string;
+        /**
+          * @default '/privacy-policy'
+         */
+        "privacyPolicyHref"?: string;
+        /**
+          * @default 'Terms & Conditions'
+         */
+        "termsAndConditions"?: string;
+        /**
+          * @default '/terms-and-conditions'
+         */
+        "termsHref"?: string;
     }
     interface IntrinsicElements {
         "aon-footer": AonFooter;
