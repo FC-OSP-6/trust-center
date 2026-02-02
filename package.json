@@ -19,7 +19,7 @@
     "preview": "vite preview",
     "test": "echo \"No tests yet\"",
     "typecheck": "tsc -p ./config/tsconfig.json --noEmit",
-    "cleanexit": "concurrently -n server,client,stencil,fail -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\" \"node -e \\\"process.exit(1)\\\"\""
+    "cleanexit": "concurrently -n server,client,stencil,fail -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\" \"node -e \\\"console.log('[fail] waiting 12s then exiting 1'); setTimeout(() => process.exit(1), 12000)\\\"\""
   },
   "dependencies": {
     "cors": "^2.8.5",
