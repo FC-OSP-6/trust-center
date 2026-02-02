@@ -7,8 +7,8 @@
 import { Component } from '@stencil/core'
 
 // creating the class for the header component
-@Component({
-  tag: 'aon-header',
-  styleUrl: './header.css',
-  shadow:
-})
+// @Component({
+//   tag: 'aon-header',
+//   styleUrl: './header.css',
+//   shadow:
+// })

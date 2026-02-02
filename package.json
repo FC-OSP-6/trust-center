@@ -3,15 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": ["stencil"],
   "scripts": {
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "tsx watch server/server.ts",
+    "dev": "concurrently -n server,client,stencil -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\"",
+    "dev:basic": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+
     "dev:client": "vite",
-    "seed": "tsx server/seed.ts",
+    "dev:server": "tsx watch server/server.ts",
+    "stencil": "cd stencil && stencil build --dev --watch",
+
+    "db:seed": "tsx server/seed.ts",
+    "db:migrate": "echo \"TODO: add db migrations (placeholder Day 1)\"",
+
     "build": "vite build",
     "preview": "vite preview",
     "test": "echo \"No tests yet\"",
-    "stencil": "stencil build --dev --watch"
+    "typecheck": "tsc -p ./config/tsconfig.json --noEmit",
+    "cleanexit": "concurrently -n server,client,stencil,fail -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\" \"node -e \\\"process.exit(1)\\\"\""
   },
   "dependencies": {
     "cors": "^2.8.5",
