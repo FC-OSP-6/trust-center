@@ -1,0 +1,10 @@
+
+{
+  "name": "@trustcenter/components",
+  "private": true,
+  "scripts": {
+    "build": "stencil build",
+    "watch": "stencil build --dev --watch"
+  }, 
+  "main": "dist/index"
+}

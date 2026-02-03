@@ -1,4 +1,43 @@
-/* ================================
-  tl;dr  -->  File that tells TypeScript how to read and interpret the code
-    1. Sets the rules for how code should behave and be checked across the project
-================================ */
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"],
+
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../types-shared/*"],
+      "@server/*": ["../server/*"],
+      "@client/*": ["../client/src/*"]
+    },
+
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "isolatedModules": true,
+
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+
+  "include": [
+    "../server/**/*.ts",
+    "../client/**/*.ts",
+    "../client/**/*.tsx",
+    "../types-shared/**/*.ts"
+  ],
+
+  "exclude": [
+    "../node_modules",
+    "../dist",
+    "../build",
+    "../stencil"
+  ]
+}
