@@ -6,6 +6,7 @@
 ================================ */
 
 
+
 import { createYoga, createSchema } from 'graphql-yoga';
 import { useGraphQLModules } from '@envelop/graphql-modules';
 //import { application } from './modules';
@@ -15,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 // ============================================
-// EP0-T4b: Define context object shape
+// Define context object shape
 // ============================================
 
 /**
@@ -40,7 +41,7 @@ export interface GraphQLContext {
   db: null;
   /** Authentication context placeholder (Day 4 will populate) */
   auth: AuthContext;
-  /** EP0-T4c: Unique request ID for tracing */
+  /** Unique request ID for tracing */
   requestId: string;
 }
 
@@ -67,12 +68,12 @@ const resolvers = {
 
 
 // ============================================
-// EP0-T4a: Export handler factory with stable name
+// Export handler factory with stable name
 // ============================================
 
 /**
  * Factory function to create GraphQL handler with consistent context shape
- * This ensures no DB connection is established at import time (EP0-T4d)
+ * This ensures no DB connection is established at import time 
 */
 export function createGraphqlHandler() {
   // Build schema once at handler creation time
@@ -89,16 +90,16 @@ export function createGraphqlHandler() {
     ],
     /**
      * Context builder executed per request
-     * This is where request-specific data is created (EP0-T4d)
+     * This is where request-specific data is created 
     */
    context: (initialContext: YogaInitialContext): GraphQLContext => {
-     // EP0-T4c: Generate unique request ID for tracing
+     // Generate unique request ID for tracing
      const requestId = uuidv4();
      
      // Log request for tracing (would integrate with proper logger later)
      console.log(`[GraphQL Request ${requestId}] ${initialContext.request.method} ${initialContext.request.url}`);
      
-     // Return stable context shape (EP0-T4b)
+     // Return stable context shape
      return {
        db: null, // Placeholder - will be connected in Day 2
        auth: {
@@ -115,7 +116,7 @@ export function createGraphqlHandler() {
   });
 }
 
-// Note: No DB connection is established at import time (EP0-T4d)
+// Note: No DB connection is established at import time
 // The handler factory doesn't crash if DB env vars are missing
 // because db.ts is not imported and db: null is just a placeholder
 
