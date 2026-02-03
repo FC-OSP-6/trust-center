@@ -1,8 +1,13 @@
 /* ================================
-  TL;DR  -->  holds all colors, spacing, and typography for stencil components
+  TL;DR  -->  Design Tokens (system layer) -- holds all colors, spacing, and typography for stencil components
+  We’re using a token-driven styling architecture where global design decisions live in :root, component visuals 
+  are encapsulated in Stencil, and layout is handled at the React layer.
 ================================ */
-
+/* Think of :root as the configuration layer of my design system - just tokens, constants, shared decisions */
 :root {
+  /* Tokens describe decisions, not elements */
+
+  /* == Color Scheme == */
   /* Primary Hues */
   /* Uses: Headlines, backgrounds, prominent buttons */
   --color-navy-primary: #262836;
@@ -53,90 +58,249 @@
   --color-gray-07: #eef6f7;
   /* Gray 08 uses: Product background */
   --color-gray-08: #f9fcfc;
+
+  /* == Typography Options == */
+  /* this is the only font aon said to use everywhere */
+  --font-default: Arial, sans-serif;
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+
+  /* works for p and h elements */
+  --font-size-xsmall: 12px;
+  --font-size-small: 14px;
+  --font-size-medium: 16px;
+  --font-size-large: 18px;
+  --font-size-xlarge: 20px;
+  --font-size-xxlarge: 24px;
+  --font-size-3xlarge: 28px;
+  --font-size-4xlarge: 30px;
+  --font-size-5xlarge: 40px;
+
+  /* TODO: mobile medium is 15px, large is 17px and xl is 21px */
+
+  /* line height options */
+  --line-height-xsmall: 16px;
+  --line-height-small: 18px;
+  --line-height-medium: 20px;
+  /* TODO: mobile xl is large line height */
+  --line-height-large: 24px;
+  --line-height-xlarge: 28px;
+  --line-height-xxlarge: 32px;
+  --line-height-3xlarge: 36px;
+  --line-height-4xlarge: 52px;
+
+  /*  == Space Options == */
+  /* Only internal component spacing, nothing page layout-wise! */
+  --default-local-spacing: 20px;
+  --mobile-local-spacing: 24px;
 }
 
-/* Typography */
+/* ================================
+   SYSTEM TYPOGRAPHY (DESKTOP BASE)
+================================ */
+
+body {
+  font-family: var(--font-default);
+}
 
 .text-link {
   color: var(--color-teal-dark-secondary);
   text-decoration: underline;
 }
 
+.text-link:hover {
+  color: var(--color-teal-dark-hover);
+  text-decoration: none;
+}
+
+.text-link:active {
+  color: var(--color-teal-dark-active);
+  text-decoration: none;
+}
+
 h1 {
   /* TODO: change to/try out Inter via google fonts after feedback */
-  font: Arial;
-  font-weight: 700;
-  font-size: 40px;
-  line-height: 52px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-5xlarge);
+  line-height: var(--line-height-4xlarge);
   color: var(--color-navy-primary);
 }
 
 h2 {
-  font: Arial;
-  font-weight: 700;
-  font-size: 28px;
-  line-height: 36px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-3xlarge);
+  line-height: var(--line-height-3xlarge);
   /* color is either Navy or Signature Red. Set on local css */
 }
 
 h3 {
-  font: Arial;
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 32px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-xxlarge);
   color: var(--color-navy-primary);
 }
 
 h4 {
-  font: arial;
-  font-weight: 300;
-  font-size: 24px;
-  line-height: 28px;
+  font-weight: var(--font-weight-light);
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-xlarge);
   /* color is either Navy or Signature Red. Set on local css */
 }
 
 h5 {
-  font: arial;
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 24px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xlarge);
+  line-height: var(--line-height-large);
   color: var(--color-navy-primary);
 }
 
 h6 {
-  font: arial;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 20px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
   text-transform: uppercase;
   /* color is Navy, Signature Red, or Gray 02. Set on local css */
 }
-/* default paragraph settings */
+/* default paragraph settings -- fka medium */
 p {
-  font: arial;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 20px;
-  margin-bottom: 16px;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
   /* color is Gray 01 or Gray 02. Set on local css */
 }
+
+/* Small */
+.p-sm {
+  font-size: var(--font-size-small);        
+  line-height: var(--line-height-small);    
+}
+
+/* Extra Small */
+.p-xs {
+  font-size: var(--font-size-xsmall);       
+  line-height: var(--line-height-xsmall);  
+}
+
+/* Large */
+.p-lg {
+  font-size: var(--font-size-large);       
+  line-height: var(--line-height-large);    
+}
+
+/* Extra Large */
+.p-xl {
+  font-size: var(--font-size-xlarge);       
+  line-height: var(--line-height-xlarge);   
+}
+
 /* Semantic emphasis - default path */
 p strong {
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 p em {
   font-style: italic;
-  font-weight:400;
+  font-weight: var(--font-weight-regular);
 }
-/* For P to be decided in local files/later: 
-Default Bold
-font-weight: 700
-Default Italic
-font-weight: 400
-Default Mobile
-font-size: 15px
-Default Mobile Bold
-font-weight: 700
-Default Mobile Italic
-font-weight: 400 */
+
+/* ================================
+   RESPONSIVE TYPOGRAPHY OVERRIDES
+================================ */
+
+/* XS — Extra Small (0–575px) */
+@media (max-width: 575px) {
+  /* TODO: for react: 8 columns, 20px page margin */
+  h1 {
+    font-size: var(--font-size-4xlarge);    
+    line-height: var(--line-height-3xlarge);
+  }
+
+  h2 {
+    font-size: var(--font-size-xxlarge);    
+    line-height: var(--line-height-xxlarge);
+  }
+
+  h3 {
+    font-size: var(--font-size-xlarge);     
+    line-height: var(--line-height-xlarge); 
+  }
+
+  h4 {
+    font-size: var(--font-size-large);     
+    line-height: var(--line-height-large); 
+  }
+
+  h5 {
+    font-size: var(--font-size-large);      
+    line-height: var(--line-height-large);  
+  }
+
+  h6 {
+    font-size: var(--font-size-small);      
+    line-height: var(--line-height-small);  
+  }
+}
+
+/* S — Small (576–767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+  /* TODO: for react: 8 columns, 40px page margin */
+  p {
+    font-size: 15px;
+    line-height: var(--line-height-medium);
+  }
+
+  .p-lg,
+  .p-xl {
+    font-size: 17px;
+    line-height: var(--line-height-large);
+  }
+
+}
+
+/* M — Medium (768–991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  /* TODO: for react: 8 columns, 40px page margin */
+  p {
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+  }
+
+  .p-lg {
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
+  }
+
+  .p-xl {
+    font-size: var(--font-size-xlarge);
+    line-height: var(--line-height-xlarge);
+  }
+}
+
+/* L — Large (992–1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  /* TODO: for react: 12 columns, 40px page margin */
+   p {
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+  }
+}
+
+/* XL — Extra Large (1200–1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  /* TODO: for react: 12 columns, 40px page margin */
+   p {
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+  }
+}
+
+/* XXL — Extra Extra Large (1600px+) */
+@media (min-width: 1600px) {
+  /* TODO: for react: 12 columns, auto margins */
+   p {
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+  }
+}
