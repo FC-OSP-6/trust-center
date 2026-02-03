@@ -10,6 +10,7 @@ import 'dotenv/config';  // load once and first so middleware have access to the
 import express from 'express';
 import type {  Request, Response,  NextFunction,  ErrorRequestHandler, } from 'express';
 import cors from 'cors';
+import { createGraphqlHandler } from './graphql';
 
 
 const app = express();
@@ -20,10 +21,41 @@ const port = Number(process.env.SERVER_PORT ?? 4001);
 // ----------  middleware  ----------
 
 app.use(cors());  // allow cross-origin requests from the vite dev server
-app.use(express.json());  // automatically parse json bodies
+app.use("/api", express.json());  // automatically parse json bodies only for REST routes
+
+
+// ----------  server health check  ----------
+
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'graphql-server',
+  });
+});
 
 
 // ----------  graphQL  ----------
+
+  // Create GraphQL handler (no DB connection at import time!)
+  const graphqlHandler = createGraphqlHandler();
+
+  // Mount GraphQL endpoint
+  app.use('/graphql', async (req, res) => {
+    try {
+      // Forward request to GraphQL Yoga handler
+      await graphqlHandler(req, res);
+    } catch (error) {
+      console.error('GraphQL handler error:', error);
+      res.status(500).json({
+        error: 'Internal Server Error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+
+// ----------  other routes  ----------
 
 
 
@@ -47,6 +79,7 @@ app.use(globalErrorHandler);
 
 // Start server
 app.listen(port, () => {
-  console.log(`trust center server  -->  listening on port ${port} \n    view here:  ${host}:${port}/`);
-  // console.log(`check health here:  ${host}:${port}/health`);
+  console.log(`🚀  Trust Center server is listening on port:  ${port}`);
+  console.log(`📊  GraphQL endpoint:  ${host}:${port}/graphql`);
+  console.log(`❤️  Health check:  ${host}:${port}/api/health`);
 });
