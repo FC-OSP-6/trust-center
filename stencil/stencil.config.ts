@@ -39,6 +39,7 @@ export const config: Config = {
         - No logic/state/styling 
         */
     reactOutputTarget({
+      componentCorePackage: 'trust-center',
       // Relative path to where the React components will be generated
       outDir: '../client/src/stencil',
     }),
