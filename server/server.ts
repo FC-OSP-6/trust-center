@@ -12,7 +12,7 @@ import type { Request, Response, NextFunction, ErrorRequestHandler } from 'expre
 import cors from 'cors';  // allows cross-origin requests when not using dev proxy (curl, other clients)
 import path from 'node:path';  // resolve entrypoint for ESM guard
 import { pathToFileURL } from 'node:url';  // convert file path to file:// url for import.meta.url
-import { createGraphqlHandler } from './graphql/index';  // mounts yoga at /graphql
+import { createGraphQLHandler } from './graphql/index';  // mounts yoga at /graphql
 
 
 export function createServer() {
@@ -47,7 +47,7 @@ export function createServer() {
 
   // ----------  graphQL  ----------
 
-  const graphqlHandler = createGraphqlHandler();  // Create GraphQL handler (no DB connection at import time ! )
+  const graphqlHandler = createGraphQLHandler();  // Create GraphQL handler (no DB connection at import time ! )
 
 
   // Mount GraphQL endpoint
@@ -111,4 +111,5 @@ export function startServer() {
 
 // entrypoint guard (reduce side-effects)  -->  tests can import createServer without starting a listener
 const isEntryPoint = import.meta.url === pathToFileURL(path.resolve(process.argv[1] ?? '')).href;
-if (isEntryPoint) startServer();  // start only when executed directly
+// start only when executed directly
+if (isEntryPoint) startServer();  
