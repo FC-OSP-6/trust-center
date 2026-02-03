@@ -1,9 +1,24 @@
 /* ================================
-  TL;DR  -->  Design Tokens (system layer) -- holds all colors, spacing, and typography for stencil components
-  We’re using a token-driven styling architecture where global design decisions live in :root, component visuals 
-  are encapsulated in Stencil, and layout is handled at the React layer.
+  TL;DR  -->  Design tokens and typography for Stencil components
+    - Defines the system-level design tokens (colors, typography, spacing, text decoration) using CSS custom 
+    properties in :root, serving as the single source of truth for visual decisions.
+    - Establishes a token-driven styling architecture: global design decisions live here, component styling 
+    is encapsulated within Stencil, and page-level layout and grids are handled in React.
+    - Implements base typography rules for headings, paragraphs, and links, favoring semantic HTML (strong, em)
+     over stylistic utility classes for emphasis.
+    - Provides responsive typography overrides via media queries, with explicit tradeoffs to avoid hardcoding 
+    layout or grid logic in this layer.
+    - Exports design tokens and base typography styles that are consumed by:
+        1. Stencil component styles (direct usage)
+        2. React layout and page styles (reference-only for consistency)
+    - Assumes alignment with external documents for:
+        1. Layout/grid definitions (React layer)
+        2. Brand typography approvals (e.g., font family decisions)
 ================================ */
-/* Think of :root as the configuration layer of my design system - just tokens, constants, shared decisions */
+
+/* :root serves as the configuration layer of the design system:
+   tokens, constants, and shared visual decisions only */
+
 :root {
   /* Tokens describe decisions, not elements */
 
@@ -14,9 +29,10 @@
   /* Uses: Links, default and subtle buttons */
   --color-teal-dark-secondary: #007585;
   --color-teal-dark-interaction: #003c55;
---color-teal-dark-hover: var(--color-teal-dark-interaction);
---color-teal-dark-active: var(--color-teal-dark-interaction);
-  /* The above colors are the same for some reason. tokenized so I can keep the semantic distinction while acknowledging the sameness*/
+  --color-teal-dark-hover: var(--color-teal-dark-interaction);
+  --color-teal-dark-active: var(--color-teal-dark-interaction);
+  /* These tokens intentionally share the same value to preserve semantic meaning
+   (default, hover, active states) while allowing future divergence if needed */
 
   /* Secondary Hues */
   --color-teal-light-accent: #29b0c3;
@@ -25,20 +41,20 @@
   /* Feedback Hues */
   /* Error uses: Indicate errors, bad status */
   --color-error: #ea2238;
-  --color-error-dark: ‍#CA110F;
+  --color-error-dark: #CA110F;
   --color-error-bg: #fcdcdc;
   /* Warning uses: Indicate caution or warning, communicate conditions */
   --color-warning: #ffa600;
   --color-warning-dark: #ffa600;
-  --color-warning-bg: ‍#FFF6B7;
+  --color-warning-bg: #FFF6B7;
   /* Success uses: Indicate success, good status */
   --color-success: #12a88a;
   --color-success-dark: #0d725e;
-  --color-success-bg: ‍#C1F2E9;
+  --color-success-bg:#C1F2E9;
   /* Information uses: General messaging - No qualitative layer of information */
   --color-info: #0055a8;
-  --color-info-dark: ‍#003B75;
-  --color-info-bg: ‍#CCEAF5;
+  --color-info-dark: #003B75;
+  --color-info-bg: #CCEAF5;
 
   /* Neutral Hues */
   /* Navy uses: Background, headlines */
@@ -79,13 +95,10 @@
   --font-size-4xlarge: 30px;
   --font-size-5xlarge: 40px;
 
-  /* TODO: mobile medium is 15px, large is 17px and xl is 21px */
-
   /* line height options */
   --line-height-xsmall: 16px;
   --line-height-small: 18px;
   --line-height-medium: 20px;
-  /* TODO: mobile xl is large line height */
   --line-height-large: 24px;
   --line-height-xlarge: 28px;
   --line-height-xxlarge: 32px;
@@ -96,6 +109,10 @@
   /* Only internal component spacing, nothing page layout-wise! */
   --default-local-spacing: 20px;
   --mobile-local-spacing: 24px;
+
+  /* == Text Decorations == */
+  --link-decoration-default: underline;
+  --link-decoration-hover: none;
 }
 
 /* ================================
@@ -103,26 +120,27 @@
 ================================ */
 
 :host {
+  /* Primary system font per Aon design guidelines */
   font-family: var(--font-default);
+  /* TODO: Evaluate switching to Inter (Google Fonts) for headings pending design feedback and brand approval */
 }
 
 .text-link {
   color: var(--color-teal-dark-secondary);
-  text-decoration: underline;
+  text-decoration: var(--link-decoration-default);
 }
 
 .text-link:hover {
   color: var(--color-teal-dark-hover);
-  text-decoration: none;
+  text-decoration: var(--link-decoration-hover);
 }
 
 .text-link:active {
   color: var(--color-teal-dark-active);
-  text-decoration: none;
+  text-decoration: var(--link-decoration-hover);
 }
 
 h1 {
-  /* TODO: change to/try out Inter via google fonts after feedback */
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-5xlarge);
   line-height: var(--line-height-4xlarge);
@@ -164,7 +182,8 @@ h6 {
   text-transform: uppercase;
   /* color is Navy, Signature Red, or Gray 02. Set on local css */
 }
-/* default paragraph settings -- fka medium */
+
+/* Default paragraph typography */
 p {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
@@ -172,28 +191,29 @@ p {
   /* color is Gray 01 or Gray 02. Set on local css */
 }
 
+/* == Paragraph size modifiers (opt-in; semantic <p> remains default) == */
 /* Small */
 .p-sm {
-  font-size: var(--font-size-small);        
-  line-height: var(--line-height-small);    
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
 }
 
 /* Extra Small */
 .p-xs {
-  font-size: var(--font-size-xsmall);       
-  line-height: var(--line-height-xsmall);  
+  font-size: var(--font-size-xsmall);
+  line-height: var(--line-height-xsmall);
 }
 
 /* Large */
 .p-lg {
-  font-size: var(--font-size-large);       
-  line-height: var(--line-height-large);    
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
 }
 
 /* Extra Large */
 .p-xl {
-  font-size: var(--font-size-xlarge);       
-  line-height: var(--line-height-xlarge);   
+  font-size: var(--font-size-xlarge);
+  line-height: var(--line-height-xlarge);
 }
 
 /* Semantic emphasis - default path */
@@ -209,44 +229,48 @@ p em {
 /* ================================
    RESPONSIVE TYPOGRAPHY OVERRIDES
 ================================ */
+/* Responsive typography only.
+   Layout, grids, and page margins are defined in the React layer
+   and referenced here for breakpoint alignment only. */
+
 
 /* XS — Extra Small (0–575px) */
 @media (max-width: 575px) {
-  /* TODO: for react: 8 columns, 20px page margin */
+  /* TODO: React layout reference — XS breakpoint uses an 8-column grid with 20px page margins (not enforced in this stylesheet) */
+
   h1 {
-    font-size: var(--font-size-4xlarge);    
+    font-size: var(--font-size-4xlarge);
     line-height: var(--line-height-3xlarge);
   }
 
   h2 {
-    font-size: var(--font-size-xxlarge);    
+    font-size: var(--font-size-xxlarge);
     line-height: var(--line-height-xxlarge);
   }
 
   h3 {
-    font-size: var(--font-size-xlarge);     
-    line-height: var(--line-height-xlarge); 
+    font-size: var(--font-size-xlarge);
+    line-height: var(--line-height-xlarge);
   }
 
   h4 {
-    font-size: var(--font-size-large);     
-    line-height: var(--line-height-large); 
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
   }
 
   h5 {
-    font-size: var(--font-size-large);      
-    line-height: var(--line-height-large);  
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
   }
 
   h6 {
-    font-size: var(--font-size-small);      
-    line-height: var(--line-height-small);  
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
   }
 }
 
 /* S — Small (576–767px) */
 @media (min-width: 576px) and (max-width: 767px) {
-  /* TODO: for react: 8 columns, 40px page margin */
   p {
     font-size: 15px;
     line-height: var(--line-height-medium);
@@ -257,12 +281,12 @@ p em {
     font-size: 17px;
     line-height: var(--line-height-large);
   }
-
 }
+
+/* TODO: React layout reference — S/M breakpoints use an 8-column grid with 40px page margins (layout handled in React layer) */
 
 /* M — Medium (768–991px) */
 @media (min-width: 768px) and (max-width: 991px) {
-  /* TODO: for react: 8 columns, 40px page margin */
   p {
     font-size: var(--font-size-medium);
     line-height: var(--line-height-medium);
@@ -281,17 +305,17 @@ p em {
 
 /* L — Large (992–1199px) */
 @media (min-width: 992px) and (max-width: 1199px) {
-  /* TODO: for react: 12 columns, 40px page margin */
-   p {
+  p {
     font-size: var(--font-size-medium);
     line-height: var(--line-height-medium);
   }
 }
 
+/* TODO: React layout reference — L+ breakpoints use a 12-column grid with 40px (or auto, at XXL) page margins; layout defined in React */
+
 /* XL — Extra Large (1200–1599px) */
 @media (min-width: 1200px) and (max-width: 1599px) {
-  /* TODO: for react: 12 columns, 40px page margin */
-   p {
+  p {
     font-size: var(--font-size-medium);
     line-height: var(--line-height-medium);
   }
@@ -299,8 +323,7 @@ p em {
 
 /* XXL — Extra Extra Large (1600px+) */
 @media (min-width: 1600px) {
-  /* TODO: for react: 12 columns, auto margins */
-   p {
+  p {
     font-size: var(--font-size-medium);
     line-height: var(--line-height-medium);
   }
