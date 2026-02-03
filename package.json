@@ -3,20 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "workspaces": ["stencil"],
+  "workspaces": [
+    "stencil"
+  ],
   "scripts": {
     "dev": "concurrently -n server,client,stencil -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\"",
     "dev:basic": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
 
-    "dev:client": "vite",
     "dev:server": "tsx watch server/server.ts",
     "stencil": "cd stencil && stencil build --dev --watch",
+    "dev:client": "vite --config config/vite.config.ts",
+    "build": "vite build --config config/vite.config.ts",
+    "preview": "vite preview --config config/vite.config.ts",
 
     "db:seed": "tsx server/seed.ts",
     "db:migrate": "echo \"TODO: add db migrations (placeholder Day 1)\"",
 
-    "build": "vite build",
-    "preview": "vite preview",
     "test": "echo \"No tests yet\"",
     "typecheck": "tsc -p ./config/tsconfig.json --noEmit",
     "cleanexit": "concurrently -n server,client,stencil,fail -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\" \"node -e \\\"console.log('[fail] waiting 12s then exiting 1'); setTimeout(() => process.exit(1), 12000)\\\"\""
@@ -25,7 +27,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "graphql": "^16.9.0",
+    "graphql": "^16.12.0",
     "graphql-yoga": "^5.7.0",
     "pg": "^8.12.0",
     "react": "^18.3.1",
