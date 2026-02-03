@@ -13,9 +13,10 @@
   --color-navy-primary: #262836;
   /* Uses: Links, default and subtle buttons */
   --color-teal-dark-secondary: #007585;
-  --color-teal-dark-hover: #003c55;
-  --color-teal-dark-active: #003c55;
-  /* The above colors are the same for some reason */
+  --color-teal-dark-interaction: #003c55;
+--color-teal-dark-hover: var(--color-teal-dark-interaction);
+--color-teal-dark-active: var(--color-teal-dark-interaction);
+  /* The above colors are the same for some reason. tokenized so I can keep the semantic distinction while acknowledging the sameness*/
 
   /* Secondary Hues */
   --color-teal-light-accent: #29b0c3;
@@ -101,7 +102,7 @@
    SYSTEM TYPOGRAPHY (DESKTOP BASE)
 ================================ */
 
-body {
+:host {
   font-family: var(--font-default);
 }
 
