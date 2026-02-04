@@ -27,7 +27,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
   shadow: true, // enables Shadow DOM for DOM and style encapsulation
 })
 
-export class FooterStencilComponent {
+export class AonFooter {
   // Web Component definition and render logic for <aon-footer>
 
   // Public, read-only props with default values; intended to be overridden by the parent application (e.g., React)
