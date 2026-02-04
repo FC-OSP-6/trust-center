@@ -3,7 +3,7 @@
 
       - imports stencil components from common to build out basic page UI
 ================================ */
-import React from "react"
+import React from "react";
 
 
 export default function AppShell() {

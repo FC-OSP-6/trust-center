@@ -7,6 +7,10 @@ import React from "react"
 import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import App from "./app"
+import { defineCustomElements } from '@trustcenter/components/loader'
+
+// registers stencil components in react
+defineCustomElements();
 
 // Connect to the DOM
 const container = document.getElementById(`root`)!;

@@ -3,3 +3,11 @@
 
       - spacing and 
 ================================ */
+
+:root{
+    /* Global spacing (between components) */
+  --space-global-xs: 20px;
+  --space-global-sm: 24px;
+  --space-global-md: 32px;
+  --space-global-lg: 40px;
+}

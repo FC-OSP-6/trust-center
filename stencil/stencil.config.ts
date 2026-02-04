@@ -21,6 +21,7 @@ import { reactOutputTarget } from '@stencil/react-output-target';
 export const config: Config = {
   namespace: 'trust-center',
   tsconfig: 'tsconfig.stencil.json',
+  buildDist: true, // force generating dist/ outputs even in --dev
 
   outputTargets: [
     /* 
@@ -39,6 +40,7 @@ export const config: Config = {
         - No logic/state/styling 
         */
     reactOutputTarget({
+      componentCorePackage: '@trustcenter/components',
       // Relative path to where the React components will be generated
       outDir: '../client/src/stencil',
     }),
