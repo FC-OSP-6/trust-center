@@ -22,11 +22,11 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 // Defines the <aon-footer> Web Component
 @Component({
   tag: 'aon-footer', // registers the custom element <aon-footer>
-  styleUrls: ['./footer.css','../global-stencil.css'], // associates component-scoped styles at build time
+  styleUrls: ['./footer.css','../../tokens.css'], // associates component-scoped styles at build time
   shadow: true, // enables Shadow DOM for DOM and style encapsulation
 })
 
-export class FooterStencilComponent {
+export class AonFooter {
   // Web Component definition and render logic for <aon-footer>
 
   // Public, read-only props with default values; intended to be overridden by the parent application (e.g., React)
