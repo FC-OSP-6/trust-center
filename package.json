@@ -11,7 +11,7 @@
     "dev:basic": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
 
     "dev:server": "tsx watch server/server.ts",
-    "stencil": "cd stencil && stencil build --dev --watch",
+    "stencil": "cd stencil && stencil build --watch",
     "dev:client": "vite --config config/vite.config.ts",
     "build": "vite build --config config/vite.config.ts",
     "preview": "vite preview --config config/vite.config.ts",
