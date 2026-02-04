@@ -1,0 +1,142 @@
+/* ================================
+  TL;DR  -->  holds all colors, spacing, and typography for stencil components
+================================ */
+
+:root {
+  /* Primary Hues */
+  /* Uses: Headlines, backgrounds, prominent buttons */
+  --color-navy-primary: #262836;
+  /* Uses: Links, default and subtle buttons */
+  --color-teal-dark-secondary: #007585;
+  --color-teal-dark-hover: #003c55;
+  --color-teal-dark-active: #003c55;
+  /* The above colors are the same for some reason */
+
+  /* Secondary Hues */
+  --color-teal-light-accent: #29b0c3;
+  --color-signature-red-nav-accent: #eb0017;
+
+  /* Feedback Hues */
+  /* Error uses: Indicate errors, bad status */
+  --color-error: #ea2238;
+  --color-error-dark: ‍#CA110F;
+  --color-error-bg: #fcdcdc;
+  /* Warning uses: Indicate caution or warning, communicate conditions */
+  --color-warning: #ffa600;
+  --color-warning-dark: #ffa600;
+  --color-warning-bg: ‍#FFF6B7;
+  /* Success uses: Indicate success, good status */
+  --color-success: #12a88a;
+  --color-success-dark: #0d725e;
+  --color-success-bg: ‍#C1F2E9;
+  /* Information uses: General messaging - No qualitative layer of information */
+  --color-info: #0055a8;
+  --color-info-dark: ‍#003B75;
+  --color-info-bg: ‍#CCEAF5;
+
+  /* Neutral Hues */
+  /* Navy uses: Background, headlines */
+  --color-navy: #262836;
+  /* Gray 01 uses: Primary text color (high emphasis) */
+  --color-gray-01: #46535e;
+  /* Gray 02 uses: Text (low emphasis) */
+  --color-gray-02: #5d6d78;
+  /* Gray 03 uses: As needed */
+  --color-gray-03: #82939a;
+  /* Gray 04 uses: Card outlines */
+  --color-gray-04: #acc0c4;
+  /* Gray 05 uses: As needed */
+  --color-gray-05: #cddbde;
+  /* Gray 06 uses: Inverse text, section backgrounds */
+  --color-gray-06: #e5eff0;
+  /* Gray 07 uses: Section backgrounds */
+  --color-gray-07: #eef6f7;
+  /* Gray 08 uses: Product background */
+  --color-gray-08: #f9fcfc;
+}
+
+/* Typography */
+
+.text-link {
+  color: var(--color-teal-dark-secondary);
+  text-decoration: underline;
+}
+
+h1 {
+  /* TODO: change to/try out Inter via google fonts after feedback */
+  font: Arial;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 52px;
+  color: var(--color-navy-primary);
+}
+
+h2 {
+  font: Arial;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 36px;
+  /* color is either Navy or Signature Red. Set on local css */
+}
+
+h3 {
+  font: Arial;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--color-navy-primary);
+}
+
+h4 {
+  font: arial;
+  font-weight: 300;
+  font-size: 24px;
+  line-height: 28px;
+  /* color is either Navy or Signature Red. Set on local css */
+}
+
+h5 {
+  font: arial;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  color: var(--color-navy-primary);
+}
+
+h6 {
+  font: arial;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 20px;
+  text-transform: uppercase;
+  /* color is Navy, Signature Red, or Gray 02. Set on local css */
+}
+/* default paragraph settings */
+p {
+  font: arial;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  margin-bottom: 16px;
+  /* color is Gray 01 or Gray 02. Set on local css */
+}
+/* Semantic emphasis - default path */
+p strong {
+  font-weight: 700;
+}
+
+p em {
+  font-style: italic;
+  font-weight:400;
+}
+/* For P to be decided in local files/later: 
+Default Bold
+font-weight: 700
+Default Italic
+font-weight: 400
+Default Mobile
+font-size: 15px
+Default Mobile Bold
+font-weight: 700
+Default Mobile Italic
+font-weight: 400 */
