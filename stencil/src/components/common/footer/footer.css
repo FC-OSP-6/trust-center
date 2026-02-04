@@ -1,6 +1,18 @@
 /* ================================
   TL;DR  -->  styling for the very bottom section of Aon's mockup
 ================================ */
+/* Files: footer.css, faq-card.css, etc.
+Selectors: :host, internal classes
+
+Purpose:
+
+Internal spacing
+
+Visual appearance
+
+Responsive within the component
+
+No page layout assumptions */
 
 /* 1) Aon Logo
 */
