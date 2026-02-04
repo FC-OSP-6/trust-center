@@ -15,7 +15,7 @@ those elements with thin React adapters to improve developer experience
 while keeping all rendering and logic inside the Web Components.
 */
 
-import { Config } from '@stencil/core';
+import { Config, com } from '@stencil/core';
 import { reactOutputTarget } from '@stencil/react-output-target';
 
 export const config: Config = {
@@ -39,9 +39,8 @@ export const config: Config = {
         - No logic/state/styling 
         */
     reactOutputTarget({
-      componentCorePackage: 'trust-center',
       // Relative path to where the React components will be generated
-      outDir: '../client/src/stencil',
+      outDir: '../client/src/stencil/dist',
     }),
 
     //Loader Ouput type ensure custom elements are registered once + used by react/any future consumers.
