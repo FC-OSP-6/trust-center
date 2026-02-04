@@ -32,7 +32,6 @@ export const config: Config = {
       type: 'dist',
       esmLoaderPath: '../loader',
     },
-
     /* 
         React Wrapper Output
         - thin adapters for MVP dev experience - basically a
