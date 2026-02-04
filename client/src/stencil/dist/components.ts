@@ -22,5 +22,3 @@ export const AonFooter: StencilReactComponent<AonFooterElement, AonFooterEvents>
     events: {} as AonFooterEvents,
     defineCustomElement: defineAonFooter
 });
-
-
