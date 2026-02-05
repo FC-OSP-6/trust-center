@@ -3,3 +3,5 @@
 
       - need to place this for everything: * export from './components'
 ================================ */
+
+export * from 'stencil/dist/components';
