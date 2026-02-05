@@ -1,0 +1,6 @@
+@import './tokens.css';
+@import './typography.css';
+
+:host {
+  outline: 6px solid hotpink !important;
+}

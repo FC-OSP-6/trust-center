@@ -2,25 +2,27 @@
   TL;DR  -->  styling for the very bottom section of Aon's mockup
 ================================ */
 /* Files: footer.css, faq-card.css, etc.
-Selectors: :host, internal classes
+Selectors: :host, internal classes */
 
-Purpose:
+.footer-links{
+  color:red;
+}
 
-Internal spacing
+/* :host {
+  /* Primary system font per Aon design guidelines */
+  /* font-family: var(--font-default); */
+  /* TODO: Evaluate switching to Inter (Google Fonts) for headings pending design feedback and brand approval */
+/* } */
 
-Visual appearance
+/* .footer-logo{
+  fill: var(--color-signature-red-nav-accent);
+}
 
-Responsive within the component
-
-No page layout assumptions */
-
-/* 1) Aon Logo
-*/
-/* {
-  fill: Signature Red;
-} */
+.footer-links{
+color:var(--color-teal-dark-secondary);
+font-size:var(--font-size-5xlarge);
+}  */
 /*
-2) Legal Links
 style: Extra Small Paragraph
 color: Teal Dark
 3) Copyright Icon
