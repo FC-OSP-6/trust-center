@@ -16,27 +16,20 @@ export default function App() {
   const location = useLocation();
   const path = location.pathname;
 
-  // Same idea as `knownPaths` in your old app
   const knownPaths = ['/overview', '/controls', '/resources', '/faqs'];
-
   const isKnownPath = knownPaths.includes(path);
 
   return (
     <div className="trust-center-app">
-      {/* Layout chrome */}
       {isKnownPath && <aon-navbar />}
 
       <main>
         <Routes>
-          {/* Default entry */}
           <Route path="/" element={<Navigate to="/overview" replace />} />
-
           <Route path="/overview" element={<Overview />} />
           <Route path="/controls" element={<Controls />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/faqs" element={<Faqs />} />
-
-          {/* Catch-all */}
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
       </main>
