@@ -4,6 +4,8 @@
 /* Files: footer.css, faq-card.css, etc.
 Selectors: :host, internal classes */
 
+@import '../../styles/global.css';
+
 .footer-links{
   color:red;
 }
