@@ -6,6 +6,25 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface AonBlueCard {
+        "blueCardButtonLink": string;
+        "blueCardButtonText": string;
+        "blueCardDescription": string;
+        "blueCardTitle": string;
+    }
+    interface AonControlCard {
+        /**
+          * @default []
+         */
+        "controlCardSubtitle": string[];
+        /**
+          * @default []
+         */
+        "controlCardSubtitleDescription": string[];
+        "controlCardTitle": string;
+        "controlStatusText": string;
+        "greenDotIcon": string;
+    }
     interface AonFooter {
         /**
           * @default '© Aon plc'
@@ -21,7 +40,51 @@ export namespace Components {
          */
         "termsHref": string;
     }
+    interface AonHeader {
+        "CyQuLogo": string;
+        "loginIcon": string;
+    }
     interface AonNavbar {
+    }
+    interface AonSubnavCard {
+        /**
+          * @default "Data and Privacy"
+         */
+        "dataAndPrivacyHref": string;
+        /**
+          * @default "Infrastructure Security"
+         */
+        "infrastructureSecurityHref": string;
+        /**
+          * @default "Internal Security Procedures"
+         */
+        "internalSecurityProceduresHref": string;
+        /**
+          * @default "Organizational Security"
+         */
+        "organizationalSecurityHref": string;
+        /**
+          * @default "Product Security"
+         */
+        "productSecurityHref": string;
+        /**
+          * @default "Categories"
+         */
+        "subnavCardTitle": string;
+    }
+    interface AonTitle {
+        /**
+          * @default "cyber.security.support@email.com"
+         */
+        "supportEmail": string;
+        /**
+          * @default "Resources to address common cyber security questions from clients"
+         */
+        "supportMessage": string;
+        /**
+          * @default "Trust Center"
+         */
+        "trustCenterName": string;
     }
     interface ExpansionCard {
         /**
@@ -70,17 +133,47 @@ export interface FaqCardCustomEvent<T> extends CustomEvent<T> {
     target: HTMLFaqCardElement;
 }
 declare global {
+    interface HTMLAonBlueCardElement extends Components.AonBlueCard, HTMLStencilElement {
+    }
+    var HTMLAonBlueCardElement: {
+        prototype: HTMLAonBlueCardElement;
+        new (): HTMLAonBlueCardElement;
+    };
+    interface HTMLAonControlCardElement extends Components.AonControlCard, HTMLStencilElement {
+    }
+    var HTMLAonControlCardElement: {
+        prototype: HTMLAonControlCardElement;
+        new (): HTMLAonControlCardElement;
+    };
     interface HTMLAonFooterElement extends Components.AonFooter, HTMLStencilElement {
     }
     var HTMLAonFooterElement: {
         prototype: HTMLAonFooterElement;
         new (): HTMLAonFooterElement;
     };
+    interface HTMLAonHeaderElement extends Components.AonHeader, HTMLStencilElement {
+    }
+    var HTMLAonHeaderElement: {
+        prototype: HTMLAonHeaderElement;
+        new (): HTMLAonHeaderElement;
+    };
     interface HTMLAonNavbarElement extends Components.AonNavbar, HTMLStencilElement {
     }
     var HTMLAonNavbarElement: {
         prototype: HTMLAonNavbarElement;
         new (): HTMLAonNavbarElement;
+    };
+    interface HTMLAonSubnavCardElement extends Components.AonSubnavCard, HTMLStencilElement {
+    }
+    var HTMLAonSubnavCardElement: {
+        prototype: HTMLAonSubnavCardElement;
+        new (): HTMLAonSubnavCardElement;
+    };
+    interface HTMLAonTitleElement extends Components.AonTitle, HTMLStencilElement {
+    }
+    var HTMLAonTitleElement: {
+        prototype: HTMLAonTitleElement;
+        new (): HTMLAonTitleElement;
     };
     interface HTMLExpansionCardElement extends Components.ExpansionCard, HTMLStencilElement {
     }
@@ -112,14 +205,38 @@ declare global {
         new (): HTMLLinkCardElement;
     };
     interface HTMLElementTagNameMap {
+        "aon-blue-card": HTMLAonBlueCardElement;
+        "aon-control-card": HTMLAonControlCardElement;
         "aon-footer": HTMLAonFooterElement;
+        "aon-header": HTMLAonHeaderElement;
         "aon-navbar": HTMLAonNavbarElement;
+        "aon-subnav-card": HTMLAonSubnavCardElement;
+        "aon-title": HTMLAonTitleElement;
         "expansion-card": HTMLExpansionCardElement;
         "faq-card": HTMLFaqCardElement;
         "link-card": HTMLLinkCardElement;
     }
 }
 declare namespace LocalJSX {
+    interface AonBlueCard {
+        "blueCardButtonLink"?: string;
+        "blueCardButtonText"?: string;
+        "blueCardDescription"?: string;
+        "blueCardTitle"?: string;
+    }
+    interface AonControlCard {
+        /**
+          * @default []
+         */
+        "controlCardSubtitle"?: string[];
+        /**
+          * @default []
+         */
+        "controlCardSubtitleDescription"?: string[];
+        "controlCardTitle"?: string;
+        "controlStatusText"?: string;
+        "greenDotIcon"?: string;
+    }
     interface AonFooter {
         /**
           * @default '© Aon plc'
@@ -135,7 +252,51 @@ declare namespace LocalJSX {
          */
         "termsHref"?: string;
     }
+    interface AonHeader {
+        "CyQuLogo"?: string;
+        "loginIcon"?: string;
+    }
     interface AonNavbar {
+    }
+    interface AonSubnavCard {
+        /**
+          * @default "Data and Privacy"
+         */
+        "dataAndPrivacyHref"?: string;
+        /**
+          * @default "Infrastructure Security"
+         */
+        "infrastructureSecurityHref"?: string;
+        /**
+          * @default "Internal Security Procedures"
+         */
+        "internalSecurityProceduresHref"?: string;
+        /**
+          * @default "Organizational Security"
+         */
+        "organizationalSecurityHref"?: string;
+        /**
+          * @default "Product Security"
+         */
+        "productSecurityHref"?: string;
+        /**
+          * @default "Categories"
+         */
+        "subnavCardTitle"?: string;
+    }
+    interface AonTitle {
+        /**
+          * @default "cyber.security.support@email.com"
+         */
+        "supportEmail"?: string;
+        /**
+          * @default "Resources to address common cyber security questions from clients"
+         */
+        "supportMessage"?: string;
+        /**
+          * @default "Trust Center"
+         */
+        "trustCenterName"?: string;
     }
     interface ExpansionCard {
         /**
@@ -183,8 +344,13 @@ declare namespace LocalJSX {
         "links"?: Array<{ label: string; href: string }>;
     }
     interface IntrinsicElements {
+        "aon-blue-card": AonBlueCard;
+        "aon-control-card": AonControlCard;
         "aon-footer": AonFooter;
+        "aon-header": AonHeader;
         "aon-navbar": AonNavbar;
+        "aon-subnav-card": AonSubnavCard;
+        "aon-title": AonTitle;
         "expansion-card": ExpansionCard;
         "faq-card": FaqCard;
         "link-card": LinkCard;
@@ -194,8 +360,13 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "aon-blue-card": LocalJSX.AonBlueCard & JSXBase.HTMLAttributes<HTMLAonBlueCardElement>;
+            "aon-control-card": LocalJSX.AonControlCard & JSXBase.HTMLAttributes<HTMLAonControlCardElement>;
             "aon-footer": LocalJSX.AonFooter & JSXBase.HTMLAttributes<HTMLAonFooterElement>;
+            "aon-header": LocalJSX.AonHeader & JSXBase.HTMLAttributes<HTMLAonHeaderElement>;
             "aon-navbar": LocalJSX.AonNavbar & JSXBase.HTMLAttributes<HTMLAonNavbarElement>;
+            "aon-subnav-card": LocalJSX.AonSubnavCard & JSXBase.HTMLAttributes<HTMLAonSubnavCardElement>;
+            "aon-title": LocalJSX.AonTitle & JSXBase.HTMLAttributes<HTMLAonTitleElement>;
             "expansion-card": LocalJSX.ExpansionCard & JSXBase.HTMLAttributes<HTMLExpansionCardElement>;
             "faq-card": LocalJSX.FaqCard & JSXBase.HTMLAttributes<HTMLFaqCardElement>;
             "link-card": LocalJSX.LinkCard & JSXBase.HTMLAttributes<HTMLLinkCardElement>;
