@@ -16,9 +16,8 @@
       }
 ====================================================== */
 
-import { Component, Prop, h } from '@stencil/core';
-// Stencil core decorators + JSX factory
-// Component is presentational only; state and expansion are owned by the host (React)
+import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
+// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
 @Component({
   tag: 'link-card',

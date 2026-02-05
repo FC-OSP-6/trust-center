@@ -6,7 +6,6 @@
 ================================ */
 import React from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
-
 import Overview from './components/sections/overview';
 import Controls from './components/sections/controls';
 import Resources from './components/sections/resources';

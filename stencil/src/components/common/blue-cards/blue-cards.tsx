@@ -2,10 +2,13 @@
   TL;DR  -->  The blue shaded cards that are on Aon's mockup
       1. These cards should provide a link(contained in a button) for the user to visit
 ================================ */
+import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
+// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+
 
 @Component({
   tag: 'aon-blue-card', // registers the custom element <aon-footer>
-  styleUrls: ['./blue-card.css'], // this is the new name of our global css file
+  styleUrls: ['./blue-cards.css'], // this is the new name of our global css file
   shadow: true, // enables Shadow DOM for DOM and style encapsulation
 })
 
