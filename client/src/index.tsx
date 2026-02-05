@@ -25,9 +25,10 @@
 
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './app';
-import { defineCustomElements } from "../../stencil/loader/index.es2017.js";
+import { BrowserRouter } from 'react-router-dom';
 
+import App from './app';
+import { defineCustomElements } from '../../stencil/loader/index.es2017.js';
 
 // Register Stencil Web Components once
 defineCustomElements(window);
@@ -37,6 +38,8 @@ const root = createRoot(container);
 
 root.render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>
 );
