@@ -6,12 +6,14 @@
 ================================ */
 import React from "react"
 import { AonFooter } from './stencil/components';
+import { AonHeader } from './stencil/components';
 
 
 export default function App() {
   return (
     <>
     <h1>Testing Testing 123</h1>
+    <AonHeader/>
     <AonFooter />
     </>
   )
