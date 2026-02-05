@@ -8,8 +8,8 @@
 ================================ */
 
 
-import pg from 'pg'; // postgres driver  -->  provides Pool for connection pooling
-import dotenv from 'dotenv'; // loads .env into process.env for local dev/scripts
+import pg from 'pg';  // postgres driver  -->  provides Pool for connection pooling
+import dotenv from 'dotenv';  // loads .env into process.env for local dev/scripts
 
 
 dotenv.config();  // load env once so any script importing db has access to config
