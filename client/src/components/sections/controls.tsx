@@ -6,3 +6,10 @@
       4. Internal Security Procedures
       5. Data and Privacy
 ================================ */
+import React from "react";
+
+export default function Controls() {
+  return (
+    <section>Controls: not implemented yet</section>
+  );
+}

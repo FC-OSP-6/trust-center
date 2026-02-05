@@ -12,6 +12,10 @@
         - on the right side - the status should include a green check circle
 ================================ */
 
+import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
+// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+
+
 // Defines the <aon-control-card> Web Component
 @Component({
   tag: 'aon-control-card', // registers the custom element <aon-control-card>
