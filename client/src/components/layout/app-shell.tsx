@@ -5,14 +5,12 @@
 ================================ */
 import React from "react";
 
-
 export default function AppShell() {
   return (
-   <>
-   <HeaderRegion />
-   <NavRegion />
-   <ContentRegion />
-   <FooterRegion />
-   </>
-  )
+    <>
+      <aon-navbar />
+      <main>{/* page content */}</main>
+      <aon-footer />
+    </>
+  );
 }

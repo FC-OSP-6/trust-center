@@ -4,15 +4,16 @@
       - logic for flipping between sections
       - button logic for each component
 ================================ */
-import React from "react"
-import { AonFooter } from './stencil/components';
+import React from "react";
+import AppShell from "./components/layout/app-shell";
+
 
 
 export default function App() {
   return (
     <>
     <h1>Testing Testing 123</h1>
-    <AonFooter />
+    <AppShell />
     </>
   )
 }
