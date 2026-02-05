@@ -30,19 +30,19 @@ export class AonNavbar {
       <nav aria-label="Trust Center section navigation">
         <ul class="navbar-content">
           <li class="nav-tab">
-            <a href="/overview">Overview</a>
+            <a href="/trust-center/overview">Overview</a>
           </li>
 
           <li class="nav-tab">
-            <a href="/controls">Controls</a>
+            <a href="/trust-center/controls">Controls</a>
           </li>
 
           <li class="nav-tab">
-            <a href="/resources">Resources</a>
+            <a href="/trust-center/resources">Resources</a>
           </li>
 
           <li class="nav-tab">
-            <a href="/faqs">FAQs</a>
+            <a href="/trust-center/faqs">FAQs</a>
           </li>
         </ul>
       </nav>

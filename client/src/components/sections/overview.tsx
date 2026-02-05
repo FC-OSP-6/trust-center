@@ -4,3 +4,10 @@
       2. Selected Controls - expansion cards
       3. Potentially also show the blue card as well
 ================================ */
+import React from "react";
+
+export default function Overview() {
+  return (
+    <section>Overview: not implemented yet</section>
+  );
+}
