@@ -22,6 +22,7 @@ export const config: Config = {
   namespace: 'trust-center',
   tsconfig: 'tsconfig.json',
   buildDist: true, // force generating dist/ outputs even in --dev
+  globalStyle: 'src/components/styles/global.css',
 
   outputTargets: [
     /* 
