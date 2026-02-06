@@ -17,7 +17,8 @@
     "preview": "vite preview --config config/vite.config.ts",
 
     "db:seed": "tsx server/seed.ts",
-    "db:migrate": "echo \"TODO: add db migrations (placeholder Day 1)\"",
+    "db:migrate": "npm exec tsx -- -e \"import { runDbMigrate } from './server/db/index.ts'; runDbMigrate();\"",
+    "db:cleanapply": "npm exec tsx -- -e \"import { runCleanApplyDb } from './server/db/index.ts'; runCleanApplyDb();\"",
 
     "test": "echo \"No tests yet\"",
     "typecheck": "tsc -p ./config/tsconfig.json --noEmit",
