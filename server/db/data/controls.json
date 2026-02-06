@@ -1,0 +1,198 @@
+{
+  "controls": [
+    {
+      "control_key": "organizational_irp_documented",
+      "title": "CyQu has an incident response plan (IRP) in place",
+      "description": "CyQu maintains a documented incident response plan describing processes and responsibilities for identifying, responding to, and learning from security incidents.",
+      "category": "Organizational Security",
+      "tags": ["incident-response", "irp", "policy"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_regions_multi_region",
+      "title": "Data is divided between multiple AWS regions",
+      "description": "CyQu data is divided between multiple AWS regions to support resiliency and regional operations where applicable.",
+      "category": "Cloud Security",
+      "tags": ["aws", "resilience", "regions"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_private_vpc_subnet",
+      "title": "All compute runs within a private VPC and subnet",
+      "description": "Compute resources run in private networks to reduce exposure and enforce controlled ingress and egress.",
+      "category": "Cloud Security",
+      "tags": ["network", "vpc", "isolation"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_logs_monitored_24_7",
+      "title": "Logs are monitored 24/7",
+      "description": "Security and audit logs are monitored continuously to support detection, triage, and incident response.",
+      "category": "Cloud Security",
+      "tags": ["logging", "monitoring", "soc"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_waf_in_front_of_api",
+      "title": "The API sits behind a WAF",
+      "description": "A Web Application Firewall (WAF) is used to filter and monitor HTTP requests and reduce exposure to common attacks.",
+      "category": "Cloud Security",
+      "tags": ["waf", "api-security", "owasp"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_external_pentest_yearly",
+      "title": "CyQu receives a yearly external pentest",
+      "description": "Third-party security firms conduct periodic penetration tests to identify and remediate vulnerabilities.",
+      "category": "Cloud Security",
+      "tags": ["pentest", "assurance", "vulnerability-management"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_by_design_default",
+      "title": "CyQu is secure by design and by default",
+      "description": "Security best practices are incorporated into design and development workflows as a default expectation.",
+      "category": "Secure Development",
+      "tags": ["secure-development", "sdlc"],
+      "source_url": null
+    },
+    {
+      "control_key": "data_encrypted_in_transit",
+      "title": "Data is encrypted in transit",
+      "description": "TLS 1.2+ is used to encrypt data in transit.",
+      "category": "Data Security",
+      "tags": ["tls", "encryption"],
+      "source_url": null
+    },
+    {
+      "control_key": "data_encrypted_at_rest",
+      "title": "Data is encrypted at rest",
+      "description": "Data at rest is protected using industry standard encryption (e.g., AES-256 where applicable).",
+      "category": "Data Security",
+      "tags": ["encryption", "aes-256", "storage"],
+      "source_url": null
+    },
+    {
+      "control_key": "device_fde_and_disposal",
+      "title": "Company laptops are encrypted and disposed of securely",
+      "description": "Endpoints use full disk encryption and follow secure wipe and/or destruction procedures at end of life.",
+      "category": "Data Security",
+      "tags": ["endpoint", "fde", "asset-management"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_dev_training_required",
+      "title": "Engineers receive secure development training",
+      "description": "Secure development training covers topics like threat modeling, secure coding, and vulnerability management.",
+      "category": "Secure Development",
+      "tags": ["training", "secure-coding"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_code_reviews_required",
+      "title": "Code reviews are conducted for all changes",
+      "description": "Peer review is required to reduce defects and identify security issues before changes ship.",
+      "category": "Secure Development",
+      "tags": ["code-review", "quality"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_sast_scanning",
+      "title": "The application is regularly scanned for vulnerabilities",
+      "description": "Automated scanning (e.g., SAST) is used to detect issues early in the development lifecycle.",
+      "category": "Secure Development",
+      "tags": ["sast", "scanning", "ci"],
+      "source_url": null
+    },
+    {
+      "control_key": "deployments_via_ci",
+      "title": "Software is deployed via an automated CI system",
+      "description": "Automated pipelines support repeatable builds and controlled releases.",
+      "category": "Secure Development",
+      "tags": ["ci-cd", "automation"],
+      "source_url": null
+    },
+    {
+      "control_key": "org_background_checks",
+      "title": "Background checks are conducted for job applicants",
+      "description": "Pre-employment screening is performed for applicable roles to reduce insider risk.",
+      "category": "Organizational Security",
+      "tags": ["hr", "screening", "insider-risk"],
+      "source_url": null
+    },
+    {
+      "control_key": "org_policies_framework_based",
+      "title": "Security policies are based on recognized frameworks",
+      "description": "Policies and standards align to recognized security frameworks (e.g., NIST / ISO) where applicable.",
+      "category": "Organizational Security",
+      "tags": ["nist", "iso", "governance"],
+      "source_url": null
+    },
+
+    
+    {
+      "control_key": "access_mfa_enforced",
+      "title": "Multi-factor authentication (MFA) is enforced",
+      "description": "MFA is required for privileged access and high-risk operations to reduce account takeover risk.",
+      "category": "Access Control",
+      "tags": ["mfa", "iam"],
+      "source_url": null
+    },
+    {
+      "control_key": "access_least_privilege",
+      "title": "Least privilege access is enforced",
+      "description": "Access is limited to what users and services need to do their job, with periodic review of permissions.",
+      "category": "Access Control",
+      "tags": ["least-privilege", "rbac"],
+      "source_url": null
+    },
+    {
+      "control_key": "access_reviews_quarterly",
+      "title": "Access reviews are performed periodically",
+      "description": "Access rights are reviewed to ensure permissions remain appropriate as roles and systems change.",
+      "category": "Access Control",
+      "tags": ["access-review", "governance"],
+      "source_url": null
+    },
+    {
+      "control_key": "resilience_backups_tested",
+      "title": "Backups are performed and periodically tested",
+      "description": "Backups support recovery objectives and are tested to validate restore procedures.",
+      "category": "Availability & Resilience",
+      "tags": ["backups", "dr"],
+      "source_url": null
+    },
+    {
+      "control_key": "resilience_bcp_documented",
+      "title": "Business continuity procedures are documented",
+      "description": "Continuity and recovery procedures support planned response to disruptions and incidents.",
+      "category": "Availability & Resilience",
+      "tags": ["bcp", "dr", "continuity"],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_data_minimization",
+      "title": "Data minimization is practiced",
+      "description": "Only necessary data is collected and retained for as long as needed for legitimate business purposes.",
+      "category": "Privacy",
+      "tags": ["privacy", "data-minimization", "retention"],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_due_diligence",
+      "title": "Vendor security due diligence is performed",
+      "description": "Third parties are evaluated for security risk and contractual requirements before integration.",
+      "category": "Vendor Management",
+      "tags": ["vendors", "due-diligence"],
+      "source_url": null
+    },
+    {
+      "control_key": "secrets_management_rotation",
+      "title": "Secrets are managed and rotated",
+      "description": "Secrets are stored in secure systems and rotated based on risk and operational needs.",
+      "category": "Data Security",
+      "tags": ["secrets", "rotation"],
+      "source_url": null
+    }
+  ]
+}

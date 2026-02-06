@@ -16,7 +16,7 @@
     "build": "vite build --config config/vite.config.ts",
     "preview": "vite preview --config config/vite.config.ts",
 
-    "db:seed": "tsx server/seed.ts",
+    "db:seed": "tsx server/db/seed.ts",
     "db:migrate": "npm exec tsx -- -e \"import { runDbMigrate } from './server/db/index.ts'; runDbMigrate();\"",
     "db:cleanapply": "npm exec tsx -- -e \"import { runCleanApplyDb } from './server/db/index.ts'; runCleanApplyDb();\"",
 
