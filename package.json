@@ -9,7 +9,6 @@
   "scripts": {
     "dev": "concurrently -n server,client,stencil -c auto --kill-others-on-fail \"npm run dev:server\" \"npm run dev:client\" \"npm run stencil\"",
     "dev:basic": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-
     "dev:server": "tsx watch server/server.ts",
     "stencil": "cd stencil && stencil build --watch",
     "dev:client": "vite --config config/vite.config.ts",
@@ -33,7 +32,7 @@
     "pg": "^8.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.22.0"
+    "react-router-dom": "^6.30.3"
   },
   "devDependencies": {
     "@stencil/core": "^4.21.0",

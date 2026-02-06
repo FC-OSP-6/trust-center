@@ -36,6 +36,7 @@ export class FaqCard {
 
   /** User intent: toggle expand / collapse */
   @Event() toggleFaq!: EventEmitter<void>;
+  
 
   // ---- Event handlers ----
   // Emits intent only; no internal state mutation
