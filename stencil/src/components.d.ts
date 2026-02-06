@@ -118,14 +118,24 @@ export namespace Components {
     }
     interface LinkCard {
         /**
-          * Display title for the card
+          * Card heading
          */
         "linkCardTitle": string;
+        "linkOneHref": string;
         /**
-          * Ordered list of navigation links
-          * @default []
+          * Link 1
          */
-        "links": Array<{ label: string; href: string }>;
+        "linkOneLabel": string;
+        "linkThreeHref": string;
+        /**
+          * Link 3
+         */
+        "linkThreeLabel": string;
+        "linkTwoHref": string;
+        /**
+          * Link 2
+         */
+        "linkTwoLabel": string;
     }
 }
 export interface FaqCardCustomEvent<T> extends CustomEvent<T> {
@@ -334,14 +344,24 @@ declare namespace LocalJSX {
     }
     interface LinkCard {
         /**
-          * Display title for the card
+          * Card heading
          */
         "linkCardTitle": string;
+        "linkOneHref": string;
         /**
-          * Ordered list of navigation links
-          * @default []
+          * Link 1
          */
-        "links"?: Array<{ label: string; href: string }>;
+        "linkOneLabel": string;
+        "linkThreeHref": string;
+        /**
+          * Link 3
+         */
+        "linkThreeLabel": string;
+        "linkTwoHref": string;
+        /**
+          * Link 2
+         */
+        "linkTwoLabel": string;
     }
     interface IntrinsicElements {
         "aon-blue-card": AonBlueCard;
