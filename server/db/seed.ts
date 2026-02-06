@@ -87,7 +87,7 @@ export type SeedFaqRow = {
 
 // ----------  load seed json  ----------
 
-// resolve server/data relative to THIS file  -->  works even when cwd changes
+// resolve server/db/data relative to THIS file  -->  works even when cwd changes
 function getDataDir(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
   return path.resolve(here, 'data');
