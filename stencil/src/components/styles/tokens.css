@@ -25,7 +25,8 @@
   /* == Color Scheme == */
   /* Primary Hues */
   /* Uses: Headlines, backgrounds, prominent buttons */
-  --color-navy-primary: #262836;
+  --color-navy-primary: red; 
+  /* #262836 */
   /* Uses: Links, default and subtle buttons */
   --color-teal-dark-secondary: #007585;
   --color-teal-dark-interaction: #003c55;

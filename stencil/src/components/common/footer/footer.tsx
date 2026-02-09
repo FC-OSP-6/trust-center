@@ -16,17 +16,16 @@
   TODO: Document architectural decisions and tradeoffs for this component in the README.
 ================================ */
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
+import { Component, Prop, h, Element } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
 // Defines the <aon-footer> Web Component
 @Component({
   tag: 'aon-footer', // registers the custom element <aon-footer>
   // styleUrls: ['./footer.css','../global-stencil.css'], // associates component-scoped styles at build time
-  styleUrls: ['./footer.css'], // this is the new name of our global css file
+  styleUrl: 'footer.css', // this is the new name of our global css file
   shadow: true, // enables Shadow DOM for DOM and style encapsulation
 })
-
 export class AonFooter {
   // Web Component definition and render logic for <aon-footer>
 
@@ -35,17 +34,18 @@ export class AonFooter {
   @Prop() privacyPolicyHref: string = '/privacy-policy';
   @Prop() termsHref: string = '/terms-and-conditions';
   @Prop() logoSrc!: string;
- 
-//FAQS & CONTROLS -- would change 
+  @Element() el: HTMLElement;
+
+  componentDidLoad() {
+    const elementInShadowDom =
+      this.el.shadowRoot.querySelector('.footer-links');
+  }
+
+  //FAQS & CONTROLS -- would change
 
   //
   render() {
-    const {
-      copyright,
-      privacyPolicyHref,
-      termsHref,
-      logoSrc,
-    } = this; // Destructure component props for cleaner JSX usage
+    const { copyright, privacyPolicyHref, termsHref, logoSrc } = this; // Destructure component props for cleaner JSX usage
     return (
       <footer role="contentinfo">
         {/* ARIA landmark identifying site-level informational content for accessibility tools */}
@@ -58,7 +58,7 @@ export class AonFooter {
             <a href={termsHref}>Terms and Conditions</a>
           </div>
           <div class="footer-copyright">
-            <p>{copyright}</p> 
+            <p>{copyright}</p>
             {/*  */}
           </div>
         </div>

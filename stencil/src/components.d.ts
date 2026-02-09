@@ -103,14 +103,9 @@ export namespace Components {
     }
     interface FaqCard {
         /**
-          * Answer content displayed when expanded
+          * Answer content
          */
         "answer": string;
-        /**
-          * Controlled expansion state (owned by React)
-          * @default false
-         */
-        "expanded": boolean;
         /**
           * FAQ prompt text
          */
@@ -118,29 +113,15 @@ export namespace Components {
     }
     interface LinkCard {
         /**
-          * Card heading
+          * Display title for the card
          */
         "linkCardTitle": string;
-        "linkOneHref": string;
         /**
-          * Link 1
+          * Ordered list of navigation links
+          * @default []
          */
-        "linkOneLabel": string;
-        "linkThreeHref": string;
-        /**
-          * Link 3
-         */
-        "linkThreeLabel": string;
-        "linkTwoHref": string;
-        /**
-          * Link 2
-         */
-        "linkTwoLabel": string;
+        "links": Array<{ label: string; href: string }>;
     }
-}
-export interface FaqCardCustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLFaqCardElement;
 }
 declare global {
     interface HTMLAonBlueCardElement extends Components.AonBlueCard, HTMLStencilElement {
@@ -191,18 +172,7 @@ declare global {
         prototype: HTMLExpansionCardElement;
         new (): HTMLExpansionCardElement;
     };
-    interface HTMLFaqCardElementEventMap {
-        "toggleFaq": void;
-    }
     interface HTMLFaqCardElement extends Components.FaqCard, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLFaqCardElementEventMap>(type: K, listener: (this: HTMLFaqCardElement, ev: FaqCardCustomEvent<HTMLFaqCardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLFaqCardElementEventMap>(type: K, listener: (this: HTMLFaqCardElement, ev: FaqCardCustomEvent<HTMLFaqCardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLFaqCardElement: {
         prototype: HTMLFaqCardElement;
@@ -325,18 +295,9 @@ declare namespace LocalJSX {
     }
     interface FaqCard {
         /**
-          * Answer content displayed when expanded
+          * Answer content
          */
         "answer": string;
-        /**
-          * Controlled expansion state (owned by React)
-          * @default false
-         */
-        "expanded"?: boolean;
-        /**
-          * User intent: toggle expand / collapse
-         */
-        "onToggleFaq"?: (event: FaqCardCustomEvent<void>) => void;
         /**
           * FAQ prompt text
          */
@@ -344,24 +305,14 @@ declare namespace LocalJSX {
     }
     interface LinkCard {
         /**
-          * Card heading
+          * Display title for the card
          */
         "linkCardTitle": string;
-        "linkOneHref": string;
         /**
-          * Link 1
+          * Ordered list of navigation links
+          * @default []
          */
-        "linkOneLabel": string;
-        "linkThreeHref": string;
-        /**
-          * Link 3
-         */
-        "linkThreeLabel": string;
-        "linkTwoHref": string;
-        /**
-          * Link 2
-         */
-        "linkTwoLabel": string;
+        "links": Array<{ label: string; href: string }>;
     }
     interface IntrinsicElements {
         "aon-blue-card": AonBlueCard;

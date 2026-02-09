@@ -26,6 +26,7 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import '../../stencil/dist/trust-center/trust-center.css';
 
 import App from './app';
 import { defineCustomElements } from '../../stencil/loader/index.es2017.js';

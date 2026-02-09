@@ -6,7 +6,9 @@ import React from "react";
 
 export default function Faqs() {
   return (
-    <section>Faq: not implemented yet</section>
+    <section>
+      <faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+    </section>
     
   );
 }
