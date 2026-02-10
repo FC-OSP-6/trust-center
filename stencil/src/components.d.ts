@@ -44,6 +44,27 @@ export namespace Components {
         "CyQuLogo": string;
         "loginIcon": string;
     }
+    interface AonLinkCard {
+        /**
+          * Card heading
+         */
+        "linkCardTitle": string;
+        "linkOneHref": string;
+        /**
+          * Link 1
+         */
+        "linkOneLabel": string;
+        "linkThreeHref": string;
+        /**
+          * Link 3
+         */
+        "linkThreeLabel": string;
+        "linkTwoHref": string;
+        /**
+          * Link 2
+         */
+        "linkTwoLabel": string;
+    }
     interface AonNavbar {
     }
     interface AonSubnavCard {
@@ -111,17 +132,6 @@ export namespace Components {
          */
         "question": string;
     }
-    interface LinkCard {
-        /**
-          * Display title for the card
-         */
-        "linkCardTitle": string;
-        /**
-          * Ordered list of navigation links
-          * @default []
-         */
-        "links": Array<{ label: string; href: string }>;
-    }
 }
 declare global {
     interface HTMLAonBlueCardElement extends Components.AonBlueCard, HTMLStencilElement {
@@ -147,6 +157,12 @@ declare global {
     var HTMLAonHeaderElement: {
         prototype: HTMLAonHeaderElement;
         new (): HTMLAonHeaderElement;
+    };
+    interface HTMLAonLinkCardElement extends Components.AonLinkCard, HTMLStencilElement {
+    }
+    var HTMLAonLinkCardElement: {
+        prototype: HTMLAonLinkCardElement;
+        new (): HTMLAonLinkCardElement;
     };
     interface HTMLAonNavbarElement extends Components.AonNavbar, HTMLStencilElement {
     }
@@ -178,23 +194,17 @@ declare global {
         prototype: HTMLFaqCardElement;
         new (): HTMLFaqCardElement;
     };
-    interface HTMLLinkCardElement extends Components.LinkCard, HTMLStencilElement {
-    }
-    var HTMLLinkCardElement: {
-        prototype: HTMLLinkCardElement;
-        new (): HTMLLinkCardElement;
-    };
     interface HTMLElementTagNameMap {
         "aon-blue-card": HTMLAonBlueCardElement;
         "aon-control-card": HTMLAonControlCardElement;
         "aon-footer": HTMLAonFooterElement;
         "aon-header": HTMLAonHeaderElement;
+        "aon-link-card": HTMLAonLinkCardElement;
         "aon-navbar": HTMLAonNavbarElement;
         "aon-subnav-card": HTMLAonSubnavCardElement;
         "aon-title": HTMLAonTitleElement;
         "expansion-card": HTMLExpansionCardElement;
         "faq-card": HTMLFaqCardElement;
-        "link-card": HTMLLinkCardElement;
     }
 }
 declare namespace LocalJSX {
@@ -235,6 +245,27 @@ declare namespace LocalJSX {
     interface AonHeader {
         "CyQuLogo"?: string;
         "loginIcon"?: string;
+    }
+    interface AonLinkCard {
+        /**
+          * Card heading
+         */
+        "linkCardTitle": string;
+        "linkOneHref": string;
+        /**
+          * Link 1
+         */
+        "linkOneLabel": string;
+        "linkThreeHref": string;
+        /**
+          * Link 3
+         */
+        "linkThreeLabel": string;
+        "linkTwoHref": string;
+        /**
+          * Link 2
+         */
+        "linkTwoLabel": string;
     }
     interface AonNavbar {
     }
@@ -303,28 +334,17 @@ declare namespace LocalJSX {
          */
         "question": string;
     }
-    interface LinkCard {
-        /**
-          * Display title for the card
-         */
-        "linkCardTitle": string;
-        /**
-          * Ordered list of navigation links
-          * @default []
-         */
-        "links": Array<{ label: string; href: string }>;
-    }
     interface IntrinsicElements {
         "aon-blue-card": AonBlueCard;
         "aon-control-card": AonControlCard;
         "aon-footer": AonFooter;
         "aon-header": AonHeader;
+        "aon-link-card": AonLinkCard;
         "aon-navbar": AonNavbar;
         "aon-subnav-card": AonSubnavCard;
         "aon-title": AonTitle;
         "expansion-card": ExpansionCard;
         "faq-card": FaqCard;
-        "link-card": LinkCard;
     }
 }
 export { LocalJSX as JSX };
@@ -335,12 +355,12 @@ declare module "@stencil/core" {
             "aon-control-card": LocalJSX.AonControlCard & JSXBase.HTMLAttributes<HTMLAonControlCardElement>;
             "aon-footer": LocalJSX.AonFooter & JSXBase.HTMLAttributes<HTMLAonFooterElement>;
             "aon-header": LocalJSX.AonHeader & JSXBase.HTMLAttributes<HTMLAonHeaderElement>;
+            "aon-link-card": LocalJSX.AonLinkCard & JSXBase.HTMLAttributes<HTMLAonLinkCardElement>;
             "aon-navbar": LocalJSX.AonNavbar & JSXBase.HTMLAttributes<HTMLAonNavbarElement>;
             "aon-subnav-card": LocalJSX.AonSubnavCard & JSXBase.HTMLAttributes<HTMLAonSubnavCardElement>;
             "aon-title": LocalJSX.AonTitle & JSXBase.HTMLAttributes<HTMLAonTitleElement>;
             "expansion-card": LocalJSX.ExpansionCard & JSXBase.HTMLAttributes<HTMLExpansionCardElement>;
             "faq-card": LocalJSX.FaqCard & JSXBase.HTMLAttributes<HTMLFaqCardElement>;
-            "link-card": LocalJSX.LinkCard & JSXBase.HTMLAttributes<HTMLLinkCardElement>;
         }
     }
 }
