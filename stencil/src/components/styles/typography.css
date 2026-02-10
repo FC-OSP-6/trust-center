@@ -122,12 +122,6 @@
    SYSTEM TYPOGRAPHY (DESKTOP BASE)
 ================================ */
 
-:host {
-  /* Primary system font per Aon design guidelines */
-  font-family: var(--font-default);
-  /* TODO: Evaluate switching to Inter (Google Fonts) for headings pending design feedback and brand approval */
-}
-
 .text-link {
   color: var(--color-teal-dark-secondary);
   text-decoration: var(--link-decoration-default);

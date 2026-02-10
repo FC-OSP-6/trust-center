@@ -6,3 +6,12 @@
       4. Internal Security Procedures
       5. Data and Privacy
 ================================ */
+import React from 'react';
+
+export default function Controls() {
+  return (
+    <section>
+      <aon-link-card />
+    </section>
+  );
+}

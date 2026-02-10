@@ -11,3 +11,7 @@
   --space-global-md: 32px;
   --space-global-lg: 40px;
 }
+
+body {
+  background-color: pink;
+}

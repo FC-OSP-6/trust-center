@@ -6,7 +6,6 @@ TODO: Shadow dom must be set to "true" per component as shadow dom shim has been
     - Stencil components own all rendering & behavior 
 ================================ */
 
-
 /* 
 ! CHOICE MADE - ADD TO READ ME: BOTH
 We treat Stencil custom elements as the canonical UI layer and ship 
@@ -14,41 +13,90 @@ them framework-agnostically. For our React app, we optionally wrap
 those elements with thin React adapters to improve developer experience 
 while keeping all rendering and logic inside the Web Components.
 */
-
-import { Config, com } from '@stencil/core';
-import { reactOutputTarget } from '@stencil/react-output-target';
+import { Config } from '@stencil/core';
 
 export const config: Config = {
   namespace: 'trust-center',
   tsconfig: 'tsconfig.json',
-  buildDist: true, // force generating dist/ outputs even in --dev
+  buildDist: true,
   globalStyle: 'src/components/styles/global.css',
 
   outputTargets: [
-    /* 
-         Custom Elements Output
-          - Framework-agnostic web components.
-          - This is the artifact the client can reuse directly.
-        */
     {
       type: 'dist',
       esmLoaderPath: '../loader',
     },
-    /* 
-        React Wrapper Output
-        - thin adapters for MVP dev experience - basically a
-        - No logic/state/styling 
-        */
-    reactOutputTarget({
-      componentCorePackage: '@trustcenter/components',
-      // Relative path to where the React components will be generated
-      outDir: '../client/src/stencil/dist',
-    }),
-
-    //Loader Ouput type ensure custom elements are registered once + used by react/any future consumers.
     {
       type: 'dist-custom-elements',
-      externalRuntime: false,
     },
   ],
 };
+
+
+// import { Config } from '@stencil/core';
+// import { reactOutputTarget } from '@stencil/react-output-target';
+
+// export const config: Config = {
+//   namespace: 'trust-center',
+//   tsconfig: 'tsconfig.json',
+//   buildDist: true,
+
+//   globalStyle: 'src/components/styles/global.css',
+
+//   outputTargets: [
+//     {
+//       type: 'dist',
+//       esmLoaderPath: '../loader',
+//     },
+//     {
+//       type: 'dist-custom-elements',
+//       externalRuntime: false,
+//     },
+//     reactOutputTarget({
+//       componentCorePackage: '@trust-center/components',
+//       outDir: '../client/src/stencil',
+//       proxiesFile: '../client/src/stencil/components.ts',
+//       includeDefineCustomElements: false,
+//     }),
+//   ],
+// };
+
+
+
+// import { Config, com } from '@stencil/core';
+// import { reactOutputTarget } from '@stencil/react-output-target';
+
+// export const config: Config = {
+//   namespace: 'trust-center',
+//   tsconfig: 'tsconfig.json',
+//   buildDist: true, // force generating dist/ outputs even in --dev
+//   globalStyle: 'src/components/styles/global.css',
+
+//   outputTargets: [
+//     /* 
+//          Custom Elements Output
+//           - Framework-agnostic web components.
+//           - This is the artifact the client can reuse directly.
+//         */
+//     {
+//       type: 'dist',
+//       esmLoaderPath: '../loader',
+//     },
+//     /* 
+//         React Wrapper Output
+//         - thin adapters for MVP dev experience - basically a
+//         - No logic/state/styling 
+//         */
+//     reactOutputTarget({
+//       componentCorePackage: '@trustcenter/components',
+//       // Relative path to where the React components will be generated
+//       outDir: '../client/src/stencil/dist',
+//     }),
+
+//     //Loader Ouput type ensure custom elements are registered once + used by react/any future consumers.
+//     {
+//       type: 'dist-custom-elements',
+//       externalRuntime: false,
+//     },
+//   ],
+// };
