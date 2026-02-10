@@ -16,3 +16,6 @@ node_modules/
 stencil/dist/
 stencil/src/components.d.ts
 stencil/loader/
+client/src/custom-elements.d.ts
+
+.DS_Store
