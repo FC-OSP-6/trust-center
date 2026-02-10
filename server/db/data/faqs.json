@@ -1,0 +1,146 @@
+{
+  "faqs": [
+    {
+      "faq_key": "faq_api_protection_measures",
+      "question": "What API protection measures are implemented for services?",
+      "answer": "API traffic is protected using layered controls including WAF protections, rate limiting, authentication, authorization, and monitoring aligned to common web threat models (e.g., OWASP Top 10).",
+      "category": "API Security",
+      "tags": ["api", "waf", "rate-limiting", "owasp"]
+    },
+    {
+      "faq_key": "faq_tenant_segregation",
+      "question": "How are tenants segregated in third-party infrastructure?",
+      "answer": "Tenants are isolated using access control boundaries and environment segmentation patterns that prevent cross-tenant access and support regional hosting requirements where applicable.",
+      "category": "Architecture",
+      "tags": ["tenancy", "segregation", "isolation"]
+    },
+    {
+      "faq_key": "faq_security_incidents_history",
+      "question": "Have there been any serious security incidents involving the hosting environment?",
+      "answer": "No major security incidents have been reported that materially impacted the hosted application environment for this product.",
+      "category": "Incident Response",
+      "tags": ["incidents", "reporting"]
+    },
+    {
+      "faq_key": "faq_cookies_usage",
+      "question": "Does the software require cookies?",
+      "answer": "Cookies are limited to those required for application functionality (e.g., authentication/session) and operational monitoring. Tracking cookies are not used for advertising purposes.",
+      "category": "Privacy",
+      "tags": ["cookies", "privacy", "auth"]
+    },
+    {
+      "faq_key": "faq_security_monitoring_soc",
+      "question": "What security monitoring capabilities exist (e.g., SOC coverage)?",
+      "answer": "Security logs and alerts are monitored to support detection and incident response, with defined procedures for triage and escalation.",
+      "category": "Monitoring",
+      "tags": ["monitoring", "logging", "soc"]
+    },
+
+
+    {
+      "faq_key": "faq_data_hosting_location",
+      "question": "Where is customer data hosted?",
+      "answer": "Customer data is hosted in cloud infrastructure, with region selection and residency considerations applied based on contractual and operational requirements.",
+      "category": "Data",
+      "tags": ["hosting", "regions", "residency"]
+    },
+    {
+      "faq_key": "faq_encryption_in_transit",
+      "question": "How is data encrypted in transit?",
+      "answer": "Transport encryption uses modern TLS configurations to protect data as it moves between clients, services, and dependencies.",
+      "category": "Encryption",
+      "tags": ["tls", "encryption"]
+    },
+    {
+      "faq_key": "faq_encryption_at_rest",
+      "question": "How is data encrypted at rest?",
+      "answer": "Stored data is encrypted at rest using industry standard mechanisms provided by managed services or platform controls, depending on the storage layer.",
+      "category": "Encryption",
+      "tags": ["encryption", "storage"]
+    },
+    {
+      "faq_key": "faq_access_control_model",
+      "question": "What access control model is used?",
+      "answer": "Access is granted based on role and least privilege principles, with review processes to ensure access remains appropriate over time.",
+      "category": "Access Control",
+      "tags": ["rbac", "least-privilege", "iam"]
+    },
+    {
+      "faq_key": "faq_mfa_requirement",
+      "question": "Is multi-factor authentication (MFA) required?",
+      "answer": "MFA is required for privileged accounts and is strongly encouraged or enforced for high-risk actions depending on environment and policy.",
+      "category": "Access Control",
+      "tags": ["mfa", "authentication"]
+    },
+    {
+      "faq_key": "faq_vulnerability_scanning",
+      "question": "Do you perform vulnerability scanning?",
+      "answer": "Automated scanning is used to identify vulnerabilities during development and prior to release, with remediation workflows for identified issues.",
+      "category": "Secure Development",
+      "tags": ["sast", "scanning", "vuln-management"]
+    },
+    {
+      "faq_key": "faq_code_review_policy",
+      "question": "Are code reviews required?",
+      "answer": "Yes. Code changes go through peer review to improve quality and reduce security and reliability risks.",
+      "category": "Secure Development",
+      "tags": ["code-review", "quality"]
+    },
+    {
+      "faq_key": "faq_pentest_frequency",
+      "question": "How often do you conduct penetration tests?",
+      "answer": "Penetration testing is performed periodically, including external assessments where appropriate, and findings are tracked through remediation.",
+      "category": "Testing",
+      "tags": ["pentest", "assurance"]
+    },
+    {
+      "faq_key": "faq_backup_restore_testing",
+      "question": "Do you test backups and restores?",
+      "answer": "Backups are performed and restore procedures are tested to validate recoverability and support continuity objectives.",
+      "category": "Availability & Resilience",
+      "tags": ["backups", "restore", "dr"]
+    },
+    {
+      "faq_key": "faq_logging_retention",
+      "question": "How long are logs retained?",
+      "answer": "Log retention varies by system and compliance requirements. Retention periods are defined to balance operational needs and governance requirements.",
+      "category": "Monitoring",
+      "tags": ["logging", "retention"]
+    },
+    {
+      "faq_key": "faq_data_retention_policy",
+      "question": "What is your data retention policy?",
+      "answer": "Data is retained only as long as needed for legitimate business purposes and contractual obligations, with deletion workflows where applicable.",
+      "category": "Privacy",
+      "tags": ["retention", "deletion", "privacy"]
+    },
+    {
+      "faq_key": "faq_customer_data_deletion",
+      "question": "Can customers request deletion of their data?",
+      "answer": "Yes. Requests are handled through documented workflows aligned to contractual requirements and applicable privacy obligations.",
+      "category": "Privacy",
+      "tags": ["deletion", "privacy", "requests"]
+    },
+    {
+      "faq_key": "faq_uptime_expectations",
+      "question": "What are the uptime expectations for the service?",
+      "answer": "Availability targets depend on the hosting tier and deployment configuration; monitoring and incident response processes support availability goals.",
+      "category": "Availability & Resilience",
+      "tags": ["uptime", "availability"]
+    },
+    {
+      "faq_key": "faq_support_incident_escalation",
+      "question": "How are incidents escalated?",
+      "answer": "Incidents follow defined triage and escalation steps, including roles, severity definitions, communication patterns, and post-incident review.",
+      "category": "Incident Response",
+      "tags": ["irp", "escalation", "process"]
+    },
+    {
+      "faq_key": "faq_vendor_security_review",
+      "question": "Do you review vendor security before onboarding third parties?",
+      "answer": "Yes. Vendors are evaluated for security posture and contractual requirements prior to integration, with periodic reassessment for higher-risk vendors.",
+      "category": "Vendor Management",
+      "tags": ["vendors", "due-diligence"]
+    }
+  ]
+}
