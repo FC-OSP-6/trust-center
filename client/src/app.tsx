@@ -4,6 +4,7 @@
       - logic for flipping between sections
       - button logic for each component
 ================================ */
+
 import React from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Overview from './components/sections/overview';
@@ -20,7 +21,7 @@ export default function App() {
 
   return (
     <div className="trust-center-app">
-      {isKnownPath && <aon-navbar />}
+      {isKnownPath && <aon-header/> && <aon-title /> && <aon-navbar />}
 
       <main>
         <Routes>
