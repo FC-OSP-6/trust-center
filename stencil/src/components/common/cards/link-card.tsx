@@ -16,67 +16,119 @@
       }
 ====================================================== */
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+import { Component, Prop, h } from '@stencil/core';
 
 @Component({
-  tag: 'link-card',
+  tag: 'aon-link-card',
   styleUrl: 'link-card.css',
-  shadow: true, // isolate DOM + styles for design-system safety
+  shadow: true,
 })
 export class LinkCard {
-  // ---- Public API (controlled by host application) ----
-
-  /** Display title for the card */
+  /** Card heading */
   @Prop() linkCardTitle!: string;
 
-  /** Ordered list of navigation links */
-  @Prop() links: Array<{ label: string; href: string }> = [];
+  /** Link 1 */
+  @Prop() linkOneLabel!: string;
+  @Prop() linkOneHref!: string;
 
-  // ---- Render ----
-  // Renders a capped preview of links; expansion handled externally
+  /** Link 2 */
+  @Prop() linkTwoLabel!: string;
+  @Prop() linkTwoHref!: string;
+
+  /** Link 3 */
+  @Prop() linkThreeLabel!: string;
+  @Prop() linkThreeHref!: string;
 
   render() {
-    const { linkCardTitle, links } = this;
-
-    // Limit visible links to initial preview count
-    const visibleLinks = links.slice(0, 4);
-
-    // Calculate overflow indicator count (if any)
-    const hiddenCount = links.length - visibleLinks.length;
-
     return (
       <div class="link-card">
-        <h1>{linkCardTitle}</h1>
+        <h1>{this.linkCardTitle}</h1>
 
         <ul class="link-list">
-          {visibleLinks.map(({ label, href }, index) => (
-            <li class="link-item" key={index}>
-              <a href={href}>
-                {label}
-              </a>
-            </li>
-          ))}
+          <li class="link-item">
+            <a href={this.linkOneHref}>
+              {this.linkOneLabel}
+            </a>
+          </li>
 
-          {/* Overflow indicator shown when additional links exist */}
-          {hiddenCount > 0 && (
-            <li class="link-item more-indicator">
-              +{hiddenCount} more
-            </li>
-          )}
+          <li class="link-item">
+            <a href={this.linkTwoHref}>
+              {this.linkTwoLabel}
+            </a>
+          </li>
+
+          <li class="link-item">
+            <a href={this.linkThreeHref}>
+              {this.linkThreeLabel}
+            </a>
+          </li>
         </ul>
       </div>
     );
   }
 }
 
+// import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
+// // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+
+// @Component({
+//   tag: 'link-card',
+//   styleUrl: 'link-card.css',
+//   shadow: true, // isolate DOM + styles for design-system safety
+// })
+// export class LinkCard {
+//   // ---- Public API (controlled by host application) ----
+
+//   /** Display title for the card */
+//   @Prop() linkCardTitle!: string;
+
+//   /** Ordered list of navigation links */
+//   @Prop() links!: Array<{ label: string; href: string }> = [];
+
+//   // ---- Render ----
+//   // Renders a capped preview of links; expansion handled externally
+
+//   render() {
+//     const { linkCardTitle, links } = this;
+
+//     // Limit visible links to initial preview count
+//     const visibleLinks = links.slice(0, 4);
+
+//     // Calculate overflow indicator count (if any)
+//     const hiddenCount = links.length - visibleLinks.length;
+
+//     return (
+//       <div class="link-card">
+//         <h1>{linkCardTitle}</h1>
+
+//         <ul class="link-list">
+//           {visibleLinks.map(({ label, href }, index) => (
+//             <li class="link-item" key={index}>
+//               <a href={href}>
+//                 {label}
+//               </a>
+//             </li>
+//           ))}
+
+//           {/* Overflow indicator shown when additional links exist */}
+//           {hiddenCount > 0 && (
+//             <li class="link-item more-indicator">
+//               +{hiddenCount} more
+//             </li>
+//           )}
+//         </ul>
+//       </div>
+//     );
+//   }
+// }
+
 // Example for what needs to happen in react:
 
-// <link-card
+// {/* <link-card
 //   title="Related Resources"
 //   links={[
 //     { label: 'SOC 2 Report', href: '/docs/soc2' },
 //     { label: 'Data Retention Policy', href: '/policies/data-retention' },
 //     { label: 'Security Overview', href: '/security' },
 //   ]}
-// />
+// /> */}
