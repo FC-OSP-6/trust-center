@@ -103,34 +103,14 @@ export namespace Components {
     }
     interface FaqCard {
         /**
-          * Answer content displayed when expanded
+          * Answer content
          */
         "answer": string;
-        /**
-          * Controlled expansion state (owned by React)
-          * @default false
-         */
-        "expanded": boolean;
         /**
           * FAQ prompt text
          */
         "question": string;
     }
-    interface LinkCard {
-        /**
-          * Display title for the card
-         */
-        "linkCardTitle": string;
-        /**
-          * Ordered list of navigation links
-          * @default []
-         */
-        "links": Array<{ label: string; href: string }>;
-    }
-}
-export interface FaqCardCustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLFaqCardElement;
 }
 declare global {
     interface HTMLAonBlueCardElement extends Components.AonBlueCard, HTMLStencilElement {
@@ -181,28 +161,11 @@ declare global {
         prototype: HTMLExpansionCardElement;
         new (): HTMLExpansionCardElement;
     };
-    interface HTMLFaqCardElementEventMap {
-        "toggleFaq": void;
-    }
     interface HTMLFaqCardElement extends Components.FaqCard, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLFaqCardElementEventMap>(type: K, listener: (this: HTMLFaqCardElement, ev: FaqCardCustomEvent<HTMLFaqCardElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLFaqCardElementEventMap>(type: K, listener: (this: HTMLFaqCardElement, ev: FaqCardCustomEvent<HTMLFaqCardElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLFaqCardElement: {
         prototype: HTMLFaqCardElement;
         new (): HTMLFaqCardElement;
-    };
-    interface HTMLLinkCardElement extends Components.LinkCard, HTMLStencilElement {
-    }
-    var HTMLLinkCardElement: {
-        prototype: HTMLLinkCardElement;
-        new (): HTMLLinkCardElement;
     };
     interface HTMLElementTagNameMap {
         "aon-blue-card": HTMLAonBlueCardElement;
@@ -214,7 +177,6 @@ declare global {
         "aon-title": HTMLAonTitleElement;
         "expansion-card": HTMLExpansionCardElement;
         "faq-card": HTMLFaqCardElement;
-        "link-card": HTMLLinkCardElement;
     }
 }
 declare namespace LocalJSX {
@@ -315,33 +277,13 @@ declare namespace LocalJSX {
     }
     interface FaqCard {
         /**
-          * Answer content displayed when expanded
+          * Answer content
          */
         "answer": string;
-        /**
-          * Controlled expansion state (owned by React)
-          * @default false
-         */
-        "expanded"?: boolean;
-        /**
-          * User intent: toggle expand / collapse
-         */
-        "onToggleFaq"?: (event: FaqCardCustomEvent<void>) => void;
         /**
           * FAQ prompt text
          */
         "question": string;
-    }
-    interface LinkCard {
-        /**
-          * Display title for the card
-         */
-        "linkCardTitle": string;
-        /**
-          * Ordered list of navigation links
-          * @default []
-         */
-        "links"?: Array<{ label: string; href: string }>;
     }
     interface IntrinsicElements {
         "aon-blue-card": AonBlueCard;
@@ -353,7 +295,6 @@ declare namespace LocalJSX {
         "aon-title": AonTitle;
         "expansion-card": ExpansionCard;
         "faq-card": FaqCard;
-        "link-card": LinkCard;
     }
 }
 export { LocalJSX as JSX };
@@ -369,7 +310,6 @@ declare module "@stencil/core" {
             "aon-title": LocalJSX.AonTitle & JSXBase.HTMLAttributes<HTMLAonTitleElement>;
             "expansion-card": LocalJSX.ExpansionCard & JSXBase.HTMLAttributes<HTMLExpansionCardElement>;
             "faq-card": LocalJSX.FaqCard & JSXBase.HTMLAttributes<HTMLFaqCardElement>;
-            "link-card": LocalJSX.LinkCard & JSXBase.HTMLAttributes<HTMLLinkCardElement>;
         }
     }
 }

@@ -13,66 +13,32 @@
   - `expanded`: controlled boolean provided by host
 ====================================================== */
 
-import { Component, Prop, Event, EventEmitter, h } from '@stencil/core';
-// Stencil core decorators + JSX factory
-// Component is fully controlled; no internal state is used
+import { Component, Prop, h } from '@stencil/core';
 
 @Component({
   tag: 'faq-card',
   styleUrl: 'faq-card.css',
-  shadow: true, // isolate DOM + styles for design-system safety
+  shadow: true,
 })
 export class FaqCard {
-  // ---- Public API (controlled by host application) ----
-
   /** FAQ prompt text */
   @Prop() question!: string;
 
-  /** Answer content displayed when expanded */
+  /** Answer content */
   @Prop() answer!: string;
 
-  /** Controlled expansion state (owned by React) */
-  @Prop() expanded = false;
-
-  /** User intent: toggle expand / collapse */
-  @Event() toggleFaq!: EventEmitter<void>;
-
-  // ---- Event handlers ----
-  // Emits intent only; no internal state mutation
-
-  private onToggle = () => {
-    this.toggleFaq.emit();
-  };
-
-  // ---- Render ----
-  // Renders UI based solely on provided props
-
   render() {
-    const { question, answer, expanded } = this;
+    const { question, answer } = this;
 
     return (
       <div class="faq-card">
-        {/* Header row: question text + expand affordance */}
         <header class="faq-header">
-          <h1>{question}</h1>
-
-          <button
-            class="toggle"
-            type="button"
-            aria-expanded={expanded.toString()}
-            aria-label={expanded ? 'Collapse answer' : 'Expand answer'}
-            onClick={this.onToggle}
-          >
-            {expanded ? '−' : '+'}
-          </button>
+          <h1 class="faq-question">{question}</h1>
         </header>
 
-        {/* Answer content rendered only when expanded */}
-        {expanded && (
-          <p class="faq-answer">
-            {answer}
-          </p>
-        )}
+        <p class="faq-answer">
+          {answer}
+        </p>
       </div>
     );
   }
