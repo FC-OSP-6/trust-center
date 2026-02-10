@@ -13,7 +13,9 @@ export default function Faqs() {
 
   return (
     <section>
-      <faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
     </section>
     
   );

@@ -16,7 +16,7 @@
 import { Component, Prop, h } from '@stencil/core';
 
 @Component({
-  tag: 'faq-card',
+  tag: 'aon-faq-card',
   styleUrl: 'faq-card.css',
   shadow: true,
 })

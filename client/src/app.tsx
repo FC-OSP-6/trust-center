@@ -21,7 +21,7 @@ export default function App() {
 
   return (
     <div className="trust-center-app">
-      {isKnownPath && <aon-navbar />}
+      {isKnownPath && <aon-header/> && <aon-title /> && <aon-navbar />}
 
       <main>
         <Routes>

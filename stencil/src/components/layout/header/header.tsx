@@ -4,14 +4,6 @@
       2. The far right corner should have a menu button which will allow developers access to special developer features
 ================================ */
 
-// creating the class for the header component
-// @Component({
-//   tag: 'aon-header',
-//   styleUrl: './header.css',
-//   shadow:
-// })
-
-
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
