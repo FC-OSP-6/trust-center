@@ -44,27 +44,6 @@ export namespace Components {
         "CyQuLogo": string;
         "loginIcon": string;
     }
-    interface AonLinkCard {
-        /**
-          * Card heading
-         */
-        "linkCardTitle": string;
-        "linkOneHref": string;
-        /**
-          * Link 1
-         */
-        "linkOneLabel": string;
-        "linkThreeHref": string;
-        /**
-          * Link 3
-         */
-        "linkThreeLabel": string;
-        "linkTwoHref": string;
-        /**
-          * Link 2
-         */
-        "linkTwoLabel": string;
-    }
     interface AonNavbar {
     }
     interface AonSubnavCard {
@@ -158,12 +137,6 @@ declare global {
         prototype: HTMLAonHeaderElement;
         new (): HTMLAonHeaderElement;
     };
-    interface HTMLAonLinkCardElement extends Components.AonLinkCard, HTMLStencilElement {
-    }
-    var HTMLAonLinkCardElement: {
-        prototype: HTMLAonLinkCardElement;
-        new (): HTMLAonLinkCardElement;
-    };
     interface HTMLAonNavbarElement extends Components.AonNavbar, HTMLStencilElement {
     }
     var HTMLAonNavbarElement: {
@@ -199,7 +172,6 @@ declare global {
         "aon-control-card": HTMLAonControlCardElement;
         "aon-footer": HTMLAonFooterElement;
         "aon-header": HTMLAonHeaderElement;
-        "aon-link-card": HTMLAonLinkCardElement;
         "aon-navbar": HTMLAonNavbarElement;
         "aon-subnav-card": HTMLAonSubnavCardElement;
         "aon-title": HTMLAonTitleElement;
@@ -245,27 +217,6 @@ declare namespace LocalJSX {
     interface AonHeader {
         "CyQuLogo"?: string;
         "loginIcon"?: string;
-    }
-    interface AonLinkCard {
-        /**
-          * Card heading
-         */
-        "linkCardTitle": string;
-        "linkOneHref": string;
-        /**
-          * Link 1
-         */
-        "linkOneLabel": string;
-        "linkThreeHref": string;
-        /**
-          * Link 3
-         */
-        "linkThreeLabel": string;
-        "linkTwoHref": string;
-        /**
-          * Link 2
-         */
-        "linkTwoLabel": string;
     }
     interface AonNavbar {
     }
@@ -339,7 +290,6 @@ declare namespace LocalJSX {
         "aon-control-card": AonControlCard;
         "aon-footer": AonFooter;
         "aon-header": AonHeader;
-        "aon-link-card": AonLinkCard;
         "aon-navbar": AonNavbar;
         "aon-subnav-card": AonSubnavCard;
         "aon-title": AonTitle;
@@ -355,7 +305,6 @@ declare module "@stencil/core" {
             "aon-control-card": LocalJSX.AonControlCard & JSXBase.HTMLAttributes<HTMLAonControlCardElement>;
             "aon-footer": LocalJSX.AonFooter & JSXBase.HTMLAttributes<HTMLAonFooterElement>;
             "aon-header": LocalJSX.AonHeader & JSXBase.HTMLAttributes<HTMLAonHeaderElement>;
-            "aon-link-card": LocalJSX.AonLinkCard & JSXBase.HTMLAttributes<HTMLAonLinkCardElement>;
             "aon-navbar": LocalJSX.AonNavbar & JSXBase.HTMLAttributes<HTMLAonNavbarElement>;
             "aon-subnav-card": LocalJSX.AonSubnavCard & JSXBase.HTMLAttributes<HTMLAonSubnavCardElement>;
             "aon-title": LocalJSX.AonTitle & JSXBase.HTMLAttributes<HTMLAonTitleElement>;
