@@ -378,7 +378,7 @@ export async function runSeed(): Promise<void> {
   const controlsPath = path.join(dataDir, 'controls.json');
   const faqsPath = path.join(dataDir, 'faqs.json');
 
-  // load json (readable error if missing)
+  // load json (error if missing)
   const controlsRaw = await readJsonFile<any>(controlsPath).catch((err) => {
     throw new Error(`SEED_ERROR: missing controls.json at ${controlsPath}\n${String(err)}`);
   });
@@ -443,6 +443,6 @@ async function main(): Promise<void> {
   }
 }
 
-// entrypoint guard  -->  tsx server/seed.ts should run main()
+// entrypoint guard  -->  tsx server/db/seed.ts should run main()
 const isDirectRun = process.argv[1]?.endsWith('server/db/seed.ts') || process.argv[1]?.endsWith('server\\db\\seed.ts');
 if (isDirectRun) main();

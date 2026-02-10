@@ -103,15 +103,15 @@ function decodeCursor(cursor: string): CursorPayload | null {
 }
 
 function isValidCursor(cursor: string): boolean {
-  return decodeCursor(cursor) !== null; // validator built on decodeCursor
+  return decodeCursor(cursor) !== null;  // validator built on decodeCursor
 }
 
 
 // ----------  filter builders (controls + faqs)  ----------
 
 function buildControlsWhere(args: { category?: string; search?: string }): { whereSql: string; params: unknown[] } {
-  const parts: string[] = []; // sql predicates
-  const params: unknown[] = []; // parameter bag
+  const parts: string[] = [];  // sql predicates
+  const params: unknown[] = [];  // parameter bag
 
   // category strict match (case-insensitive)
   if (args.category && normalizeText(args.category) !== '') {
@@ -275,9 +275,9 @@ async function fetchFaqsPage(args: {
   const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // drop extra row
 
   const last = rows.length ? rows[rows.length - 1] : null; // pick last row for endCursor
-  const endCursor = last ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id }) : null; // compute endCursor
+  const endCursor = last ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id }) : null;  // compute endCursor
 
-  return { rows, hasNextPage, endCursor, totalCount }; // return page payload
+  return { rows, hasNextPage, endCursor, totalCount };  // return page payload
 }
 
 
