@@ -69,7 +69,7 @@ export function getDbPool(): pg.Pool {
   const env = getServerEnv();
 
   // enable tls for supabase (req) while keeping local postgres simple
-  const isSupabase = env.DATABASE_URL.includes('supabase.co');
+  const isSupabase = env.DATABASE_URL.includes('supabase.com');
 
   cachedPool = new Pool({
     connectionString: env.DATABASE_URL,
