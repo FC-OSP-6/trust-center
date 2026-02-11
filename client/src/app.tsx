@@ -34,7 +34,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {isKnownPath && <aon-footer />}
+      {isKnownPath && <aon-footer logoSrc="./assets/images/aon-logo.svg" />}
     </div>
   );
 }
