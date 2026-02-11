@@ -19,7 +19,7 @@ import { Component, Prop, h } from '@stencil/core';
 // No state or events declared here; component is presentational only
 
 @Component({
-  tag: 'expansion-card',
+  tag: 'aon-expansion-card',
   styleUrl: 'expansion-card.css',
   shadow: true, // isolate DOM + styles for design-system safety
 })
