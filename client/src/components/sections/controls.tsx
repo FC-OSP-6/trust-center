@@ -11,7 +11,12 @@ import React from 'react';
 export default function Controls() {
   return (
     <section>
-      <aon-link-card />
+      <aon-subnav-card />
+      <aon-control-card />
+      <aon-control-card />
+      <aon-control-card />
+      <aon-control-card />
+      <aon-control-card />
     </section>
   );
 }
