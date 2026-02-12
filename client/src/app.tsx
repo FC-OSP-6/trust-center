@@ -11,6 +11,9 @@ import Overview from './components/sections/overview';
 import Controls from './components/sections/controls';
 import Resources from './components/sections/resources';
 import Faqs from './components/sections/faqs';
+import logo from './assets/images/aon-logo.svg';
+
+
 
 export default function App() {
   const location = useLocation();
@@ -21,7 +24,14 @@ export default function App() {
 
   return (
     <div className="trust-center-app">
-      {isKnownPath && <aon-header/> && <aon-title /> && <aon-navbar />}
+      {isKnownPath && (
+        <>
+          <aon-header />
+          <aon-title />
+          <aon-navbar />
+        </>
+      )}
+
       <main>
         <Routes>
           <Route path="/" element={<Navigate to="/overview" replace />} />
@@ -33,7 +43,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {isKnownPath && <aon-footer />}
+      {isKnownPath && <aon-footer logoSrc={logo} />}
     </div>
   );
 }
