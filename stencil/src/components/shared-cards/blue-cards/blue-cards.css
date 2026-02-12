@@ -1,3 +1,12 @@
 /* ================================
   TL;DR  -->  The styling for blue-cards
 ================================ */
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-default);
+  font-size: var(--font-size-xsmall);
+}
+
+.blue-card-button

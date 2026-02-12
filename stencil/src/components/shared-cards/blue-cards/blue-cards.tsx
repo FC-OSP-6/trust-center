@@ -25,28 +25,29 @@ export class AonBlueCard {
 
   //
   render() {
+        const { blueCardTitle, blueCardDescription, blueCardButtonText, blueCardButtonLink} = this; // Destructure component props for cleaner JSX usage
     return (
       <div class="blue-card">
-        {this.blueCardTitle && (
+        {blueCardTitle && (
           <div class="blue-card-title">
-            <h1>{this.blueCardTitle}</h1>
+            <h1>{blueCardTitle}</h1>
           </div>
         )}
-        {this.blueCardDescription && (
+        {blueCardDescription && (
           <div class="blue-card-description">
-            <p>{this.blueCardDescription}</p>
+            <p>{blueCardDescription}</p>
           </div>
         )}
-        {this.blueCardButtonText && (
-          <div class="blue-card-button">
+        {blueCardButtonText && (
+          <button class="blue-card-button">
             <a
-            href={this.blueCardButtonLink}
+            href={blueCardButtonLink}
             target="_blank"
             class="blue-card-button-link"
             >
-              {this.blueCardButtonText}
+              {blueCardButtonText}
             </a>
-          </div>
+          </button>
         )}
       </div>
     );
