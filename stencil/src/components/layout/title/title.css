@@ -7,19 +7,23 @@
   width: 100%;
   font-family: var(--font-default);
 }
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
 .title-section{
-  display: grid;
-  grid-template-columns: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
 }
 .name{
-  margin: 0;
 }
 .support-message{
   color: var(--color-gray-01);
-  margin: 0;
 }
 .support-email{
-  margin: 0;
 }
 
 a {

@@ -15,7 +15,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 export class AonTitle {
   @Prop() trustCenterName: string = 'Trust Center';
   @Prop() supportMessage =
-    'Resources to address common cyber security questions from clients';
+    'Resources to address common cyber security questions from clients.';
   @Prop() supportEmail: string = 'cyber.security.support@email.com';
   @Prop() supportEmailLink: string =
     'mailto:cyber.security.support@email.com?subject=Trust-Center-Support';
