@@ -7,30 +7,35 @@
   width: 100%;
   font-family: var(--font-default);
   font-size: var(--font-size-xsmall);
-  background-color: 
 }
 
-.blue-card{
+.blue-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid var(--color-gray-04);
+  border: 1px solid var(--color-gray-05);
   border-radius: 8px;
   padding: 20px;
   background-color: var(--color-gray-06);
   margin: 20px;
+  /* TODO: May have to take out margins later to leave at the layout layer in react */
 }
 
+.blue-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 .blue-card-title {
   margin: 0;
 }
 
 .blue-card-description {
   margin: 0;
-  color: var(--color-gray-02);
+  color: var(--color-gray-01);
 }
 
-.blue-card-button{
+.blue-card-button {
   width: 130px;
   padding: 12px;
   font-weight: var(--font-weight-regular);

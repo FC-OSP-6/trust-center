@@ -1,3 +1,31 @@
 /* ================================
   TL;DR  --> Styling for the Title Section
 ================================ */
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-default);
+}
+.title-section{
+  display: grid;
+  grid-template-columns: auto;
+}
+.name{
+  margin: 0;
+}
+.support-message{
+  color: var(--color-gray-01);
+  margin: 0;
+}
+.support-email{
+  margin: 0;
+}
+
+a {
+  color: var(--color-teal-dark-secondary);
+}
+
+a:hover {
+  color: var(--color-teal-dark-hover);
+}
