@@ -13,13 +13,25 @@
   - `expanded`: controlled boolean provided by host
 ====================================================== */
 
-import { Component, Prop, h } from '@stencil/core';
+import { Component, Prop, h, Event, EventEmitter, State } from '@stencil/core';
+
+//h - bridge between JSX syntax and runtime
+//Stencil Virtual Dom
+
+//When rendering components, h transforms divs into functions that render
+
+//Component - self explanatory
+//Props - self explanatory
+//
 
 @Component({
   tag: 'faq-card',
   styleUrl: 'faq-card.css',
   shadow: true,
 })
+
+
+
 export class FaqCard {
   /** FAQ prompt text */
   @Prop() question!: string;
@@ -27,18 +39,58 @@ export class FaqCard {
   /** Answer content */
   @Prop() answer!: string;
 
-  render() {
-    const { question, answer } = this;
+  //We want a boolean of true or false to control the "expanded prop"
+  /** Controlled expanded state from host */
+  @State() isExpanded: boolean = false;
+  @Prop() expanded!: boolean;
 
+  //We want an event listener for when the expand & collapse button is clicked.
+
+   /** Emitted when the expand/collapse button is clicked */
+  @Event() toggle!: EventEmitter<void>;
+
+  //const [isExpanded, setIsExpanded] = useState(false);
+private handleToggle = (): void => {
+  this.isExpanded = !this.isExpanded;
+}
+
+  render() {
+    const { question, answer, expanded } = this;
+    console.log('Rendering FAQ:', { question, expanded }); // Check if expanded toggles
+
+    // This will log to the browser console when the component is about to load
+    console.log('Component is about to load. Name:', this);
+    
     return (
-      <div class="faq-card">
-        <header class="faq-header">
-          <h1 class="faq-question">{question}</h1>
+       <div class={`faq-card ${this.isExpanded ? 'is-expanded' : ''}`}>
+        { /* 
+          Header Section
+          - Clickable area that triggers toggle
+          - Contains question text and expand/collapse icon
+          - role="button" makes it accessible as interactive element
+        */ }
+        <header class="faq-header"
+        onClick={this.handleToggle}
+        aria-epanded={this.isExpanded ? 'true' : 'false'}
+        aria-controls="faq-content">
+          <span class="faq-question">{this.question}</span>
+          {/* 
+            Chevron icon rotates based on state
+            Unicode character for down arrow
+          */}
+           <button class="expand-toggle" onClick={() => this.toggle.emit()}>
+
+          <button class="state-toggle" onClick={() => this.data}>
+          {expanded ? '−' : '+'}
+  </button>
         </header>
 
-        <p class="faq-answer">
+
+        {expanded && (
+          <p class="faq-answer">
           {answer}
         </p>
+        )}
       </div>
     );
   }
