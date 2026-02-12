@@ -30,7 +30,7 @@ export class AonFooter {
   // Web Component definition and render logic for <aon-footer>
 
   // Public, read-only props with default values; intended to be overridden by the parent application (e.g., React)
-  @Prop() copyright: string = '© Aon plc'; // TODO: Move year generation to the React layer and pass the computed value as a prop
+  @Prop() copyright: string = 'Copyright 2026 AON PLC'; // TODO: Move year generation to the React layer and pass the computed value as a prop
   @Prop() privacyPolicyHref: string = '/privacy-policy';
   @Prop() termsHref: string = '/terms-and-conditions';
   @Prop() logoSrc!: string;
@@ -54,10 +54,11 @@ export class AonFooter {
             <img src={logoSrc} alt="Company logo" />
           </div>
           <div class="footer-links p-xs">
-            <a href={privacyPolicyHref}>Privacy Policy</a>
-            <a href={termsHref}>Terms and Conditions</a>
+            <a class="privacy" href={privacyPolicyHref}>Privacy Policy</a>
+            <a class="terms"href={termsHref}>Terms and Conditions</a>
           </div>
           <div class="footer-copyright">
+            <p class="copyright-icon">©</p>
             <p>{copyright}</p>
             {/*  */}
           </div>
