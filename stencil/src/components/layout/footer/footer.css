@@ -1,61 +1,51 @@
-/* ================================
-  TL;DR  -->  styling for the very bottom section of Aon's mockup
-================================ */
-/* Files: footer.css, faq-card.css, etc.
-Selectors: :host, internal classes */
-
-
-/* ======================================================
-  aon-footer styles
-
-  Rules:
-  - NO @import
-  - NO global selectors
-  - ONLY CSS variables from :root
-  - :host is the boundary
-====================================================== */
-
-/* ---- Host boundary ---- */
 :host {
   display: block;
-  width: 100vw;
-  /* Typography must be re-declared in Shadow DOM */
+  width: 100%;
   font-family: var(--font-default);
   font-size: var(--font-size-xsmall);
 }
 
-.footer-content{
+/* Main container */
+.footer-content {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+
   border-top: 1px solid var(--color-gray-05);
-  margin-top: 150px;
-  padding: 20px 40px;
+
+  padding: 30px 20px; /* 30 vertical, 20 horizontal */
 }
-/* left side */
+
+/* Left side */
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* space between logo and links */
+}
+
 .footer-logo {
   width: 79px;
   height: 30px;
-  padding: 20px 30px 30px 20px;
 }
-.footer-links{
+
+/* Links */
+.footer-links {
+  display: flex;
+  gap: 20px; /* space between Privacy & Terms */
+}
+
+/* Right side */
+.footer-right {
   display: flex;
   align-items: center;
+  gap: 4px; /* space between © and text */
 }
 
-/* right side */
-.copyright-icon{
-  line-height: var(--line-height-xsmall);
-}
-
-.footer-copyright{
-  padding: 40px 4px 24px 20px;
+.footer-copyright {
   color: var(--color-gray-02);
-  
-}
-.privacy, .terms{
-padding: 40px 20px 24px 20px;
 }
 
-/* Link Styling */
+/* Links */
 a {
   color: var(--color-teal-dark-secondary);
 }
