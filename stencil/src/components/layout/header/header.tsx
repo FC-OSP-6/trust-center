@@ -4,14 +4,6 @@
       2. The far right corner should have a menu button which will allow developers access to special developer features
 ================================ */
 
-// creating the class for the header component
-// @Component({
-//   tag: 'aon-header',
-//   styleUrl: './header.css',
-//   shadow:
-// })
-
-
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
@@ -31,17 +23,26 @@ export class AonHeader {
   render() {
     return (
       <header class="header">
-        <div class="cyQuLogo">
-          {this.CyQuLogo && <img src={this.CyQuLogo} alt="CyQu Logo" />}
+        <div class="productTitle">
+          <h1>CyQu</h1>
         </div>
 
-        {/* creating space to add little man button for dev login */}
-        {this.loginIcon && (
-          <div class="login-icon">
-            <img src={this.loginIcon} alt="login-icon" />
-          </div>
-        )}
       </header>
+
+
+      // <header class="header">
+      //   <div class="cyQuLogo">
+      //     {this.CyQuLogo && <img src={this.CyQuLogo} alt="CyQu Logo" />}
+      //   </div>
+
+      //   {/* creating space to add little man button for dev login */}
+      //   {this.loginIcon && (
+      //     <div class="login-icon">
+      //       <img src={this.loginIcon} alt="login-icon" />
+      //     </div>
+      //   )}
+      // </header>
+      
     );
   }
 }
