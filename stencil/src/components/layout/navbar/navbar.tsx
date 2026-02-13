@@ -19,7 +19,7 @@ import { Component, h, State, Host } from '@stencil/core';
 @Component({
   tag: 'aon-navbar',
   styleUrl: 'navbar.css',
-  shadow: true // isolate DOM + styles for design-system safety
+  shadow: true, // isolate DOM + styles for design-system safety
 })
 export class AonNavbar {
   // ---- Render ----

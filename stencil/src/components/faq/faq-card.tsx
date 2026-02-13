@@ -97,11 +97,15 @@ export class FaqCard {
           </button>
         </header>
 
+<<<<<<< HEAD
         {this.isExpanded && (
           <p class="faq-answer" id="faq-content">
             {answer}
           </p>
         )}
+=======
+        <p class="faq-answer">{answer}</p>
+>>>>>>> main
       </div>
     );
   }

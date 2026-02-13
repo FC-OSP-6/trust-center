@@ -116,7 +116,6 @@ function shouldFallbackToMock(error: unknown): boolean {
   return false;
 }
 
-
 // ----------  cursor encoding (base64url json)  ----------
 
 function toBase64Url(base64: string): string {
@@ -309,6 +308,10 @@ function buildControlsWhere(args: { category?: string; search?: string }): { whe
   return { whereSql, params }; // return clause + params
 }
 
+function buildFaqsWhere(args: { category?: string; search?: string }): {
+  whereSql: string;
+  params: unknown[];
+} {
 function buildFaqsWhere(args: { category?: string; search?: string }): {
   whereSql: string;
   params: unknown[];
@@ -539,6 +542,7 @@ function mapControlNode(row: DbControlRow) {
     category: row.category, // passthrough
     sourceUrl: row.source_url, // snake -> camel
     updatedAt: toIso(row.updated_at) // timestamptz -> iso string
+    updatedAt: toIso(row.updated_at) // timestamptz -> iso string
   };
 }
 
@@ -549,6 +553,7 @@ function mapFaqNode(row: DbFaqRow) {
     question: row.question, // passthrough
     answer: row.answer, // passthrough
     category: row.category, // passthrough
+    updatedAt: toIso(row.updated_at) // timestamptz -> iso string
     updatedAt: toIso(row.updated_at) // timestamptz -> iso string
   };
 }
@@ -566,6 +571,7 @@ export const resolvers = {
     // debug helper --> proves context is wired
     debugContext: (_parent: unknown, _args: unknown, ctx: GraphQLContext) => ({
       requestId: ctx.requestId, // show request trace id
+      isAdmin: ctx.auth.isAdmin // show admin flag
       isAdmin: ctx.auth.isAdmin // show admin flag
     }),
 
@@ -625,6 +631,8 @@ export const resolvers = {
         pageInfo: { hasNextPage: page.hasNextPage, endCursor: page.endCursor },
         totalCount: page.totalCount,
       };
+    }
+  }
     }
   }
 };

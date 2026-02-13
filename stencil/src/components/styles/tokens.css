@@ -50,11 +50,7 @@
   /* Success uses: Indicate success, good status */
   --color-success: #12a88a;
   --color-success-dark: #0d725e;
-<<<<<<< HEAD
-  --color-success-bg: #C1F2E9;
-=======
   --color-success-bg: #c1f2e9;
->>>>>>> annie
   /* Information uses: General messaging - No qualitative layer of information */
   --color-info: #0055a8;
   --color-info-dark: #003b75;
