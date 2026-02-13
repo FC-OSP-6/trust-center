@@ -1,12 +1,12 @@
 /* ================================
   TL;DR  -->  Design tokens and typography for Stencil components
-    - Defines the system-level design tokens (colors, typography, spacing, text decoration) using CSS custom 
+    - Defines the system-level design tokens (colors, typography, spacing, text decoration) using CSS custom
     properties in :root, serving as the single source of truth for visual decisions.
-    - Establishes a token-driven styling architecture: global design decisions live here, component styling 
+    - Establishes a token-driven styling architecture: global design decisions live here, component styling
     is encapsulated within Stencil, and page-level layout and grids are handled in React.
     - Implements base typography rules for headings, paragraphs, and links, favoring semantic HTML (strong, em)
      over stylistic utility classes for emphasis.
-    - Provides responsive typography overrides via media queries, with explicit tradeoffs to avoid hardcoding 
+    - Provides responsive typography overrides via media queries, with explicit tradeoffs to avoid hardcoding
     layout or grid logic in this layer.
     - Exports design tokens and base typography styles that are consumed by:
         1. Stencil component styles (direct usage)
@@ -16,8 +16,8 @@
         2. Brand typography approvals (e.g., font family decisions)
 ================================ */
 
-/* :root serves as the configuration layer of the design system:
-   tokens, constants, and shared visual decisions only */
+/* :root serves as the configuration layer of the design system: */
+/* tokens, constants, and shared visual decisions only */
 
 :root {
   /* Tokens describe decisions, not elements */
@@ -31,8 +31,8 @@
   --color-teal-dark-interaction: #003c55;
   --color-teal-dark-hover: var(--color-teal-dark-interaction);
   --color-teal-dark-active: var(--color-teal-dark-interaction);
-  /* These tokens intentionally share the same value to preserve semantic meaning
-   (default, hover, active states) while allowing future divergence if needed */
+  /* These tokens intentionally share the same value to preserve semantic meaning */
+  /* (default, hover, active states) while allowing future divergence if needed */
 
   /* Secondary Hues */
   --color-teal-light-accent: #29b0c3;
@@ -76,6 +76,10 @@
   /* Gray 08 uses: Product background */
   --color-gray-08: #f9fcfc;
 
+  /* Surface */
+  /* Uses: card backgrounds and other "paper" surfaces */
+  --color-surface: #ffffff;
+
   /* == Typography Options == */
   /* this is the only font aon said to use everywhere */
   --font-default: Arial, sans-serif;
@@ -105,7 +109,7 @@
   --line-height-3xlarge: 36px;
   --line-height-4xlarge: 52px;
 
-  /*  == Space Options == */
+  /* == Space Options == */
   /* Only internal component spacing, nothing page layout-wise! */
   --default-local-spacing: 20px;
   --mobile-local-spacing: 24px;

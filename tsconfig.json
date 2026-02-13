@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx",
 
     "strict": true,
     "noImplicitAny": true,
@@ -13,9 +14,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../types-shared/*"],
-      "@server/*": ["../server/*"],
-      "@client/*": ["../client/src/*"]
+      "@shared/*": ["./types-shared/*"],
+      "@server/*": ["./server/*"],
+      "@client/*": ["./client/src/*"]
     },
 
     "esModuleInterop": true,
@@ -28,10 +29,10 @@
   },
 
   "include": [
-    "../server/**/*.ts",
-    "../client/**/*.ts",
-    "../client/**/*.tsx",
-    "../types-shared/**/*.ts"
+    "./server/**/*.ts",
+    "./client/**/*.ts",
+    "./client/**/*.tsx",
+    "./types-shared/**/*.ts"
   ],
 
   "exclude": ["../node_modules", "../dist", "../build", "../stencil"]

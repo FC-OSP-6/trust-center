@@ -4,6 +4,7 @@
 ================================ */
 
 import React, { StrictMode } from 'react';
+import type {} from './types-frontend'; // ensures jsx intrinsic element types are always loaded
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import '../../stencil/dist/trust-center/trust-center.css';

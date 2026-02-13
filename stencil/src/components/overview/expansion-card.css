@@ -1,4 +1,130 @@
 /* ================================
-    TL;DR  --> styling for cards in "selected controls" section
-    
+  TL;DR  -->  styling for expansion cards
+
+  - uses tokens for color + type + spacing
+  - keeps layout local to the component
+  - leaves page grid and section spacing to react
 ================================ */
+
+:host {
+    display: block;
+    font-family: var(--font-default);
+}
+
+/* todo: promote these to tokens.css if multiple components need them */
+:host {
+    --expansion-card-radius: 8px;
+    --expansion-card-border: var(--color-gray-05);
+    --expansion-card-bg: var(--color-surface);
+}
+
+/* grouped mode wrapper (controls overview) */
+.groupWrap {
+    display: grid;
+    gap: var(--default-local-spacing);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* medium/tablet -> 2 columns */
+@media (max-width: 991px) {
+    .groupWrap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* mobile -> 1 column */
+@media (max-width: 575px) {
+    .groupWrap {
+        grid-template-columns: 1fr;
+        gap: var(--mobile-local-spacing);
+    }
+}
+
+.card {
+    background: var(--expansion-card-bg);
+    border: 1px solid var(--expansion-card-border);
+    border-radius: var(--expansion-card-radius);
+    padding: var(--default-local-spacing);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.title {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
+    color: var(--color-navy-primary);
+}
+
+.toggle {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-teal-dark-secondary);
+    text-decoration: var(--link-decoration-default);
+}
+
+.toggle:hover {
+    color: var(--color-teal-dark-hover);
+    text-decoration: var(--link-decoration-hover);
+}
+
+.list {
+    margin: 16px 0 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    align-items: start;
+    gap: 10px;
+}
+
+.iconWrap {
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+}
+
+.iconImg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.iconDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    margin-top: 4px;
+    background: var(--color-success);
+}
+
+.text {
+    color: var(--color-gray-01);
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+}
+
+.more {
+    color: var(--color-gray-02);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    padding-left: 28px;
+}
