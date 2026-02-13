@@ -35,14 +35,5 @@
     "./types-shared/**/*.ts"
   ],
 
-<<<<<<< HEAD:tsconfig.json
-  "exclude": [
-    "./node_modules",
-    "./dist",
-    "./build",
-    "./stencil"
-  ]
-=======
   "exclude": ["../node_modules", "../dist", "../build", "../stencil"]
->>>>>>> main:config/tsconfig.json
 }
