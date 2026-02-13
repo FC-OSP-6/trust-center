@@ -60,8 +60,59 @@ const CONTROLS_CONNECTION_QUERY = `
     }
   }
 `;
+import { Component, Prop, State, Watch, h } from "@stencil/core";
+
+// ----------  local types  ----------
+
+type ExpansionGroup = {
+  title: string;
+  items: string[];
+};
+
+// graphql node shape we need for controls -> category groups
+type ControlsConnectionNode = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  sourceUrl?: string | null;
+  updatedAt: string;
+};
+
+// graphql response shape for minimal parsing
+type ControlsConnectionResponse = {
+  data?: {
+    controlsConnection?: {
+      totalCount?: number;
+      edges?: Array<{ node?: ControlsConnectionNode }>;
+    };
+  };
+  errors?: Array<{ message?: string }>;
+};
+
+// graphql document string  --> kept local so stencil can own the grouping logic
+const CONTROLS_CONNECTION_QUERY = `
+  query ControlsConnection($first: Int!, $after: String, $category: String, $search: String) {
+    controlsConnection(first: $first, after: $after, category: $category, search: $search) {
+      totalCount
+      edges {
+        node {
+          id
+          title
+          description
+          category
+          sourceUrl
+          updatedAt
+        }
+      }
+    }
+  }
+`;
 
 @Component({
+  tag: "aon-expansion-card",
+  styleUrl: "expansion-card.css",
+  shadow: true,
   tag: "aon-expansion-card",
   styleUrl: "expansion-card.css",
   shadow: true,
@@ -409,7 +460,15 @@ export class ExpansionCard {
       <div class="card">
         <header class="header">
           <h3 class="title">{title}</h3>
+      <div class="card">
+        <header class="header">
+          <h3 class="title">{title}</h3>
 
+          {hasOverflow && (
+            <button class="toggle" type="button" aria-expanded={isExpanded} onClick={onToggle}>
+              {buttonText}
+            </button>
+          )}
           {hasOverflow && (
             <button class="toggle" type="button" aria-expanded={isExpanded} onClick={onToggle}>
               {buttonText}
@@ -422,9 +481,18 @@ export class ExpansionCard {
             <li class="item">
               {this.renderBulletIcon()}
               <span class="text">{text}</span>
+        <ul class="list" role="list">
+          {visibleItems.map((text) => (
+            <li class="item">
+              {this.renderBulletIcon()}
+              <span class="text">{text}</span>
             </li>
           ))}
 
+          {!isExpanded && hiddenCount > 0 && (
+            <li class="more" aria-hidden="true">
+              +{hiddenCount} more
+            </li>
           {!isExpanded && hiddenCount > 0 && (
             <li class="more" aria-hidden="true">
               +{hiddenCount} more
