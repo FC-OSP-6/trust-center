@@ -230,7 +230,6 @@ p em {
    Layout, grids, and page margins are defined in the React layer
    and referenced here for breakpoint alignment only. */
 
-
 /* XS — Extra Small (0–575px) */
 @media (max-width: 575px) {
   /* TODO: React layout reference — XS breakpoint uses an 8-column grid with 20px page margins (not enforced in this stylesheet) */

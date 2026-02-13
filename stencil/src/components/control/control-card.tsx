@@ -15,18 +15,14 @@
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
-
 // Defines the <aon-control-card> Web Component
 @Component({
   tag: 'aon-control-card', // registers the custom element <aon-control-card>
   styleUrls: ['./control-card.css'],
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
-
- 
 export class ControlCard {
-
-// Props needed - Title, Subtitle, Description, List items, Status, Green Dot 
+  // Props needed - Title, Subtitle, Description, List items, Status, Green Dot
   @Prop() controlCardTitle: string;
   @Prop() controlCardSubtitle: string[] = [];
   @Prop() controlCardSubtitleDescription: string[] = [];

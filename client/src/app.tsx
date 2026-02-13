@@ -13,8 +13,6 @@ import Resources from './components/sections/resources';
 import Faqs from './components/sections/faqs';
 import logo from './assets/images/aon-logo.svg';
 
-
-
 export default function App() {
   const location = useLocation();
   const path = location.pathname;
@@ -43,7 +41,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {isKnownPath && <aon-footer logoSrc={logo} />}
+      {isKnownPath && <aon-footer logo-src={logo} />}
     </div>
   );
 }
