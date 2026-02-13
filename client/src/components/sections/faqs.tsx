@@ -79,6 +79,7 @@ export default function Faqs() {
         question="Do you feel secure?"
         answer="Lorem ipsum dolor sit amet"
       />
+<<<<<<< HEAD
       {/* status text  -->  keeps debugging fast during mvp */}
       <div>
         {isLoading && <p>loading faqs...</p>}
@@ -96,6 +97,8 @@ export default function Faqs() {
           <div>updated: {f.updatedAt}</div>
         </div>
       ))}
+=======
+>>>>>>> 152faa116285c1446018159477d3efcc38ea0688
     </section>
   );
 }
