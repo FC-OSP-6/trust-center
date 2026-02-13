@@ -18,7 +18,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'aon-faq-card',
   styleUrl: 'faq-card.css',
-  shadow: true,
+  shadow: true
 })
 export class FaqCard {
   /** FAQ prompt text */
@@ -36,13 +36,8 @@ export class FaqCard {
           <h1 class="faq-question">{question}</h1>
         </header>
 
-        <p class="faq-answer">
-          {answer}
-        </p>
+        <p class="faq-answer">{answer}</p>
       </div>
     );
   }
 }
-
-
-

@@ -34,10 +34,5 @@
     "../types-shared/**/*.ts"
   ],
 
-  "exclude": [
-    "../node_modules",
-    "../dist",
-    "../build",
-    "../stencil"
-  ]
+  "exclude": ["../node_modules", "../dist", "../build", "../stencil"]
 }
