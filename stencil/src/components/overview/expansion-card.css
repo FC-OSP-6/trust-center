@@ -4,6 +4,7 @@
   - uses tokens for color + type + spacing
   - keeps layout local to the component
   - leaves page grid and section spacing to react
+  - tile header is unboxed (no outline) and sits above the grid
 ================================ */
 
 :host {
@@ -16,6 +17,59 @@
     --expansion-card-radius: 8px;
     --expansion-card-border: var(--color-gray-05);
     --expansion-card-bg: var(--color-surface);
+}
+
+.wrap {
+    display: grid;
+    gap: 12px;
+}
+
+/* tile header (optional) */
+.tile {
+    display: grid;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    outline: 0;
+}
+
+/* ensure nothing in the tile header accidentally inherits an outline */
+.tile :where(*) {
+    outline: none;
+}
+
+/* first row only contains the title */
+.tileHeadingRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* selected controls heading (no border, no pill) */
+.tileTitle {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
+    color: var(--color-navy-primary);
+}
+
+/* derived meta line (ex: "24 controls 8 categories") */
+.tileMeta {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-gray-02);
+}
+
+/* optional subtitle line under meta */
+.tileSubtitle {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+    color: var(--color-gray-01);
 }
 
 /* grouped mode wrapper (controls overview) */
