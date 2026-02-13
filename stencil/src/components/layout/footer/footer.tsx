@@ -48,19 +48,19 @@ export class AonFooter {
     const { copyright, privacyPolicyHref, termsHref, logoSrc } = this; // Destructure component props for cleaner JSX usage
     return (
       <footer role="contentinfo">
-        {/* ARIA landmark identifying site-level informational content for accessibility tools */}
         <div class="footer-content">
-          <div class="footer-logo">
-            <img src={logoSrc} alt="Company logo" />
+          <div class="footer-left">
+            <img class="footer-logo" src={logoSrc} alt="Company logo" />
+
+            <div class="footer-links">
+              <a href={privacyPolicyHref}>Privacy Policy</a>
+              <a href={termsHref}>Terms and Conditions</a>
+            </div>
           </div>
-          <div class="footer-links p-xs">
-            <a class="privacy" href={privacyPolicyHref}>Privacy Policy</a>
-            <a class="terms"href={termsHref}>Terms and Conditions</a>
-          </div>
-          <div class="footer-copyright">
-            <p class="copyright-icon">©</p>
-            <p>{copyright}</p>
-            {/*  */}
+
+          <div class="footer-right">
+            <span class="copyright-symbol">©</span>
+            <span class="footer-copyright">{copyright}</span>
           </div>
         </div>
       </footer>
