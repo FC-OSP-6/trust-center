@@ -8,22 +8,22 @@ import React from 'react';
 export default function Resources() {
   return (
     <section>
-      <aon-blue-card
-        blue-card-title="Client Facing Documents"
-        blue-card-button-link="https://cat-bounce.com/"
-        blue-card-button-text="Visit Site"
-        blue-card-description="Lorem ipsum dolor sit amet. ahkladhjk. ajshsn. ashjdlnj ajs dhsaw dwjkdlqndj idqjdiqd."
+      <aon-link-card />
+      <aon-link-card
+        linkCardTitle=""
+        linkOneLabel=""
+        linkOneHref=""
+        linkTwoLabel=""
+        linkTwoHref=""
+        linkThreeLabel=""
+        linkThreeHref=""
       />
-
-    <link-card link-card-title="External Links"
-      link-one-href="https://cat-bounce.com/"
-      link-one-label="Security Innovations"
-      link-two-href="https://cat-bounce.com/"
-      link-two-label="Password Protection"
-      link-three-href="https://cat-bounce.com/"
-      link-three-label="Encryption"
-    />
-
+      <aon-blue-card
+        blue-card-title="Aon Trust Portal"
+        blue-card-description="Direct access to widely consumed Aon enterprise controls and artifacts."
+        blue-card-button-text="Visit Portal"
+        blue-card-button-link="https://aonmt.tbs.aon.com/login?returnUrl=%2Fhome"
+      />
     </section>
   );
 }

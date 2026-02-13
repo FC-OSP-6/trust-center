@@ -1,0 +1,58 @@
+/* ================================
+  TL;DR  -->  The styling for blue-cards
+================================ */
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-default);
+  font-size: var(--font-size-xsmall);
+}
+
+.blue-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--color-gray-05);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--color-gray-06);
+  margin: 20px;
+  /* TODO: May have to take out margins later to leave at the layout layer in react */
+}
+
+.blue-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.blue-card-title {
+  margin: 0;
+}
+
+.blue-card-description {
+  margin: 0;
+  color: var(--color-gray-01);
+}
+
+.blue-card-button {
+  width: 130px;
+  padding: 12px;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  background-color: var(--color-teal-dark-secondary);
+  border-radius: 4px;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-gray-06);
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  .blue-card-button {
+    font-size: 15px;
+    line-height: var(--line-height-medium);
+  }
+}

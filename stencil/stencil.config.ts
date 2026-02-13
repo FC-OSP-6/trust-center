@@ -24,79 +24,10 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'dist',
-      esmLoaderPath: '../loader',
+      esmLoaderPath: '../loader'
     },
     {
-      type: 'dist-custom-elements',
-    },
-  ],
+      type: 'dist-custom-elements'
+    }
+  ]
 };
-
-
-// import { Config } from '@stencil/core';
-// import { reactOutputTarget } from '@stencil/react-output-target';
-
-// export const config: Config = {
-//   namespace: 'trust-center',
-//   tsconfig: 'tsconfig.json',
-//   buildDist: true,
-
-//   globalStyle: 'src/components/styles/global.css',
-
-//   outputTargets: [
-//     {
-//       type: 'dist',
-//       esmLoaderPath: '../loader',
-//     },
-//     {
-//       type: 'dist-custom-elements',
-//       externalRuntime: false,
-//     },
-//     reactOutputTarget({
-//       componentCorePackage: '@trust-center/components',
-//       outDir: '../client/src/stencil',
-//       proxiesFile: '../client/src/stencil/components.ts',
-//       includeDefineCustomElements: false,
-//     }),
-//   ],
-// };
-
-
-
-// import { Config, com } from '@stencil/core';
-// import { reactOutputTarget } from '@stencil/react-output-target';
-
-// export const config: Config = {
-//   namespace: 'trust-center',
-//   tsconfig: 'tsconfig.json',
-//   buildDist: true, // force generating dist/ outputs even in --dev
-//   globalStyle: 'src/components/styles/global.css',
-
-//   outputTargets: [
-//     /* 
-//          Custom Elements Output
-//           - Framework-agnostic web components.
-//           - This is the artifact the client can reuse directly.
-//         */
-//     {
-//       type: 'dist',
-//       esmLoaderPath: '../loader',
-//     },
-//     /* 
-//         React Wrapper Output
-//         - thin adapters for MVP dev experience - basically a
-//         - No logic/state/styling 
-//         */
-//     reactOutputTarget({
-//       componentCorePackage: '@trustcenter/components',
-//       // Relative path to where the React components will be generated
-//       outDir: '../client/src/stencil/dist',
-//     }),
-
-//     //Loader Ouput type ensure custom elements are registered once + used by react/any future consumers.
-//     {
-//       type: 'dist-custom-elements',
-//       externalRuntime: false,
-//     },
-//   ],
-// };

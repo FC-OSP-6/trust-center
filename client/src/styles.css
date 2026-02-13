@@ -4,8 +4,10 @@
       - spacing and 
 ================================ */
 
-:root{
-    /* Global spacing (between components) */
+:root {
+  /* Global spacing (between components) */
+:root {
+  /* Global spacing (between components) */
   --space-global-xs: 20px;
   --space-global-sm: 24px;
   --space-global-md: 32px;
@@ -13,5 +15,6 @@
 }
 
 body {
-  background-color: pink;
+  background-color: var(--color-gray-08);
 }
+

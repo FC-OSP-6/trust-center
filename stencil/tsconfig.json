@@ -21,7 +21,7 @@
 
 {
   "compilerOptions": {
-    "moduleResolution": "bundler", 
+    "moduleResolution": "bundler",
     //according to stencil docs it says put bundler
     "baseUrl": "..",
     "jsx": "react",
@@ -35,31 +35,3 @@
   },
   "include": ["src"]
 }
-
-
-// {
-//   "compilerOptions": {
-//     "jsx": "react",
-//     "jsxFactory": "h",
-//     "jsxFragmentFactory": "Fragment",
-//     "types": ["@stencil/core"],
-
-//     "moduleResolution": "node",
-//     "baseUrl":"..",
-//     "module": "esnext",
-//     "target": "es2017",
-
-//     "experimentalDecorators": true,
-//     "emitDecoratorMetadata": false,
-//     "useDefineForClassFields": false,
-
-//     "declaration": true,
-//     "sourceMap": true,
-
-//     "noImplicitAny": false,
-//     "lib": ["dom", "es2017"]
-//   },
-//   "include": ["src"],
-//   "exclude": ["node_modules", "**/*.spec.ts", "**/__tests__/**"]
-// }
-

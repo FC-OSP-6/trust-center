@@ -5,20 +5,29 @@
   - Render a single FAQ item (question + answer)
   - Display an expand / collapse affordance (+ / −)
   - Conditionally render the answer content
-  - Delegate expansion state ownership to the host framework (React)
+  - Manage expansion state locally for now (we can switch to host-controlled React state after the build is stable)
 
   Data contract:
   - `question`: string displayed as the FAQ prompt
   - `answer`: string body text revealed on expansion
-  - `expanded`: controlled boolean provided by host
+  - `expanded`: optional controlled boolean provided by host (not used yet in this implementation)
 ====================================================== */
 
-import { Component, Prop, h } from '@stencil/core';
+import { Component, Prop, h, Event, EventEmitter, State } from '@stencil/core';
+
+// h - bridge between JSX syntax and runtime
+// stencil virtual dom
+
+// when rendering components, h transforms divs into functions that render
+
+// component - self explanatory
+// props - self explanatory
+//
 
 @Component({
-  tag: 'faq-card',
+  tag: 'aon-faq-card',
   styleUrl: 'faq-card.css',
-  shadow: true,
+  shadow: true
 })
 export class FaqCard {
   /** FAQ prompt text */
@@ -27,22 +36,73 @@ export class FaqCard {
   /** Answer content */
   @Prop() answer!: string;
 
+  // we want a boolean of true or false to control the "expanded" state
+  /** internal expanded state (local ui state) */
+  @State() isExpanded: boolean = false;
+
+  /** controlled expanded state from host (react) (reserved for later; currently not used) */
+  @Prop() expanded!: boolean;
+
+  // we want an event listener for when the expand & collapse button is clicked.
+
+  /** emitted when the expand/collapse action happens (host can listen if needed) */
+  @Event() toggle!: EventEmitter<void>;
+
+  // const [isExpanded, setIsExpanded] = useState(false);
+  private handleToggle = (): void => {
+    this.isExpanded = !this.isExpanded;
+  };
+
   render() {
     const { question, answer } = this;
 
+    // this will log to the browser console every render so we can see state changes
+    console.log('Rendering FAQ:', { question, isExpanded: this.isExpanded });
+
+    // this will log to the browser console when the component instance exists
+    console.log('Component instance:', this);
+
     return (
-      <div class="faq-card">
-        <header class="faq-header">
-          <h1 class="faq-question">{question}</h1>
+      <div class={`faq-card ${this.isExpanded ? 'is-expanded' : ''}`}>
+        {/*
+          header section
+          - clickable area that triggers toggle
+          - contains question text and expand/collapse icon
+          - role="button" makes it accessible as interactive element (we keep native semantics via the <button> too)
+        */}
+        <header
+          class="faq-header"
+          onClick={this.handleToggle}
+          aria-expanded={this.isExpanded ? 'true' : 'false'}
+          aria-controls="faq-content"
+        >
+          <span class="faq-question">{this.question}</span>
+
+          {/*
+            chevron / state icon
+            - uses a single button (no nested buttons) to avoid invalid html
+            - stopPropagation prevents the header onClick from double-toggling
+          */}
+          <button
+            class="state-toggle"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              this.handleToggle();
+              this.toggle.emit();
+            }}
+            aria-label={this.isExpanded ? 'collapse answer' : 'expand answer'}
+          >
+            {this.isExpanded ? '−' : '+'}
+          </button>
         </header>
 
-        <p class="faq-answer">
-          {answer}
-        </p>
+        {this.isExpanded && (
+          <p class="faq-answer" id="faq-content">
+            {answer}
+          </p>
+        )}
       </div>
     );
   }
 }
-
-
-

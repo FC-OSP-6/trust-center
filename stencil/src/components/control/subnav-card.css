@@ -1,3 +1,36 @@
 /* ================================
   TL;DR  -->  styling for the subnav
 ================================ */
+
+
+
+/* subnav card */
+.subnav-card {
+  background-color: white;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.25);
+  border-top: 4px;
+  width: 100vw;
+}
+/* .subnav-card-links:hover {
+  background-color: var(--color-gray-07);
+} */
+
+/* subnav links */
+.subnav-card-links {
+  display: flex;
+  gap: 10px;
+  font-size: var(--font-size-xsmall);
+  line-height: var(--line-height-xsmall);
+  
+  
+}
+
+.subnav-card-links a {
+  text-decoration: none;
+  color: var(--color-gray-01);
+  /* text-transform: uppercase; */
+}
+
+/* .subnav-card-links a: hover {
+
+} */

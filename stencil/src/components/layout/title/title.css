@@ -1,0 +1,41 @@
+/* ================================
+  TL;DR  --> Styling for the Title Section
+================================ */
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-default);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+}
+.name {
+}
+.support-message {
+  color: var(--color-gray-01);
+}
+.support-email {
+}
+
+a {
+  color: var(--color-teal-dark-secondary);
+}
+
+a:hover {
+  color: var(--color-teal-dark-hover);
+}
