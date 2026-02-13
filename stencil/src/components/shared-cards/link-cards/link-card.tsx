@@ -39,10 +39,6 @@ export class LinkCard {
   @Prop() linkThreeLabel!: string;
   @Prop() linkThreeHref!: string;
 
-  /** Link 4 */
-  @Prop() linkFourLabel!: string;
-  @Prop() linkFourHref!: string;
-
   render() {
     const {
       linkCardTitle,
@@ -51,36 +47,11 @@ export class LinkCard {
       linkTwoLabel,
       linkTwoHref,
       linkThreeLabel,
-<<<<<<< HEAD
-      linkThreeHref,
-      linkFourLabel, 
-      linkFourHref
-=======
       linkThreeHref
->>>>>>> main
     } = this;
 
     return (
       <div class="link-card">
-<<<<<<< HEAD
-        <h1 class="title"><p>{linkCardTitle}</p></h1>
-
-        <ul class="link-list">
-          <li class="link-item">
-            <a href={linkOneHref}><p>{linkOneLabel}</p></a>
-          </li>
-
-          <li class="link-item">
-            <a href={linkTwoHref}><p>{linkTwoLabel}</p></a>
-          </li>
-
-          <li class="link-item">
-            <a href={linkThreeHref}><p>{linkThreeLabel}</p></a>
-          </li>
-
-          <li class="link-item">
-            <a href={linkFourHref}><p>{linkFourLabel}</p></a>
-=======
         <h1>{linkCardTitle}</h1>
 
         <ul class="link-list">
@@ -94,7 +65,6 @@ export class LinkCard {
 
           <li class="link-item">
             <a href={linkThreeHref}>{linkThreeLabel}</a>
->>>>>>> main
           </li>
         </ul>
       </div>
