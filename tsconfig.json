@@ -35,6 +35,7 @@
     "./types-shared/**/*.ts"
   ],
 
+<<<<<<< HEAD:tsconfig.json
   "exclude": [
     "./node_modules",
     "./dist",
@@ -42,3 +43,7 @@
     "./stencil"
   ]
 }
+=======
+  "exclude": ["../node_modules", "../dist", "../build", "../stencil"]
+}
+>>>>>>> annie:config/tsconfig.json

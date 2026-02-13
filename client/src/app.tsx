@@ -13,9 +13,6 @@ import Resources from './components/sections/resources';
 import Faqs from './components/sections/faqs';
 import logo from './assets/images/aon-logo.svg';
 
-
-
-
 export default function App() {
   const location = useLocation();
   const path = location.pathname;

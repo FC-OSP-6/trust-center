@@ -24,7 +24,7 @@ import { Component, Prop, h, Element } from '@stencil/core'; // Imports Stencil 
   tag: 'aon-footer', // registers the custom element <aon-footer>
   // styleUrls: ['./footer.css','../global-stencil.css'], // associates component-scoped styles at build time
   styleUrl: 'footer.css', // this is the new name of our global css file
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonFooter {
   // Web Component definition and render logic for <aon-footer>

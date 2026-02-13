@@ -21,7 +21,7 @@ import { Component, Prop, h } from '@stencil/core';
 @Component({
   tag: 'aon-link-card',
   styleUrl: 'link-card.css',
-  shadow: true,
+  shadow: true
 })
 export class LinkCard {
   /** Card heading */
@@ -40,27 +40,31 @@ export class LinkCard {
   @Prop() linkThreeHref!: string;
 
   render() {
+    const {
+      linkCardTitle,
+      linkOneLabel,
+      linkOneHref,
+      linkTwoLabel,
+      linkTwoHref,
+      linkThreeLabel,
+      linkThreeHref
+    } = this;
+
     return (
       <div class="link-card">
-        <h1>{this.linkCardTitle}</h1>
+        <h1>{linkCardTitle}</h1>
 
         <ul class="link-list">
           <li class="link-item">
-            <a href={this.linkOneHref}>
-              {this.linkOneLabel}
-            </a>
+            <a href={linkOneHref}>{linkOneLabel}</a>
           </li>
 
           <li class="link-item">
-            <a href={this.linkTwoHref}>
-              {this.linkTwoLabel}
-            </a>
+            <a href={linkTwoHref}>{linkTwoLabel}</a>
           </li>
 
           <li class="link-item">
-            <a href={this.linkThreeHref}>
-              {this.linkThreeLabel}
-            </a>
+            <a href={linkThreeHref}>{linkThreeLabel}</a>
           </li>
         </ul>
       </div>

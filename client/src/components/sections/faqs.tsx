@@ -85,7 +85,6 @@ export default function Faqs() {
         </div>
       ))}
     </section>
-    
   );
 }
 

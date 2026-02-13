@@ -27,7 +27,7 @@ import { Component, Prop, h, Event, EventEmitter, State } from '@stencil/core';
 @Component({
   tag: 'aon-faq-card',
   styleUrl: 'faq-card.css',
-  shadow: true,
+  shadow: true
 })
 export class FaqCard {
   /** FAQ prompt text */

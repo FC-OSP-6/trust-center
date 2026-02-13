@@ -8,7 +8,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 @Component({
   tag: 'aon-blue-card', // registers the custom element <aon-footer>
   styleUrls: ['./blue-cards.css'], // this is the new name of our global css file
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonBlueCard {
   // Web Component definition and render logic for <aon-blue-card>
@@ -26,7 +26,7 @@ export class AonBlueCard {
       blueCardTitle,
       blueCardDescription,
       blueCardButtonText,
-      blueCardButtonLink,
+      blueCardButtonLink
     } = this; // Destructure component props for cleaner JSX usage
     return (
       <div class="blue-card">

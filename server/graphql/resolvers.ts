@@ -27,9 +27,22 @@ type DbControlRow = {
   category: string; // grouping
   source_url: string | null; // optional url
   updated_at: string | Date; // timestamptz
+  id: string; // uuid primary key
+  control_key: string; // natural key used by seed upserts
+  title: string; // short label
+  description: string; // long detail
+  category: string; // grouping
+  source_url: string | null; // optional url
+  updated_at: string | Date; // timestamptz
 };
 
 type DbFaqRow = {
+  id: string; // uuid primary key
+  faq_key: string; // natural key used by seed upserts
+  question: string; // user-facing question
+  answer: string; // user-facing answer
+  category: string; // grouping
+  updated_at: string | Date; // timestamptz
   id: string; // uuid primary key
   faq_key: string; // natural key used by seed upserts
   question: string; // user-facing question
@@ -41,8 +54,9 @@ type DbFaqRow = {
 type CursorPayload = {
   sortValue: string; // updated_at iso string
   id: string; // uuid tie-breaker
+  sortValue: string; // updated_at iso string
+  id: string; // uuid tie-breaker
 };
-
 
 // ----------  constants  ----------
 
@@ -69,7 +83,7 @@ function normalizeText(value: string): string {
 }
 
 function escapeLike(value: string): string {
-  return value.replace(/[%_]/g, (m) => `\\${m}`); // escape wildcard chars for LIKE/ILIKE
+  return value.replace(/[%_]/g, m => `\\${m}`); // escape wildcard chars for LIKE/ILIKE
 }
 
 
@@ -133,6 +147,7 @@ function decodeCursor(cursor: string): CursorPayload | null {
 
     return { sortValue: parsed.sortValue, id: parsed.id }; // return typed payload
   } catch {
+    return null; // reject invalid base64/json
     return null; // reject invalid base64/json
   }
 }
@@ -271,7 +286,6 @@ function pageFromRows<T extends { updated_at: string | Date; id: string }>(
   return { rows, hasNextPage, endCursor, totalCount };
 }
 
-
 // ----------  filter builders (controls + faqs)  ----------
 
 function buildControlsWhere(args: { category?: string; search?: string }): { whereSql: string; params: unknown[] } {
@@ -295,7 +309,10 @@ function buildControlsWhere(args: { category?: string; search?: string }): { whe
   return { whereSql, params }; // return clause + params
 }
 
-function buildFaqsWhere(args: { category?: string; search?: string }): { whereSql: string; params: unknown[] } {
+function buildFaqsWhere(args: { category?: string; search?: string }): {
+  whereSql: string;
+  params: unknown[];
+} {
   const parts: string[] = []; // sql predicates
   const params: unknown[] = []; // parameter bag
 
@@ -315,7 +332,6 @@ function buildFaqsWhere(args: { category?: string; search?: string }): { whereSq
   const whereSql = parts.length ? `where ${parts.join(" and ")}` : ""; // join predicates
   return { whereSql, params }; // return clause + params
 }
-
 
 // ----------  cursor boundary builder (desc order)  ----------
 
@@ -338,7 +354,6 @@ function buildAfterBoundary(after: string | undefined, startingIndex: number): {
 
   return { sql, params: [decoded.sortValue, decoded.id] }; // return clause + params
 }
-
 
 // ----------  db fetchers (controls + faqs)  ----------
 
@@ -513,7 +528,6 @@ async function fetchFaqsPage(args: {
   }
 }
 
-
 // ----------  field mappers (db --> graphql)  ----------
 
 function mapControlNode(row: DbControlRow) {
@@ -524,7 +538,7 @@ function mapControlNode(row: DbControlRow) {
     description: row.description, // passthrough
     category: row.category, // passthrough
     sourceUrl: row.source_url, // snake -> camel
-    updatedAt: toIso(row.updated_at), // timestamptz -> iso string
+    updatedAt: toIso(row.updated_at) // timestamptz -> iso string
   };
 }
 
@@ -535,10 +549,9 @@ function mapFaqNode(row: DbFaqRow) {
     question: row.question, // passthrough
     answer: row.answer, // passthrough
     category: row.category, // passthrough
-    updatedAt: toIso(row.updated_at), // timestamptz -> iso string
+    updatedAt: toIso(row.updated_at) // timestamptz -> iso string
   };
 }
-
 
 // ----------  resolver map (schema execution)  ----------
 
@@ -553,7 +566,7 @@ export const resolvers = {
     // debug helper --> proves context is wired
     debugContext: (_parent: unknown, _args: unknown, ctx: GraphQLContext) => ({
       requestId: ctx.requestId, // show request trace id
-      isAdmin: ctx.auth.isAdmin, // show admin flag
+      isAdmin: ctx.auth.isAdmin // show admin flag
     }),
 
     // read-only controls connection --> pagination + filters
@@ -612,6 +625,6 @@ export const resolvers = {
         pageInfo: { hasNextPage: page.hasNextPage, endCursor: page.endCursor },
         totalCount: page.totalCount,
       };
-    },
-  },
+    }
+  }
 };

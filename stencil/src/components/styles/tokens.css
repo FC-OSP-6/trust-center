@@ -41,20 +41,24 @@
   /* Feedback Hues */
   /* Error uses: Indicate errors, bad status */
   --color-error: #ea2238;
-  --color-error-dark: #CA110F;
+  --color-error-dark: #ca110f;
   --color-error-bg: #fcdcdc;
   /* Warning uses: Indicate caution or warning, communicate conditions */
   --color-warning: #ffa600;
   --color-warning-dark: #ffa600;
-  --color-warning-bg: #FFF6B7;
+  --color-warning-bg: #fff6b7;
   /* Success uses: Indicate success, good status */
   --color-success: #12a88a;
   --color-success-dark: #0d725e;
+<<<<<<< HEAD
   --color-success-bg: #C1F2E9;
+=======
+  --color-success-bg: #c1f2e9;
+>>>>>>> annie
   /* Information uses: General messaging - No qualitative layer of information */
   --color-info: #0055a8;
-  --color-info-dark: #003B75;
-  --color-info-bg: #CCEAF5;
+  --color-info-dark: #003b75;
+  --color-info-bg: #cceaf5;
 
   /* Neutral Hues */
   /* Navy uses: Background, headlines */

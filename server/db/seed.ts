@@ -7,13 +7,11 @@
   - prints deterministic metrics for repeatable runs (+ pagination practice)
 ================================ */
 
+import fs from 'node:fs/promises'; // read seed json files from disk
+import path from 'node:path'; // build absolute paths for data folder
+import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 
-import fs from 'node:fs/promises';  // read seed json files from disk
-import path from 'node:path';  // build absolute paths for data folder
-import { fileURLToPath } from 'node:url';  // resolve current file location in ESM
-
-import { ensureDbSchema, closeDbPool, getDbPool } from './index.ts';  // schema runner + pool lifecycle
-
+import { ensureDbSchema, closeDbPool, getDbPool } from './index.ts'; // schema runner + pool lifecycle
 
 // ----------  normalization helpers  ----------
 
@@ -25,8 +23,8 @@ export function normalizeWhitespace(value: string): string {
 // normalize + join + lowercase for consistent contains search
 export function buildSearchText(parts: string[]): string {
   const normalized = parts
-    .map((p) => normalizeWhitespace(String(p ?? '')))
-    .filter((p) => p.length > 0);
+    .map(p => normalizeWhitespace(String(p ?? '')))
+    .filter(p => p.length > 0);
 
   return normalized.join(' ').toLowerCase();
 }
@@ -39,7 +37,9 @@ function stableKeyFromText(text: string): string {
   const alnumSpacesOnly = cleaned.replace(/[^a-z0-9\s]/g, ' ');
 
   // turn spaces into underscores for db-friendly natural key
-  const underscored = alnumSpacesOnly.replace(/\s+/g, '_').replace(/^_+|_+$/g, '');
+  const underscored = alnumSpacesOnly
+    .replace(/\s+/g, '_')
+    .replace(/^_+|_+$/g, '');
 
   // safety clamp  -->  keeps keys readable and avoids massive keys
   return underscored.slice(0, 120);
@@ -49,15 +49,14 @@ function stableKeyFromText(text: string): string {
 function normalizeTags(tags: unknown): string[] {
   if (!Array.isArray(tags)) return [];
   const cleaned = tags
-    .map((t) => normalizeWhitespace(String(t ?? '')).toLowerCase())
-    .filter((t) => t.length > 0);
+    .map(t => normalizeWhitespace(String(t ?? '')).toLowerCase())
+    .filter(t => t.length > 0);
 
   // deterministic  -->  sort + de-dupe
   const uniq = Array.from(new Set(cleaned));
   uniq.sort((a, b) => a.localeCompare(b));
   return uniq;
 }
-
 
 // ----------  seed row shapes  ----------
 
@@ -84,7 +83,6 @@ export type SeedFaqRow = {
   search_text: string;
 };
 
-
 // ----------  load seed json  ----------
 
 // resolve server/db/data relative to THIS file  -->  works even when cwd changes
@@ -98,14 +96,13 @@ async function readJsonFile<T>(absolutePath: string): Promise<T> {
   return JSON.parse(raw) as T;
 }
 
-
 // ----------  normalize incoming JSON  ----------
 
 // normalizeControlsJson()  -->  accepts either:
 //   A) { controls: [...] }  (our normalized local file shape)
 //   B) the old GraphQL dump: { data: { allTrustControls: { edges: [{ node: {...} }] } } }
 function normalizeControlsJson(input: any): SeedControlRow[] {
-  const seedUser = 'seed';  // created_by / updated_by for seed pipeline
+  const seedUser = 'seed'; // created_by / updated_by for seed pipeline
 
   // case A: normalized local file
   const listA = Array.isArray(input?.controls) ? input.controls : null;
@@ -117,18 +114,23 @@ function normalizeControlsJson(input: any): SeedControlRow[] {
 
   const items = (listA ?? listB ?? []) as any[];
 
-  const rows: SeedControlRow[] = items.map((item) => {
+  const rows: SeedControlRow[] = items.map(item => {
     // required-ish fields (we accept both naming styles)
     const title = normalizeWhitespace(String(item.title ?? item.short ?? ''));
-    const description = normalizeWhitespace(String(item.description ?? item.long ?? ''));
-    const category = normalizeWhitespace(String(item.category ?? 'General')) || 'General';
+    const description = normalizeWhitespace(
+      String(item.description ?? item.long ?? '')
+    );
+    const category =
+      normalizeWhitespace(String(item.category ?? 'General')) || 'General';
 
     // stable key preference order:
     //   1) explicit control_key from normalized file
     //   2) derived from category + title (deterministic)
     const rawKey = String(item.control_key ?? '').trim();
     const derivedKey = stableKeyFromText(`${category} ${title}`);
-    const control_key = normalizeWhitespace(rawKey.length > 0 ? rawKey : derivedKey);
+    const control_key = normalizeWhitespace(
+      rawKey.length > 0 ? rawKey : derivedKey
+    );
 
     const tagsArr = normalizeTags(item.tags);
     const tags = tagsArr.length > 0 ? tagsArr : null;
@@ -140,7 +142,7 @@ function normalizeControlsJson(input: any): SeedControlRow[] {
       title,
       category,
       description,
-      ...(tagsArr.length > 0 ? tagsArr : []),
+      ...(tagsArr.length > 0 ? tagsArr : [])
     ]);
 
     return {
@@ -152,7 +154,7 @@ function normalizeControlsJson(input: any): SeedControlRow[] {
       tags,
       created_by: String(item.created_by ?? item.createdBy ?? seedUser),
       updated_by: String(item.updated_by ?? item.updatedBy ?? seedUser),
-      search_text,
+      search_text
     };
   });
 
@@ -160,7 +162,6 @@ function normalizeControlsJson(input: any): SeedControlRow[] {
   rows.sort((a, b) => a.control_key.localeCompare(b.control_key));
   return rows;
 }
-
 
 // normalizeFaqsJson()  -->  accepts either:
 //   A) { faqs: [...] }  (our normalized local file shape)
@@ -176,14 +177,17 @@ function normalizeFaqsJson(input: any): SeedFaqRow[] {
 
   const items = (listA ?? listB ?? []) as any[];
 
-  const rows: SeedFaqRow[] = items.map((item) => {
+  const rows: SeedFaqRow[] = items.map(item => {
     const question = normalizeWhitespace(String(item.question ?? ''));
     const answer = normalizeWhitespace(String(item.answer ?? ''));
-    const category = normalizeWhitespace(String(item.category ?? 'General')) || 'General';
+    const category =
+      normalizeWhitespace(String(item.category ?? 'General')) || 'General';
 
     const rawKey = String(item.faq_key ?? '').trim();
     const derivedKey = stableKeyFromText(question);
-    const faq_key = normalizeWhitespace(rawKey.length > 0 ? rawKey : derivedKey);
+    const faq_key = normalizeWhitespace(
+      rawKey.length > 0 ? rawKey : derivedKey
+    );
 
     const tagsArr = normalizeTags(item.tags);
     const tags = tagsArr.length > 0 ? tagsArr : null;
@@ -192,7 +196,7 @@ function normalizeFaqsJson(input: any): SeedFaqRow[] {
       question,
       category,
       answer,
-      ...(tagsArr.length > 0 ? tagsArr : []),
+      ...(tagsArr.length > 0 ? tagsArr : [])
     ]);
 
     return {
@@ -203,7 +207,7 @@ function normalizeFaqsJson(input: any): SeedFaqRow[] {
       tags,
       created_by: String(item.created_by ?? item.createdBy ?? seedUser),
       updated_by: String(item.updated_by ?? item.updatedBy ?? seedUser),
-      search_text,
+      search_text
     };
   });
 
@@ -211,10 +215,11 @@ function normalizeFaqsJson(input: any): SeedFaqRow[] {
   return rows;
 }
 
-
 // ----------  upsert seed (idempotent)  ----------
 
-export async function seedControls(rows: SeedControlRow[]): Promise<{ inserted: number; updated: number; skipped: number }> {
+export async function seedControls(
+  rows: SeedControlRow[]
+): Promise<{ inserted: number; updated: number; skipped: number }> {
   const pool = getDbPool();
   const client = await pool.connect();
 
@@ -269,8 +274,8 @@ export async function seedControls(rows: SeedControlRow[]): Promise<{ inserted: 
           row.tags,
           row.created_by,
           row.updated_by,
-          row.search_text,
-        ],
+          row.search_text
+        ]
       );
 
       // rowCount 0  -->  conflict happened but WHERE was false (unchanged row)
@@ -294,7 +299,9 @@ export async function seedControls(rows: SeedControlRow[]): Promise<{ inserted: 
   }
 }
 
-export async function seedFaqs(rows: SeedFaqRow[]): Promise<{ inserted: number; updated: number; skipped: number }> {
+export async function seedFaqs(
+  rows: SeedFaqRow[]
+): Promise<{ inserted: number; updated: number; skipped: number }> {
   const pool = getDbPool();
   const client = await pool.connect();
 
@@ -344,8 +351,8 @@ export async function seedFaqs(rows: SeedFaqRow[]): Promise<{ inserted: number; 
           row.tags,
           row.created_by,
           row.updated_by,
-          row.search_text,
-        ],
+          row.search_text
+        ]
       );
 
       if (res.rowCount === 0) {
@@ -367,11 +374,10 @@ export async function seedFaqs(rows: SeedFaqRow[]): Promise<{ inserted: number; 
   }
 }
 
-
 // ----------  deterministic metrics  ----------
 
 export async function runSeed(): Promise<void> {
-  await ensureDbSchema();  // schema first  -->  don't assume tables exist
+  await ensureDbSchema(); // schema first  -->  don't assume tables exist
   const dataDir = getDataDir();
 
   // controls json path  -->  single source of truth
@@ -379,12 +385,16 @@ export async function runSeed(): Promise<void> {
   const faqsPath = path.join(dataDir, 'faqs.json');
 
   // load json (error if missing)
-  const controlsRaw = await readJsonFile<any>(controlsPath).catch((err) => {
-    throw new Error(`SEED_ERROR: missing controls.json at ${controlsPath}\n${String(err)}`);
+  const controlsRaw = await readJsonFile<any>(controlsPath).catch(err => {
+    throw new Error(
+      `SEED_ERROR: missing controls.json at ${controlsPath}\n${String(err)}`
+    );
   });
 
-  const faqsRaw = await readJsonFile<any>(faqsPath).catch((err) => {
-    throw new Error(`SEED_ERROR: missing faqs.json at ${faqsPath}\n${String(err)}`);
+  const faqsRaw = await readJsonFile<any>(faqsPath).catch(err => {
+    throw new Error(
+      `SEED_ERROR: missing faqs.json at ${faqsPath}\n${String(err)}`
+    );
   });
 
   // normalize into stable internal row shapes
@@ -397,8 +407,12 @@ export async function runSeed(): Promise<void> {
 
   // totals after  -->  verification uses these
   const pool = getDbPool();
-  const controlsCountRes = await pool.query<{ count: string }>('select count(*)::text as count from public.controls;');
-  const faqsCountRes = await pool.query<{ count: string }>('select count(*)::text as count from public.faqs;');
+  const controlsCountRes = await pool.query<{ count: string }>(
+    'select count(*)::text as count from public.controls;'
+  );
+  const faqsCountRes = await pool.query<{ count: string }>(
+    'select count(*)::text as count from public.faqs;'
+  );
 
   const totalControlsAfter = Number(controlsCountRes.rows[0]?.count ?? '0');
   const totalFaqsAfter = Number(faqsCountRes.rows[0]?.count ?? '0');
@@ -410,7 +424,7 @@ export async function runSeed(): Promise<void> {
     faqsInserted: faqsResult.inserted,
     faqsUpdated: faqsResult.updated,
     totalControlsAfter,
-    totalFaqsAfter,
+    totalFaqsAfter
   };
 
   // final summary line (deterministic keys)
@@ -423,10 +437,9 @@ export async function runSeed(): Promise<void> {
     controlsSkipped: controlsResult.skipped,
     faqsSkipped: faqsResult.skipped,
     controlsInputRows: controlRows.length,
-    faqsInputRows: faqRows.length,
+    faqsInputRows: faqRows.length
   });
 }
-
 
 // ----------  script entrypoint (db:seed)  ----------
 
@@ -444,5 +457,7 @@ async function main(): Promise<void> {
 }
 
 // entrypoint guard  -->  tsx server/db/seed.ts should run main()
-const isDirectRun = process.argv[1]?.endsWith('server/db/seed.ts') || process.argv[1]?.endsWith('server\\db\\seed.ts');
+const isDirectRun =
+  process.argv[1]?.endsWith('server/db/seed.ts') ||
+  process.argv[1]?.endsWith('server\\db\\seed.ts');
 if (isDirectRun) main();
