@@ -22,11 +22,7 @@ export default function Overview() {
         group-limit="0"
         preview-limit="3"
         icon-variant="img"
-        icon-src={statusCheckUrl}
-        show-tile="true"
-        tile-title="Selected Controls"
-        show-meta="true"
-        tile-subtitle=""
+        icon-src={statusCheckUrl} // pass resolved url, not a relative string
       />
 
       <aon-blue-card
