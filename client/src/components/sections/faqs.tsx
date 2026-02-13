@@ -6,22 +6,84 @@
 
 //On the client side
 
-import { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import { fetchFaqsConnectionPage } from '../../api';
+import type { Faq } from '../../types-frontend';
 
 
 export default function Faqs() {
 
-  //this line should not exist
-  const [expanded, setExpanded] = useState(false);
-  //const [expanded, setExpanded] = useState({})
+  // single expanded boolean cannot support multiple faq items
+  // const [expanded, setExpanded] = useState(false);
+  // const [expanded, setExpanded] = useState({})
 
   //Handle Toggle
 
+  // ui state  -->  basic loading/errors for mvp visibility
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorText, setErrorText] = useState<string | null>(null);
+
+  // data state  -->  store nodes only (ui cares about the node payload)
+  const [items, setItems] = useState<Faq[]>([]);
+
+  // computed view  -->  stable derived list for rendering
+  const faqs = useMemo(() => items, [items]);
+
+  useEffect(() => {
+    let isActive = true; // guards state updates after unmount
+
+    async function load() {
+      setIsLoading(true);
+      setErrorText(null);
+
+      try {
+        // first page only  -->  enough to prove db + graphql + ui wiring
+        const res = await fetchFaqsConnectionPage({ first: 25 });
+
+        // flatten edges -> nodes  -->  simplest ui contract
+        const nodes = res.edges.map((e) => e.node);
+
+        if (!isActive) return;
+        setItems(nodes);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'unknown faqs fetch error';
+
+        if (!isActive) return;
+        setErrorText(msg);
+        setItems([]); // keep the visual state deterministic
+      } finally {
+        if (!isActive) return;
+        setIsLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      isActive = false; // cleanup flag
+    };
+  }, []);
+
   return (
     <section>
-      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
-      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
-      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+      {/* status text  -->  keeps debugging fast during mvp */}
+      <div>
+        {isLoading && <p>loading faqs...</p>}
+        {errorText && <p>error: {errorText}</p>}
+        {!isLoading && !errorText && <p>faqs loaded: {faqs.length}</p>}
+      </div>
+
+      {/* render stencil items if custom element supports props, otherwise fallback list is still visible */}
+      {faqs.map((f) => (
+        <div key={f.id}>
+          {/* aon-faq-card props are not typed in types-frontend yet  -->  plain render keeps demo stable */}
+          <strong>{f.question}</strong>
+          <div>{f.answer}</div>
+          <div>{f.category}</div>
+          <div>updated: {f.updatedAt}</div>
+        </div>
+      ))}
     </section>
     
   );

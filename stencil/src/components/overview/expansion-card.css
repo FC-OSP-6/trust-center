@@ -15,7 +15,29 @@
 :host {
     --expansion-card-radius: 8px;
     --expansion-card-border: var(--color-gray-05);
-    --expansion-card-bg: #ffffff;
+    --expansion-card-bg: var(--color-surface);
+}
+
+/* grouped mode wrapper (controls overview) */
+.groupWrap {
+    display: grid;
+    gap: var(--default-local-spacing);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* medium/tablet -> 2 columns */
+@media (max-width: 991px) {
+    .groupWrap {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* mobile -> 1 column */
+@media (max-width: 575px) {
+    .groupWrap {
+        grid-template-columns: 1fr;
+        gap: var(--mobile-local-spacing);
+    }
 }
 
 .card {

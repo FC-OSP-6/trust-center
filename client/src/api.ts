@@ -6,7 +6,7 @@
       - export page fetch helpers used by ui sections
 ================================ */
 
-import type { ControlsConnection } from "./types-frontend";
+import type { ControlsConnection, FaqsConnection } from "./types-frontend";
 
 
 // ----------  graphql fetch wrapper  ----------
@@ -86,10 +86,32 @@ export const CONTROLS_CONNECTION_QUERY = /* GraphQL */ `
   }
 `;
 
+export const FAQS_CONNECTION_QUERY = /* GraphQL */ `
+  query FaqsConnection($first: Int!, $after: String, $category: String, $search: String) {
+    faqsConnection(first: $first, after: $after, category: $category, search: $search) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          id
+          question
+          answer
+          category
+          updatedAt
+        }
+      }
+    }
+  }
+`;
+
 
 // ----------  page helpers  ----------
 
-type FetchControlsArgs = {
+type FetchConnectionArgs = {
   first: number; // page size
   after?: string; // cursor
   category?: string; // filter
@@ -100,6 +122,10 @@ type ControlsConnectionData = {
   controlsConnection: ControlsConnection;
 };
 
+type FaqsConnectionData = {
+  faqsConnection: FaqsConnection;
+};
+
 function normalizeText(value: string | undefined): string | undefined {
   if (value == null) return undefined;
   const trimmed = value.trim();
@@ -107,7 +133,7 @@ function normalizeText(value: string | undefined): string | undefined {
   return trimmed;
 }
 
-export async function fetchControlsConnectionPage(args: FetchControlsArgs): Promise<ControlsConnection> {
+export async function fetchControlsConnectionPage(args: FetchConnectionArgs): Promise<ControlsConnection> {
   // normalize inputs
   const variables = {
     first: args.first,
@@ -123,4 +149,22 @@ export async function fetchControlsConnectionPage(args: FetchControlsArgs): Prom
   });
 
   return res.data.controlsConnection;
+}
+
+export async function fetchFaqsConnectionPage(args: FetchConnectionArgs): Promise<FaqsConnection> {
+  // normalize inputs
+  const variables = {
+    first: args.first,
+    after: args.after,
+    category: normalizeText(args.category),
+    search: normalizeText(args.search),
+  };
+
+  // call graphql
+  const res = await graphqlFetch<FaqsConnectionData, typeof variables>({
+    query: FAQS_CONNECTION_QUERY,
+    variables,
+  });
+
+  return res.data.faqsConnection;
 }

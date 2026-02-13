@@ -20,6 +20,14 @@ export type Control = {
   updatedAt: string; // iso timestamp (or placeholder in seed mode)
 };
 
+export type Faq = {
+  id: string; // uuid (or stable key)
+  question: string; // user-facing question
+  answer: string; // user-facing answer
+  category: string; // grouping key
+  updatedAt: string; // iso timestamp (or placeholder in seed mode)
+};
+
 
 // ----------  graphql connection shapes (ui contract)  ----------
 
@@ -35,6 +43,17 @@ export type ControlEdge = {
 
 export type ControlsConnection = {
   edges: ControlEdge[]; // connection list
+  pageInfo: PageInfo; // pagination metadata
+  totalCount: number; // filtered count
+};
+
+export type FaqEdge = {
+  cursor: string; // opaque cursor
+  node: Faq; // node payload
+};
+
+export type FaqsConnection = {
+  edges: FaqEdge[]; // connection list
   pageInfo: PageInfo; // pagination metadata
   totalCount: number; // filtered count
 };
@@ -93,7 +112,7 @@ interface AonStencilIntrinsicElements {
   'aon-navbar': HtmlElProps;
   'aon-footer': AonFooterProps;
 
-  // (optional but common in other sections)
+  // common in other sections
   'aon-control-card': HtmlElProps;
   'aon-faq-card': HtmlElProps;
   'aon-subnav-card': HtmlElProps;
