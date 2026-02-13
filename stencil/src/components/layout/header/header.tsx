@@ -10,8 +10,8 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 // Defines the <aon-header> Web Component
 @Component({
   tag: 'aon-header', // registers the custom element <aon-header>
-  styleUrl: './header.css', 
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  styleUrl: './header.css',
+  shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonHeader {
   // Logo URL
@@ -37,4 +37,3 @@ export class AonHeader {
     );
   }
 }
-
