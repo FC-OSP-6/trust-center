@@ -10,11 +10,6 @@ import React from "react";
 import statusCheckUrl from "../../assets/images/status-check.svg";
 
 
-
-import React from "react";
-import statusCheckUrl from "../../assets/images/status-check.svg";
-
-
 export default function Overview() {
   return (
     <section>
