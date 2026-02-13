@@ -79,8 +79,9 @@ private handleToggle = (): void => {
             Unicode character for down arrow
           */}
            <button class="expand-toggle" onClick={() => this.toggle.emit()}>
+            </button>
 
-          <button class="state-toggle" onClick={() => this.data}>
+          <button class="state-toggle" onClick={() => this}>
           {expanded ? '−' : '+'}
   </button>
         </header>
