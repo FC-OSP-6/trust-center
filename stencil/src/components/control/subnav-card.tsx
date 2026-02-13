@@ -16,7 +16,7 @@ import { Component, Prop, h } from "@stencil/core"; // stencil decorators for de
 })
 export class AonSubnavCard {
 
-  @Prop() subnavCardTitle: string = "Categories";
+  // @Prop() subnavCardTitle: string = "Categories";
   @Prop() infrastructureSecurityHref: string = "Infrastructure Security";
   @Prop() organizationalSecurityHref: string = "Organizational Security";
   @Prop() productSecurityHref: string = "Product Security";
@@ -30,15 +30,14 @@ export class AonSubnavCard {
   render() {
     return (
        <div class="subnav-card">
-      <h5 class="subnav-card-title">{this.subnavCardTitle}</h5>
-      <ul class="subnav-card-links">
-        <li><a href={this.infrastructureSecurityHref}>Infrastructure Security</a></li>
-        <li><a href={this.organizationalSecurityHref}>Organizational Security</a></li>
-        <li><a href={this.productSecurityHref}>Product Security</a></li>
-        <li><a href={this.internalSecurityProceduresHref}>Internal Security Procedures</a></li>
-        <li><a href={this.dataAndPrivacyHref}>Data and Privacy</a></li>
-      </ul>
-     </div>
+      <div class="subnav-card-title"></div>
+      <div class="subnav-card-links">
+        <a href={this.infrastructureSecurityHref}>Infrastructure Security</a>
+        <a href={this.organizationalSecurityHref}>Organizational Security</a>
+        <a href={this.productSecurityHref}>Product Security</a>
+        <a href={this.internalSecurityProceduresHref}>Internal Security Procedures</a>
+        <a href={this.dataAndPrivacyHref}>Data and Privacy</a>
+      </div>
     );
   }
 }
