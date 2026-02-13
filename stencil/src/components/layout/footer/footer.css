@@ -1,4 +1,4 @@
-:host {
+ :host {
   display: block;
   width: 100%;
   font-family: var(--font-default);
@@ -52,4 +52,4 @@ a {
 
 a:hover {
   color: var(--color-teal-dark-hover);
-}
+} 
