@@ -10,7 +10,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 @Component({
   tag: 'aon-title', // registers the custom element <aon-title>
   styleUrls: ['./title.css'],
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonTitle {
   @Prop() trustCenterName: string = 'Trust Center';

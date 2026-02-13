@@ -5,14 +5,12 @@
   - creates per-request context (db stub + auth stub + requestId)
 ================================ */
 
-
 import { createYoga, createSchema } from 'graphql-yoga'; // init functions for graphql factory using yoga
 import type { YogaInitialContext } from 'graphql-yoga'; // context type for per-request context builder
 import { randomUUID } from 'node:crypto'; // avoid uuid dependency  -->  randomized unique id generator
 
 import { typeDefs } from './schema'; // sdl contract  -->  source of truth for types + queries
 import { resolvers } from './resolvers'; // resolver map  -->  executable behavior for schema fields
-
 
 // ----------  request context shape  ----------
 
@@ -30,7 +28,6 @@ export type GraphQLContext = {
   requestId: string; // request trace id  -->  used in logs and debugging
 };
 
-
 // ----------  handler factory  ----------
 
 export function createGraphQLHandler() {
@@ -46,16 +43,20 @@ export function createGraphQLHandler() {
       const requestId = randomUUID(); // unique id per request for tracing
 
       // trace log  -->  proves context exists
-      console.log(`[gql]  ${requestId}  ${initialContext.request.method}  ${initialContext.request.url}`);
+      console.log(
+        `[gql]  ${requestId}  ${initialContext.request.method}  ${initialContext.request.url}`
+      );
 
       // context sanity  -->  confirms required keys exist + admin is false by default
-      console.log(`[gql ctx]  requestId=${requestId}  keys=db,auth,requestId  isAdmin=false`);
+      console.log(
+        `[gql ctx]  requestId=${requestId}  keys=db,auth,requestId  isAdmin=false`
+      );
 
       return {
         db: null, // no db side effects
         auth: { userEmail: null, isAuthenticated: false, isAdmin: false }, // default auth state
-        requestId, // make uuid available to resolvers
+        requestId // make uuid available to resolvers
       };
-    },
+    }
   });
 }

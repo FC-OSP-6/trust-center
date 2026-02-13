@@ -8,22 +8,28 @@
   font-family: var(--font-default);
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   margin: 0;
 }
 
-.title-section{
+.title-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding: 20px;
 }
-.name{
+.name {
 }
-.support-message{
+.support-message {
   color: var(--color-gray-01);
 }
-.support-email{
+.support-email {
 }
 
 a {

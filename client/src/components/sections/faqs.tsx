@@ -6,17 +6,23 @@
 
 import { useState } from 'react';
 
-
 export default function Faqs() {
-
   const [expanded, setExpanded] = useState(false);
 
   return (
     <section>
-      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
-      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
-      <aon-faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
     </section>
-    
   );
 }
