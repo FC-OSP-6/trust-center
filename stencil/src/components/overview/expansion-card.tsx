@@ -14,14 +14,14 @@
   - `icon`: optional URL used as a visual bullet replacement
 ====================================================== */
 
-import { Component, Prop, h } from '@stencil/core'; 
+import { Component, Prop, h } from '@stencil/core';
 // Stencil core decorators + JSX factory
 // No state or events declared here; component is presentational only
 
 @Component({
   tag: 'aon-expansion-card',
   styleUrl: 'expansion-card.css',
-  shadow: true, // isolate DOM + styles for design-system safety
+  shadow: true // isolate DOM + styles for design-system safety
 })
 export class ExpansionCard {
   // ---- Public API (controlled by host application) ----
@@ -80,9 +80,7 @@ export class ExpansionCard {
 
           {/* Overflow indicator shown only when items exceed preview limit */}
           {hiddenCount > 0 && (
-            <li class="bullet-item more-indicator">
-              +{hiddenCount} more
-            </li>
+            <li class="bullet-item more-indicator">+{hiddenCount} more</li>
           )}
         </ul>
       </div>

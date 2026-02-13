@@ -7,42 +7,38 @@
   - preserves debug resolvers for early boot verification
 ================================ */
 
-
 import type { GraphQLContext } from './index'; // shared per-request context shape
-import { query } from '../db/index';  // shared pg query wrapper (singleton pool)
-
+import { query } from '../db/index'; // shared pg query wrapper (singleton pool)
 
 // ----------  db row shapes  ----------
 
 type DbControlRow = {
-  id: string;  // uuid primary key
-  control_key: string;  // natural key used by seed upserts
-  title: string;  // short label
-  description: string;  // long detail
-  category: string;  // grouping
-  source_url: string | null;  // optional url
-  updated_at: string | Date;  // timestamptz
+  id: string; // uuid primary key
+  control_key: string; // natural key used by seed upserts
+  title: string; // short label
+  description: string; // long detail
+  category: string; // grouping
+  source_url: string | null; // optional url
+  updated_at: string | Date; // timestamptz
 };
 
 type DbFaqRow = {
-  id: string;  // uuid primary key
-  faq_key: string;  // natural key used by seed upserts
-  question: string;  // user-facing question
-  answer: string;  // user-facing answer
-  category: string;  // grouping
-  updated_at: string | Date;  // timestamptz
+  id: string; // uuid primary key
+  faq_key: string; // natural key used by seed upserts
+  question: string; // user-facing question
+  answer: string; // user-facing answer
+  category: string; // grouping
+  updated_at: string | Date; // timestamptz
 };
 
 type CursorPayload = {
-  sortValue: string;  // updated_at iso string
-  id: string;  // uuid tie-breaker
+  sortValue: string; // updated_at iso string
+  id: string; // uuid tie-breaker
 };
-
 
 // ----------  constants  ----------
 
 const MAX_PAGE_SIZE = 50; // safety cap  -->  avoids accidental heavy queries
-
 
 // ----------  helpers (timestamps + inputs)  ----------
 
@@ -64,9 +60,8 @@ function normalizeText(value: string): string {
 }
 
 function escapeLike(value: string): string {
-  return value.replace(/[%_]/g, (m) => `\\${m}`); // escape wildcard chars for LIKE/ILIKE
+  return value.replace(/[%_]/g, m => `\\${m}`); // escape wildcard chars for LIKE/ILIKE
 }
-
 
 // ----------  cursor encoding (base64url json)  ----------
 
@@ -98,39 +93,20 @@ function decodeCursor(cursor: string): CursorPayload | null {
 
     return { sortValue: parsed.sortValue, id: parsed.id }; // return typed payload
   } catch {
-    return null;  // reject invalid base64/json
+    return null; // reject invalid base64/json
   }
 }
 
 function isValidCursor(cursor: string): boolean {
-  return decodeCursor(cursor) !== null;  // validator built on decodeCursor
+  return decodeCursor(cursor) !== null; // validator built on decodeCursor
 }
-
 
 // ----------  filter builders (controls + faqs)  ----------
 
-function buildControlsWhere(args: { category?: string; search?: string }): { whereSql: string; params: unknown[] } {
-  const parts: string[] = [];  // sql predicates
-  const params: unknown[] = [];  // parameter bag
-
-  // category strict match (case-insensitive)
-  if (args.category && normalizeText(args.category) !== '') {
-    params.push(normalizeText(args.category)); // param: category
-    parts.push(`lower(category) = lower($${params.length})`); // predicate: category match
-  }
-
-  // search contains match (mvp-simple) using precomputed search_text
-  if (args.search && normalizeText(args.search) !== '') {
-    const needle = escapeLike(normalizeText(args.search).toLowerCase()); // normalize + escape
-    params.push(`%${needle}%`); // param: pattern
-    parts.push(`search_text ILIKE $${params.length} ESCAPE '\\\\'`); // predicate: contains
-  }
-
-  const whereSql = parts.length ? `where ${parts.join(' and ')}` : ''; // join predicates
-  return { whereSql, params }; // return clause + params
-}
-
-function buildFaqsWhere(args: { category?: string; search?: string }): { whereSql: string; params: unknown[] } {
+function buildControlsWhere(args: { category?: string; search?: string }): {
+  whereSql: string;
+  params: unknown[];
+} {
   const parts: string[] = []; // sql predicates
   const params: unknown[] = []; // parameter bag
 
@@ -151,10 +127,36 @@ function buildFaqsWhere(args: { category?: string; search?: string }): { whereSq
   return { whereSql, params }; // return clause + params
 }
 
+function buildFaqsWhere(args: { category?: string; search?: string }): {
+  whereSql: string;
+  params: unknown[];
+} {
+  const parts: string[] = []; // sql predicates
+  const params: unknown[] = []; // parameter bag
+
+  // category strict match (case-insensitive)
+  if (args.category && normalizeText(args.category) !== '') {
+    params.push(normalizeText(args.category)); // param: category
+    parts.push(`lower(category) = lower($${params.length})`); // predicate: category match
+  }
+
+  // search contains match (mvp-simple) using precomputed search_text
+  if (args.search && normalizeText(args.search) !== '') {
+    const needle = escapeLike(normalizeText(args.search).toLowerCase()); // normalize + escape
+    params.push(`%${needle}%`); // param: pattern
+    parts.push(`search_text ILIKE $${params.length} ESCAPE '\\\\'`); // predicate: contains
+  }
+
+  const whereSql = parts.length ? `where ${parts.join(' and ')}` : ''; // join predicates
+  return { whereSql, params }; // return clause + params
+}
 
 // ----------  cursor boundary builder (desc order)  ----------
 
-function buildAfterBoundary(after: string | undefined, startingIndex: number): { sql: string; params: unknown[] } {
+function buildAfterBoundary(
+  after: string | undefined,
+  startingIndex: number
+): { sql: string; params: unknown[] } {
   if (!after) return { sql: '', params: [] }; // no cursor means no boundary
 
   const decoded = decodeCursor(after); // decode cursor payload
@@ -174,7 +176,6 @@ function buildAfterBoundary(after: string | undefined, startingIndex: number): {
   return { sql, params: [decoded.sortValue, decoded.id] }; // return clause + params
 }
 
-
 // ----------  db fetchers (controls + faqs)  ----------
 
 async function fetchControlsPage(args: {
@@ -182,10 +183,18 @@ async function fetchControlsPage(args: {
   after?: string;
   category?: string;
   search?: string;
-}): Promise<{ rows: DbControlRow[]; hasNextPage: boolean; endCursor: string | null; totalCount: number }> {
+}): Promise<{
+  rows: DbControlRow[];
+  hasNextPage: boolean;
+  endCursor: string | null;
+  totalCount: number;
+}> {
   const firstClamped = clampFirst(args.first); // enforce safe page size
 
-  const { whereSql, params } = buildControlsWhere({ category: args.category, search: args.search }); // build filters
+  const { whereSql, params } = buildControlsWhere({
+    category: args.category,
+    search: args.search
+  }); // build filters
   const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary
 
   // totalCount under filters only  -->  ignores cursor boundary by design
@@ -224,7 +233,9 @@ async function fetchControlsPage(args: {
   const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // drop extra row
 
   const last = rows.length ? rows[rows.length - 1] : null; // pick last row for endCursor
-  const endCursor = last ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id }) : null; // compute endCursor
+  const endCursor = last
+    ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
+    : null; // compute endCursor
 
   return { rows, hasNextPage, endCursor, totalCount }; // return page payload
 }
@@ -234,10 +245,18 @@ async function fetchFaqsPage(args: {
   after?: string;
   category?: string;
   search?: string;
-}): Promise<{ rows: DbFaqRow[]; hasNextPage: boolean; endCursor: string | null; totalCount: number }> {
+}): Promise<{
+  rows: DbFaqRow[];
+  hasNextPage: boolean;
+  endCursor: string | null;
+  totalCount: number;
+}> {
   const firstClamped = clampFirst(args.first); // enforce safe page size
 
-  const { whereSql, params } = buildFaqsWhere({ category: args.category, search: args.search }); // build filters
+  const { whereSql, params } = buildFaqsWhere({
+    category: args.category,
+    search: args.search
+  }); // build filters
   const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary
 
   // totalCount under filters only  -->  ignores cursor boundary by design
@@ -275,11 +294,12 @@ async function fetchFaqsPage(args: {
   const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // drop extra row
 
   const last = rows.length ? rows[rows.length - 1] : null; // pick last row for endCursor
-  const endCursor = last ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id }) : null;  // compute endCursor
+  const endCursor = last
+    ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
+    : null; // compute endCursor
 
-  return { rows, hasNextPage, endCursor, totalCount };  // return page payload
+  return { rows, hasNextPage, endCursor, totalCount }; // return page payload
 }
-
 
 // ----------  field mappers (db --> graphql)  ----------
 
@@ -291,7 +311,7 @@ function mapControlNode(row: DbControlRow) {
     description: row.description, // passthrough
     category: row.category, // passthrough
     sourceUrl: row.source_url, // snake -> camel
-    updatedAt: toIso(row.updated_at), // timestamptz -> iso string
+    updatedAt: toIso(row.updated_at) // timestamptz -> iso string
   };
 }
 
@@ -302,10 +322,9 @@ function mapFaqNode(row: DbFaqRow) {
     question: row.question, // passthrough
     answer: row.answer, // passthrough
     category: row.category, // passthrough
-    updatedAt: toIso(row.updated_at), // timestamptz -> iso string
+    updatedAt: toIso(row.updated_at) // timestamptz -> iso string
   };
 }
-
 
 // ----------  resolver map (schema execution)  ----------
 
@@ -320,51 +339,63 @@ export const resolvers = {
     // debug helper  -->  proves context is wired
     debugContext: (_parent: unknown, _args: unknown, ctx: GraphQLContext) => ({
       requestId: ctx.requestId, // show request trace id
-      isAdmin: ctx.auth.isAdmin, // show admin flag
+      isAdmin: ctx.auth.isAdmin // show admin flag
     }),
 
     // read-only controls connection  -->  pagination + filters
     controlsConnection: async (
       _parent: unknown,
-      args: { first: number; after?: string; category?: string; search?: string },
-      _ctx: GraphQLContext,
+      args: {
+        first: number;
+        after?: string;
+        category?: string;
+        search?: string;
+      },
+      _ctx: GraphQLContext
     ) => {
-      if (args.after && !isValidCursor(args.after)) throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast
+      if (args.after && !isValidCursor(args.after))
+        throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast
 
       const page = await fetchControlsPage(args); // fetch deterministic page from db
 
-      const edges = page.rows.map((row) => ({
+      const edges = page.rows.map(row => ({
         cursor: encodeCursor({ sortValue: toIso(row.updated_at), id: row.id }), // edge cursor payload
-        node: mapControlNode(row), // db -> graphql node
+        node: mapControlNode(row) // db -> graphql node
       }));
 
       return {
         edges, // list of edges
         pageInfo: { hasNextPage: page.hasNextPage, endCursor: page.endCursor }, // pagination info
-        totalCount: page.totalCount, // filtered total
+        totalCount: page.totalCount // filtered total
       };
     },
 
     // read-only faqs connection  -->  mirrors controls behavior
     faqsConnection: async (
       _parent: unknown,
-      args: { first: number; after?: string; category?: string; search?: string },
-      _ctx: GraphQLContext,
+      args: {
+        first: number;
+        after?: string;
+        category?: string;
+        search?: string;
+      },
+      _ctx: GraphQLContext
     ) => {
-      if (args.after && !isValidCursor(args.after)) throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast
+      if (args.after && !isValidCursor(args.after))
+        throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast
 
       const page = await fetchFaqsPage(args); // fetch deterministic page from db
 
-      const edges = page.rows.map((row) => ({
+      const edges = page.rows.map(row => ({
         cursor: encodeCursor({ sortValue: toIso(row.updated_at), id: row.id }), // edge cursor payload
-        node: mapFaqNode(row), // db -> graphql node
+        node: mapFaqNode(row) // db -> graphql node
       }));
 
       return {
         edges, // list of edges
         pageInfo: { hasNextPage: page.hasNextPage, endCursor: page.endCursor }, // pagination info
-        totalCount: page.totalCount, // filtered total
+        totalCount: page.totalCount // filtered total
       };
-    },
-  },
+    }
+  }
 };
