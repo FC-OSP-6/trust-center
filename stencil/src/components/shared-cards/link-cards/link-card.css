@@ -1,3 +1,53 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  The styling for link-cards
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+:host {
+    display: block;
+    font-family: var(--font-default);
+    --link-card-radius: 8px;
+    --link-card-border: var(--color-gray-05);
+    --link-card-bg: var(--color-surface);
+}
+
+.link-card {
+    display: grid;
+    gap: var(--default-local-spacing);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+     background: var(--expansion-card-bg);
+    border: 1px solid var(--link-card-border);
+    border-radius: var(--expansion-card-radius);
+    padding: var(--default-local-spacing);
+}
+
+.title {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
+    color: var(--color-navy-primary);
+}
+
+.link-list {
+    margin: 16px 0 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+}
+
+.link-item {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    align-items: start;
+    gap: 10px;
+}
+
+/* Links */
+a {
+  color: var(--color-teal-dark-secondary);
+}
+
+a:hover {
+  color: var(--color-teal-dark-hover);
+}
