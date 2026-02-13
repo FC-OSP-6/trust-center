@@ -16,20 +16,21 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 
 export class AonSubnavCard {
 
-  @Prop() subnavCardTitle: string = "Categories";
+  // @Prop() subnavCardTitle: string = "Categories";
   @Prop() infrastructureSecurityHref: string = "Infrastructure Security";
   @Prop() organizationalSecurityHref: string = "Organizational Security";
   @Prop() productSecurityHref: string = "Product Security";
   @Prop() internalSecurityProceduresHref: string = "Internal Security Procedures";
   @Prop() dataAndPrivacyHref: string = "Data and Privacy";
+  
 
   
 
-  //
+  
   render() {
     return (
-     <div class="subnav-card">
-      <div class="subnav-card-title">{this.subnavCardTitle}</div>
+       <div class="subnav-card">
+      <div class="subnav-card-title"></div>
       <div class="subnav-card-links">
         <a href={this.infrastructureSecurityHref}>Infrastructure Security</a>
         <a href={this.organizationalSecurityHref}>Organizational Security</a>
