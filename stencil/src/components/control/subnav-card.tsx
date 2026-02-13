@@ -1,19 +1,19 @@
 /* ================================
   TL;DR  -->  lists the categories of all control cards on the controls page
-      1. links down the page to each control card
+
+  - renders a small "subnav" card with anchor links
+  - links are meant to jump down the page via fragment ids (ex: #infrastructure-security)
+  - each target section on the page must have a matching id attribute
 ================================ */
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+import { Component, Prop, h } from "@stencil/core"; // stencil decorators for defining a web component + its public api
+// `h` is stencil’s jsx factory; jsx compiles to h('tag', ...) calls at build time
 
-
-// Defines the <aon-subnav-card> Web Component
 @Component({
-  tag: 'aon-subnav-card', // registers the custom element <aon-subnav-card>
-  styleUrls: ['./subnav-card.css'], 
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  tag: "aon-subnav-card", // registers the custom element <aon-subnav-card>
+  styleUrls: ["./subnav-card.css"], // component-local stylesheet
+  shadow: true, // enables shadow dom for dom + style encapsulation
 })
-
 export class AonSubnavCard {
 
   // @Prop() subnavCardTitle: string = "Categories";

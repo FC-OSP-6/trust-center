@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
 
     // fixes vite bundling issue  -->  only load react once (react hook error)
     resolve: {
-      dedupe: ['react', 'react-dom'],
+      dedupe: ['react', 'react-dom']
     },
 
     optimizeDeps: { include: ['react', 'react-dom'] },
@@ -32,14 +32,14 @@ export default defineConfig(({ mode }) => {
       proxy: {
         // preserves method + json + headers  -->  no hardcoding,  no path rewriting,  no websocket upgrades needed for MVP
         '/api/health': { target: serverTarget, changeOrigin: true },
-        '/graphql': { target: serverTarget, changeOrigin: true },
-      },
+        '/graphql': { target: serverTarget, changeOrigin: true }
+      }
     },
 
     build: {
       // output is relative to the vite root  -->  rrepo root by default, rerouted in package.json
       outDir: 'dist',
-      emptyOutDir: true,
-    },
+      emptyOutDir: true
+    }
   };
 });
