@@ -15,28 +15,26 @@ import { Component, Prop, h } from "@stencil/core"; // stencil decorators for de
   shadow: true, // enables shadow dom for dom + style encapsulation
 })
 export class AonSubnavCard {
+  @Prop() subnavCardTitle: string = "Categories"; // visible heading for the subnav card
 
-  // @Prop() subnavCardTitle: string = "Categories";
-  @Prop() infrastructureSecurityHref: string = "Infrastructure Security";
-  @Prop() organizationalSecurityHref: string = "Organizational Security";
-  @Prop() productSecurityHref: string = "Product Security";
-  @Prop() internalSecurityProceduresHref: string = "Internal Security Procedures";
-  @Prop() dataAndPrivacyHref: string = "Data and Privacy";
-  
+  @Prop() infrastructureSecurityHref: string = "#infrastructure-security"; // fragment id for infrastructure section
+  @Prop() organizationalSecurityHref: string = "#organizational-security"; // fragment id for organizational section
+  @Prop() productSecurityHref: string = "#product-security"; // fragment id for product section
+  @Prop() internalSecurityProceduresHref: string = "#internal-security-procedures"; // fragment id for internal procedures section
+  @Prop() dataAndPrivacyHref: string = "#data-and-privacy"; // fragment id for data + privacy section
 
-  
-
-  
   render() {
     return (
-       <div class="subnav-card">
-      <div class="subnav-card-title"></div>
-      <div class="subnav-card-links">
-        <a href={this.infrastructureSecurityHref}>Infrastructure Security</a>
-        <a href={this.organizationalSecurityHref}>Organizational Security</a>
-        <a href={this.productSecurityHref}>Product Security</a>
-        <a href={this.internalSecurityProceduresHref}>Internal Security Procedures</a>
-        <a href={this.dataAndPrivacyHref}>Data and Privacy</a>
+      <div class="subnav-card">
+        <div class="subnav-card-title">{this.subnavCardTitle}</div>
+
+        <div class="subnav-card-links">
+          <a href={this.infrastructureSecurityHref}>Infrastructure Security</a>
+          <a href={this.organizationalSecurityHref}>Organizational Security</a>
+          <a href={this.productSecurityHref}>Product Security</a>
+          <a href={this.internalSecurityProceduresHref}>Internal Security Procedures</a>
+          <a href={this.dataAndPrivacyHref}>Data and Privacy</a>
+        </div>
       </div>
     );
   }
