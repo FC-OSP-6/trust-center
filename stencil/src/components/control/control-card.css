@@ -1,4 +1,313 @@
-/* ================================
-    TL;DR  --> styling for cards in "title" section
-    
-================================ */
+/* ======================================================
+  TL;DR  -->  styling for controls grouped cards
+
+  - 2 cards per row (desktop), 1 column at tablet (<= 991px)
+  - cards never touch viewport edges (wrap padding-inline)
+  - token-driven type scale + spacing rhythm (no local tokens)
+  - status/icons centered under the status column
+  - +/- toggle animation:
+      - horizontal bar stays
+      - vertical bar rotates clockwise and visually collapses into "-"
+  - expanded descriptions:
+      - layout opens downward from the title row
+      - text reveal is bottom-first (you see bottom of text before top)
+      - micro-delay: container opens first, then glyphs reveal (still ease-out)
+  - easing: ease-out only (snappy; no laggy ease-in feel)
+====================================================== */
+
+:host {
+    display: block;
+    font-family: var(--font-default);
+}
+
+.wrap {
+    display: grid;
+    gap: var(--default-local-spacing);
+
+    /* IMPORTANT: prevents “cards touch the edges” */
+    padding-inline: var(--default-local-spacing);
+    padding-block: var(--default-local-spacing);
+}
+
+@media (max-width: 575px) {
+    .wrap {
+        padding-inline: var(--mobile-local-spacing);
+        padding-block: var(--mobile-local-spacing);
+        gap: var(--mobile-local-spacing);
+    }
+}
+
+/* ---------- tile header (optional) ---------- */
+.tileHeader {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+}
+
+.tileText {
+    display: grid;
+    gap: 6px;
+}
+
+.tileTitle {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-xxlarge);
+    line-height: var(--line-height-xxlarge);
+    color: var(--color-navy-primary);
+}
+
+.tileMeta {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-gray-02);
+}
+
+.tileSubtitle {
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+    color: var(--color-gray-01);
+}
+
+/* ---------- grid: 2 cards per row -> 1 at tablet ---------- */
+.grid {
+    display: grid;
+    gap: var(--default-local-spacing);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 575px) {
+    .grid {
+        gap: var(--mobile-local-spacing);
+    }
+}
+
+/* ---------- card ---------- */
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-gray-05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* header is a single row: title left, toggle right */
+.cardHeader {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 44px;
+    align-items: center;
+
+    padding: 16px var(--default-local-spacing);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+
+    text-align: left;
+}
+
+@media (max-width: 575px) {
+    .cardHeader {
+        padding: 16px var(--mobile-local-spacing);
+    }
+}
+
+/* keep accessibility without a big “outline box” */
+.cardHeader:focus {
+    outline: none;
+}
+
+.cardHeader:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-gray-06);
+}
+
+.cardTitle {
+    margin: 0;
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-large);
+    line-height: var(--line-height-large);
+    color: var(--color-navy-primary);
+}
+
+.cardHeaderRight {
+    display: grid;
+    place-items: center;
+}
+
+/* ---------- +/- toggle (animated) ---------- */
+.toggleIcon {
+    width: 18px;
+    height: 18px;
+    position: relative;
+    display: inline-block;
+}
+
+.toggleBarH,
+.toggleBarV {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 2px;
+    background: var(--color-teal-dark-secondary);
+    transform: translate(-50%, -50%);
+    border-radius: 999px;
+}
+
+/* start as vertical bar (i.e., plus sign) */
+.toggleBarV {
+    transform: translate(-50%, -50%) rotate(90deg);
+    transform-origin: center;
+
+    /* ease-out only (snappy; avoids “laggy” ease-in feel) */
+    transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* open => rotate clockwise until it visually merges with horizontal bar */
+.toggleIcon.isOpen .toggleBarV {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* ---------- columns header ---------- */
+.columns {
+    display: grid;
+    grid-template-columns: 1fr 44px;
+    align-items: end;
+
+    padding: 0 var(--default-local-spacing) 12px var(--default-local-spacing);
+}
+
+@media (max-width: 575px) {
+    .columns {
+        padding: 0 var(--mobile-local-spacing) 12px var(--mobile-local-spacing);
+    }
+}
+
+/* mockups show normal case + bold (not all caps) */
+.colLeft,
+.colRight {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-navy-primary);
+
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.colRight {
+    text-align: center;
+}
+
+/* ---------- rows ---------- */
+.rows {
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--default-local-spacing) var(--default-local-spacing) var(--default-local-spacing);
+
+    display: grid;
+    gap: 14px;
+}
+
+@media (max-width: 575px) {
+    .rows {
+        padding: 0 var(--mobile-local-spacing) var(--mobile-local-spacing) var(--mobile-local-spacing);
+        gap: 16px;
+    }
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 44px;
+    align-items: start;
+    column-gap: 12px;
+}
+
+.rowLeft {
+    display: grid;
+    gap: 6px;
+}
+
+.rowTitle {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-medium);
+    line-height: var(--line-height-medium);
+    color: var(--color-gray-01);
+}
+
+/* --- description reveal: opens downward, text reveals bottom-first --- */
+.rowDescWrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+
+    /* slower + ease-out only */
+    transition:
+        grid-template-rows 360ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rowDescWrap.isOpen {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.rowDescInner {
+    overflow: hidden;
+
+    font-weight: var(--font-weight-regular);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-gray-01);
+
+    /*
+    bottom-first reveal:
+    - start clipped from the TOP (top=100% hides everything)
+    - as top decreases to 0, the bottom appears first, then the top
+  */
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(-6px);
+
+    /*
+    micro-delay so container opens first, then glyphs reveal
+    (still ease-out only)
+  */
+    transition:
+        clip-path 360ms cubic-bezier(0.22, 1, 0.75, 1) 50ms,
+        transform 360ms cubic-bezier(0.22, 1, 0.6, 1) 140ms;
+    will-change: clip-path, transform;
+}
+
+.rowDescWrap.isOpen .rowDescInner {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+}
+
+.rowRight {
+    display: grid;
+    place-items: center;
+    padding-top: 1px;
+}
+
+.statusIcon {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.statusDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--color-success);
+    display: block;
+}
