@@ -1,3 +1,82 @@
-/* ================================
-  TL;DR  -->  The styling for link-cards 
-================================ */
+/* ==========================================
+   TL;DR --> Styling for Link Card
+   - Matches expansion-card layout contract
+   - Uses design tokens only
+   - Page grid handled externally
+========================================== */
+
+:host {
+  display: block;
+  font-family: var(--font-default);
+}
+
+/* ---- outer wrapper (matches expansion-card) ---- */
+.wrap {
+  display: grid;
+  gap: var(--default-local-spacing);
+}
+
+/* ---- card container (match expansion-card) ---- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-gray-05);
+  border-radius: 8px;
+  padding: var(--default-local-spacing);
+}
+
+/* ---- header ---- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-title {
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  color: var(--color-navy-primary);
+}
+
+/* ---- list ---- */
+.link-list {
+  margin: 16px 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+/* ---- individual row (match expansion item layout) ---- */
+.link-item {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 10px;
+}
+
+/* ---- icon wrapper (match expansion card exactly) ---- */
+.icon {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  color: var(--color-gray-02);
+}
+
+/* ---- link text ---- */
+a {
+  color: var(--color-teal-dark-secondary);
+  text-decoration: var(--link-decoration-default);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+}
+
+a:hover {
+  color: var(--color-teal-dark-hover);
+  text-decoration: var(--link-decoration-hover);
+}
