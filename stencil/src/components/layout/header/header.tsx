@@ -1,12 +1,12 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  The very top of Aon's mockup page
-      1. The far left corner should have `CyQu`
-      2. The far right corner should have a menu button which will allow developers access to special developer features
-================================ */
+
+      - The far left corner features the title/logo of the page -> `CyQu`
+      - The far right corner has a login button which will give developers access to special features
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
-
 
 // Defines the <aon-header> Web Component
 @Component({
@@ -15,12 +15,6 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
   shadow: true, // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonHeader {
-  // Logo URL
-  @Prop() CyQuLogo: string;
-
-  // Login icon URL
-  // @Prop() loginIcon!: string;
-
   render() {
     return (
       <div>
@@ -35,12 +29,6 @@ export class AonHeader {
           </div>
         </header>
       </div>
-  
-    
-
-
-      
-      
     );
   }
 }

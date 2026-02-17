@@ -1,20 +1,16 @@
-/* ================================
-  TL;DR  -->  Styling for the very top of Aon's mockup page
-================================ */
-
-/*Spacing for */
-
-/* Was trying to use the person icon from Aon's website */
-/* import '~@fortawesome/fontawesome-free/css/all.min.css' */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Styling for the header which will be the very top of Aon's mockup page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /* Header Formatting */
 
+/* Removing margin and padding to accomodate a flush header */
 html,body {
   margin: 0;
   padding: 0;
 }
 
-/* Text Formatting */
+/* Formatting for the text */
 .product-title-text {
   font-family: var(--font-default);
   font-weight: var(--font-weight-bold);
@@ -24,7 +20,7 @@ html,body {
   margin: 20px 40px 20px 20px;
 }
 
-/* Background Formatting */
+/* Formatting for the background */
 header {
   display: flex;
   align-items: center;
@@ -36,7 +32,7 @@ header {
   width: 100vw;
 }
 
-/* Login Container */
+/* Formatting for the Login Container  */
 .login-container {
   display: flex;
   justify-content: center;
@@ -46,11 +42,12 @@ header {
   width: 44px;
 }
 
+/* Login Container Hover */
 .login-container:hover {
   cursor: pointer;
 }
 
-/* Login Icon */
+/* Formatting for the Login Icon */
 .login-icon svg {
   width: 30px;
   height: 44px;

@@ -1,43 +1,63 @@
-/* ================================
-  TL;DR  -->  styling for the subnav
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Styling for the Subnav card
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+/* Subnav card Formatting */
 
+/* Sizing for the Subnav card */
+:host {
+  display: block;
+  width: 260px;
+  margin: 20px auto;
+}
 
-/* subnav card */
 .subnav-card {
   background-color: white;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.25);
   border-top: 4px;
-  width: 100vw;
+  width: 260px;
+  padding-bottom: 0.5px;
 }
-/* .subnav-card-links:hover {
-  background-color: var(--color-gray-07);
-} */
 
-/* subnav links */
+/* Default Nav Links inspired by the Rail Navigation Design System Page */
 .subnav-card-links {
   list-style: none;
-  font-size: var(--font-size-xsmall);
-  line-height: var(--line-height-xsmall);
-  
-  
 }
 
 .subnav-card-links a {
+  font-family: var(--font-default);
   text-decoration: none;
   font-size: var(--font-size-small);
   color: var(--color-teal-dark-secondary);
-  /* text-transform: uppercase; */
+  padding-left: 10px;
 }
 
-/* .subnav-card-links a: hover {
+.subnav-card-links li {
+  height: 17px;
+  padding-bottom: 15px;
+}
 
-} */
-
-.subnav-card-title {
-  color: var(--color-navy);
-  font-size: 
+/* Active Nav Link inspired by the Rail Navigation Design System Page */
+.subnav-card-links a:active {
   font-family: var(--font-default);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-teal-dark-active);
+  border-left: 2.5px solid;
+  border-color: var(--color-teal-dark-active);
+}
+
+/* Subnav card links hover feature */
+.subnav-card-links a:hover {
+  color: var(--color-teal-dark-hover);
+}
+
+/* Formatting for the Title -> 'Categories`*/
+.subnav-card-title {
+  padding: 20px 33px 5px;
+  color: var(--color-navy);
+  font-size: var(--font-size-xlarge);
+  font-family: var(--font-default);
+  font-weight: var(--font-weight-bold);
 }
 
