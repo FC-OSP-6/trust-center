@@ -1,22 +1,29 @@
-/* ==========================================
-   TL;DR --> Styling for Link Card
-   - Matches expansion-card layout contract
-   - Uses design tokens only
-   - Page grid handled externally
-========================================== */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Shadow-DOM Link Card Styling Module
 
+   - Encapsulates all visual styling for <aon-link-card>.
+   - Establishes internal layout (card, header, list, rows).
+   - Uses design tokens exclusively for spacing, typography, and color.
+   - Maintains visual consistency with expansion-card patterns.
+   - Expects global design tokens to be defined in :root.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+
+/* Root host element: establishes block context and typography inheritance */
 :host {
   display: block;
   font-family: var(--font-default);
 }
 
-/* ---- outer wrapper (matches expansion-card) ---- */
+
+/* Outer wrapper: vertical layout container for card spacing */
 .wrap {
   display: grid;
   gap: var(--default-local-spacing);
 }
 
-/* ---- card container (match expansion-card) ---- */
+
+/* Card container: defines surface, border, radius, and internal padding */
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-gray-05);
@@ -24,7 +31,8 @@
   padding: var(--default-local-spacing);
 }
 
-/* ---- header ---- */
+
+/* Header: horizontal layout for title and optional right-aligned content */
 .header {
   display: flex;
   align-items: center;
@@ -32,6 +40,8 @@
   gap: 12px;
 }
 
+
+/* Title typography: applies hierarchy and brand color */
 .card-title {
   margin: 0;
   font-weight: var(--font-weight-bold);
@@ -40,24 +50,27 @@
   color: var(--color-navy-primary);
 }
 
-/* ---- list ---- */
+
+/* Link list: removes default list styling and establishes vertical rhythm */
 .link-list {
-  margin: 16px 0 0 0;
+  margin: 16px 0 0 0; /* separates list from header */
   padding: 0;
   list-style: none;
   display: grid;
   gap: 10px;
 }
 
-/* ---- individual row (match expansion item layout) ---- */
+
+/* Individual row: two-column layout (icon + link text) */
 .link-item {
   display: grid;
-  grid-template-columns: 18px 1fr;
+  grid-template-columns: 18px 1fr; /* fixed icon column + flexible text */
   align-items: start;
   gap: 10px;
 }
 
-/* ---- icon wrapper (match expansion card exactly) ---- */
+
+/* Icon: fixed sizing and visual alignment within grid column */
 .icon {
   width: 18px;
   height: 18px;
@@ -67,7 +80,8 @@
   color: var(--color-gray-02);
 }
 
-/* ---- link text ---- */
+
+/* Anchor: applies design-system link styling */
 a {
   color: var(--color-teal-dark-secondary);
   text-decoration: var(--link-decoration-default);
@@ -76,7 +90,10 @@ a {
   line-height: var(--line-height-medium);
 }
 
+
+/* Hover state: reinforces interactive affordance */
 a:hover {
   color: var(--color-teal-dark-hover);
   text-decoration: var(--link-decoration-hover);
 }
+
