@@ -67,23 +67,18 @@ export default function Faqs() {
 
   return (
     <section>
-      {/* status text  -->  keeps debugging fast during mvp */}
-      <div>
-        {isLoading && <p>loading faqs...</p>}
-        {errorText && <p>error: {errorText}</p>}
-        {!isLoading && !errorText && <p>faqs loaded: {faqs.length}</p>}
-      </div>
-
-      {/* render stencil items if custom element supports props, otherwise fallback list is still visible */}
-      {faqs.map((f) => (
-        <div key={f.id}>
-          {/* aon-faq-card props are not typed in types-frontend yet  -->  plain render keeps demo stable */}
-          <strong>{f.question}</strong>
-          <div>{f.answer}</div>
-          <div>{f.category}</div>
-          <div>updated: {f.updatedAt}</div>
-        </div>
-      ))}
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
     </section>
   );
 }

@@ -1,20 +1,26 @@
-/* ======================================================
-  TL;DR → Section navigation bar
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Primary section navigation bar component
 
-  Responsibilities:
-  - Render primary navigation tabs for Trust Center sections
-  - Provide anchor-based navigation to Overview, Controls, Resources, and FAQs
-  - Act as a visual affordance for section switching / expansion
-  - Remain stateless; interaction behavior is owned by the host application
+  - Manages active link state internally via @State(); tradeoff is that the navbar
+    owns URL-awareness rather than receiving it from the React host, which creates
+    a tight coupling to window.location and React Router's history stack.
+  - SPA navigation is achieved by intercepting anchor clicks, calling
+    window.history.pushState, and dispatching a synthetic popstate event to notify
+    React Router; tradeoff is that this approach depends on React Router listening
+    to popstate, which may break if the routing strategy changes.
+  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
+    cannot pierce the shadow boundary without CSS custom properties.
+  - Navigation structure is currently static; future iterations may accept section
+    config as a prop from the React host.
 
-  Data contract:
-  - Navigation structure is currently static
-  - Future iterations may accept section config from the host
-====================================================== */
+  - Lives in: stencil/components/navbar/
+  - Depends on: navbar.css (component-scoped styles), tokens.css (via CSS custom properties)
+  - Exports: <aon-navbar> — consumed by the React host as the primary section
+    navigation bar rendered beneath <aon-header> on all Trust Center pages.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { Component, h, State, Host } from '@stencil/core';
-// Stencil core decorator + JSX factory
-// Component is presentational only; no props, state, or events
+// Stencil core decorators and JSX factory; State is used for active link tracking
 
 @Component({
   tag: 'aon-navbar',
@@ -22,7 +28,6 @@ import { Component, h, State, Host } from '@stencil/core';
   shadow: true, // isolate DOM + styles for design-system safety
 })
 export class AonNavbar {
-  // ---- Render ----
   // Renders a static navigation list; routing / expansion handled externally
  
   //Track current URL path for active link highlighting 
@@ -32,9 +37,9 @@ export class AonNavbar {
   componentWillLoad() {
     window.addEventListener('popstate', () => {
       this.currentPath = window.location.pathname; // Update active link on navigation
+
     });
   }
-
   // Check if given path matches current page
   isCurrentPage(path: string): boolean {
     return this.currentPath.includes(path);
