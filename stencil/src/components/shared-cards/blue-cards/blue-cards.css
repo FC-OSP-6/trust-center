@@ -1,9 +1,13 @@
-/* ================================
-  TL;DR  -->  The styling for blue-cards
-<<<<<<< HEAD
-================================ */
-=======
->>>>>>> 152faa116285c1446018159477d3efcc38ea0688
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ TL;DR  -->  Component-scoped layout and visual styles
+
+  - Provides all visual styling for <aon-blue-card>.
+  - Defines layout using flexbox for horizontal alignment of content and CTA.
+  - Uses design-system CSS variables for color, typography, and spacing consistency.
+  - Scoped via Shadow DOM (trade-off: style isolation, no global overrides).
+  - Includes responsive typography adjustment for small tablet breakpoints.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 :host {
   display: block;
@@ -21,7 +25,7 @@
   padding: 20px;
   background-color: var(--color-gray-06);
   margin: 20px;
-  /* TODO: May have to take out margins later to leave at the layout layer in react */
+/* TODO: Consider removing margin and delegating layout spacing to the host (React) layer */
 }
 
 .blue-card-text {
@@ -29,6 +33,7 @@
   flex-direction: column;
   gap: 4px;
 }
+
 .blue-card-title {
   margin: 0;
 }
@@ -48,11 +53,14 @@
   border-radius: 4px;
 }
 
+/* Styles anchor inside the button; scoped to Shadow DOM */
 a {
   text-decoration: none;
   color: var(--color-gray-06);
 }
 
+
+/* Adjust button typography for small tablet breakpoint */
 @media (min-width: 576px) and (max-width: 767px) {
   .blue-card-button {
     font-size: 15px;
