@@ -9,10 +9,6 @@
   modes:
   - data-mode="faqs": fetches faqsConnection from /graphql, groups by category, renders page ui
   - data-mode="single": renders one question/answer pair (backwards compatible)
-
-  note:
-  - per-item expansion state is internal to stencil
-  - graphql schema does NOT expose sourceUrl for Faq  --> do not query it
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { Component, Prop, State, h } from "@stencil/core";
