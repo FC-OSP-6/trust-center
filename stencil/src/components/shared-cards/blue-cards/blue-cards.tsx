@@ -1,13 +1,19 @@
-/* ================================
-  TL;DR  -->  The blue shaded cards that are on Aon's mockup
-      1. These cards should provide a link(contained in a button) for the user to visit
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Reusable blue call-to-action card component
+
+  - Defines <aon-blue-card>, a presentational Stencil Web Component.
+  - Renders a title, description, and external CTA link via props.
+  - Uses Shadow DOM for style and DOM encapsulation (trade-off: isolated styles, but no global CSS inheritance).
+  - Contains no internal state, events, or business logic.
+  - Exports AonBlueCard class; consumed as <aon-blue-card> in host frameworks (e.g., React layer).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
 @Component({
-  tag: 'aon-blue-card', // registers the custom element <aon-footer>
-  styleUrls: ['./blue-cards.css'], // this is the new name of our global css file
+  tag: 'aon-blue-card', // Registers the custom element <aon-blue-card>
+  styleUrls: ['./blue-cards.css'],
   shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonBlueCard {
@@ -18,9 +24,6 @@ export class AonBlueCard {
   @Prop() blueCardButtonText: string;
   @Prop() blueCardButtonLink: string;
 
-  //FAQS & CONTROLS -- would change
-
-  //
   render() {
     const {
       blueCardTitle,

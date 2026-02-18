@@ -1,0 +1,8 @@
+# Enforce LF for all text files
+* text=auto eol=lf
+
+# Explicitly mark binary files
+*.pdf binary
+*.svg text
+*.png binary
+*.jpg binary
