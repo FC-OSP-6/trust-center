@@ -4,6 +4,7 @@
 ================================ */
 
 import React, { StrictMode } from 'react';
+import type {} from './types-frontend'; // ensures jsx intrinsic element types are always loaded
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import '../../stencil/dist/trust-center/trust-center.css';
@@ -21,13 +22,13 @@ const root = createRoot(container);
 root.render(
   <StrictMode>
     <BrowserRouter
-    basename="/trust-center"
+      basename="/trust-center"
       future={{
         v7_startTransition: true,
-        v7_relativeSplatPath: true,
+        v7_relativeSplatPath: true
       }}
     >
       <App />
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 );

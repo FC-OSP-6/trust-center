@@ -1,20 +1,26 @@
-/* ======================================================
-  TL;DR → Section navigation bar
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Primary section navigation bar component
 
-  Responsibilities:
-  - Render primary navigation tabs for Trust Center sections
-  - Provide anchor-based navigation to Overview, Controls, Resources, and FAQs
-  - Act as a visual affordance for section switching / expansion
-  - Remain stateless; interaction behavior is owned by the host application
+  - Manages active link state internally via @State(); tradeoff is that the navbar
+    owns URL-awareness rather than receiving it from the React host, which creates
+    a tight coupling to window.location and React Router's history stack.
+  - SPA navigation is achieved by intercepting anchor clicks, calling
+    window.history.pushState, and dispatching a synthetic popstate event to notify
+    React Router; tradeoff is that this approach depends on React Router listening
+    to popstate, which may break if the routing strategy changes.
+  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
+    cannot pierce the shadow boundary without CSS custom properties.
+  - Navigation structure is currently static; future iterations may accept section
+    config as a prop from the React host.
 
-  Data contract:
-  - Navigation structure is currently static
-  - Future iterations may accept section config from the host
-====================================================== */
+  - Lives in: stencil/components/navbar/
+  - Depends on: navbar.css (component-scoped styles), tokens.css (via CSS custom properties)
+  - Exports: <aon-navbar> — consumed by the React host as the primary section
+    navigation bar rendered beneath <aon-header> on all Trust Center pages.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, h } from '@stencil/core';
-// Stencil core decorator + JSX factory
-// Component is presentational only; no props, state, or events
+import { Component, h, State, Host } from '@stencil/core';
+// Stencil core decorators and JSX factory; State is used for active link tracking
 
 @Component({
   tag: 'aon-navbar',
@@ -22,30 +28,72 @@ import { Component, h } from '@stencil/core';
   shadow: true, // isolate DOM + styles for design-system safety
 })
 export class AonNavbar {
-  // ---- Render ----
   // Renders a static navigation list; routing / expansion handled externally
+ 
+  //Track current URL path for active link highlighting 
+@State() currentPath: string = window.location.pathname;
+
+  // Set up listener for browser back/forward buttons
+  componentWillLoad() {
+    window.addEventListener('popstate', () => {
+      this.currentPath = window.location.pathname; // Update active link on navigation
+
+    });
+  }
+  // Check if given path matches current page
+  isCurrentPage(path: string): boolean {
+    return this.currentPath.includes(path);
+  }
+
+  // Handle click navigation without page reload (SPA behavior)
+  navigateTo(path: string, e: Event) {
+    e.preventDefault(); // Stop default link behavior (prevents page reload)
+    window.history.pushState({}, '', `/trust-center${path}`); // Update URL bar
+    window.dispatchEvent(new PopStateEvent('popstate')); // Notify React Router
+    this.currentPath = window.location.pathname; // Update active state
+  }
 
   render() {
     return (
-      <nav aria-label="Trust Center section navigation">
-        <ul class="navbar-content">
-          <li class="nav-tab">
-            <a href="/trust-center/overview">Overview</a>
-          </li>
+      <Host>
+        <nav class="navbar">
+          {/* Overview link - dynamically add 'active' class if on this page */}
+          <a
+            href="/trust-center/overview"
+            class={`nav-item ${this.isCurrentPage('/overview') ? 'active' : ''}`}
+            onClick={(e) => this.navigateTo('/overview', e)}
+          >
+            OVERVIEW
+          </a>
 
-          <li class="nav-tab">
-            <a href="/trust-center/controls">Controls</a>
-          </li>
+          {/* Controls link */}
+          <a
+            href="/trust-center/controls"
+            class={`nav-item ${this.isCurrentPage('/controls') ? 'active' : ''}`}
+            onClick={(e) => this.navigateTo('/controls', e)}
+          >
+            CONTROLS
+          </a>
 
-          <li class="nav-tab">
-            <a href="/trust-center/resources">Resources</a>
-          </li>
+          {/* Resources link */}
+          <a
+            href="/trust-center/resources"
+            class={`nav-item ${this.isCurrentPage('/resources') ? 'active' : ''}`}
+            onClick={(e) => this.navigateTo('/resources', e)}
+          >
+            RESOURCES
+          </a>
 
-          <li class="nav-tab">
-            <a href="/trust-center/faqs">FAQs</a>
-          </li>
-        </ul>
-      </nav>
+          {/* FAQ link */}
+          <a
+            href="/trust-center/faqs"
+            class={`nav-item ${this.isCurrentPage('/faqs') ? 'active' : ''}`}
+            onClick={(e) => this.navigateTo('/faqs', e)}
+          >
+            FAQ
+          </a>
+        </nav>
+      </Host>
     );
   }
 }

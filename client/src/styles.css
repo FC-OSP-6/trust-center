@@ -4,8 +4,8 @@
       - spacing and 
 ================================ */
 
-:root{
-    /* Global spacing (between components) */
+:root {
+  /* Global spacing (between components) */
   --space-global-xs: 20px;
   --space-global-sm: 24px;
   --space-global-md: 32px;
@@ -13,5 +13,48 @@
 }
 
 body {
-  background-color: pink;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+/* ================================
+   Resources Section Layout
+================================ */
+
+.resources-section {
+  padding: var(--space-global-lg) var(--space-global-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-global-lg);
+}
+
+/* Grid only for link cards */
+.resources-grid {
+  width: 100%;
+  max-width: 1200px;
+
+  display: grid;
+  gap: var(--space-global-md);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .resources-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Blue card wrapper */
+.resources-callout {
+  width: 100%;
+  max-width: 1200px;
 }

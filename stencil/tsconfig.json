@@ -21,7 +21,7 @@
 
 {
   "compilerOptions": {
-    "moduleResolution": "bundler", 
+    "moduleResolution": "bundler",
     //according to stencil docs it says put bundler
     "baseUrl": "..",
     "jsx": "react",

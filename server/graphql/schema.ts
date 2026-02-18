@@ -7,7 +7,6 @@
   - documents future-only stubs as comments (not executable yet)
 ================================ */
 
-
 export const typeDefs = /* GraphQL */ `
   # ----------  debug primitives  ----------
 
@@ -77,8 +76,18 @@ export const typeDefs = /* GraphQL */ `
     debugContext: DebugContext!
 
     # mvp read-only connections  -->  frontend contract
-    controlsConnection(first: Int!, after: String, category: String, search: String): ControlConnection!
-    faqsConnection(first: Int!, after: String, category: String, search: String): FaqConnection!
+    controlsConnection(
+      first: Int!
+      after: String
+      category: String
+      search: String
+    ): ControlConnection!
+    faqsConnection(
+      first: Int!
+      after: String
+      category: String
+      search: String
+    ): FaqConnection!
   }
 
   # ----------  FUTURE-ONLY STUBS (COMMENTS ONLY)  ----------
