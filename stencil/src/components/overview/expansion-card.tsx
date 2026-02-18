@@ -409,7 +409,15 @@ export class ExpansionCard {
       <div class="card">
         <header class="header">
           <h3 class="title">{title}</h3>
+      <div class="card">
+        <header class="header">
+          <h3 class="title">{title}</h3>
 
+          {hasOverflow && (
+            <button class="toggle" type="button" aria-expanded={isExpanded} onClick={onToggle}>
+              {buttonText}
+            </button>
+          )}
           {hasOverflow && (
             <button class="toggle" type="button" aria-expanded={isExpanded} onClick={onToggle}>
               {buttonText}
@@ -417,6 +425,11 @@ export class ExpansionCard {
           )}
         </header>
 
+        <ul class="list" role="list">
+          {visibleItems.map((text) => (
+            <li class="item">
+              {this.renderBulletIcon()}
+              <span class="text">{text}</span>
         <ul class="list" role="list">
           {visibleItems.map((text) => (
             <li class="item">

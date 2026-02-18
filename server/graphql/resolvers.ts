@@ -49,6 +49,7 @@ type CursorPayload = {
 const MAX_PAGE_SIZE = 50; // safety cap --> avoids accidental heavy queries
 
 
+
 // ----------  helpers (timestamps + inputs)  ----------
 
 function toIso(value: string | Date): string {

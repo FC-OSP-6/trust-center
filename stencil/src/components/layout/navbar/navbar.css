@@ -39,12 +39,16 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  color: var(--color-gray-02, #5d6d78); /* Gray text by default */
+  color: var(--color-gray-02, #5d6d78);
+  /* Gray text by default */
   text-decoration: none;
   padding: 16px 24px;
-  border-bottom: 4px solid transparent; /* Reserves space for active/hover underline; prevents layout shift */
-  transition: all 0.1s ease; /* Smooth hover animations */
-  white-space: nowrap; /* Prevent text wrapping */
+  border-bottom: 4px solid transparent;
+  /* Reserves space for active/hover underline; prevents layout shift */
+  transition: all 0.1s ease;
+  /* Smooth hover animations */
+  white-space: nowrap;
+  /* Prevent text wrapping */
 }
 
 /* Hover state - light background + red text + red underline */
@@ -72,10 +76,12 @@
 /* Mobile breakpoint - allow horizontal scrolling if needed */
 @media (max-width: 575px) {
   .navbar {
-    overflow-x: auto; /* Enable horizontal scroll */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-x: auto;
+    /* Enable horizontal scroll */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
   }
-  
+
   .nav-item {
     font-size: 12px;
     padding: 12px 12px;
