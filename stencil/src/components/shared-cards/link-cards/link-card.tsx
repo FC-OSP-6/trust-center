@@ -1,22 +1,26 @@
-/* ======================================================
-  TL;DR → Link list card
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Link Card Presentational Web Component
 
-  Responsibilities:
-  - Render a titled card containing navigational links
-  - Display links in a clear, scannable list format
-  - Support truncated list display with optional host-controlled expansion
-  - Act as a presentational shell for broker/client navigation
-
-  Data contract:
-  - `title`: string displayed as the card heading
-  - `links`: ordered list of navigation objects:
-      {
-        label: string; // visible link text
-        href: string;  // destination URL
-      }
-====================================================== */
+   - Renders a title and external link list within Shadow DOM for style encapsulation.
+   - Accepts link data as a JSON-stringified LinkItem[] from the parent (tradeoff: string parsing required vs. direct typed prop).
+   - Stateless and fully data-driven; no internal state, events, or side effects.
+   - Conditionally renders icons per item when iconSrc is provided.
+   - Exports <aon-link-card> for use in React or other host frameworks.
+   - Depends only on @stencil/core and local CSS (link-card.css).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { Component, Prop, h } from '@stencil/core';
+
+/**
+ * Shape of each link rendered inside the card.
+ * Passed from parent via JSON-stringified `items` prop.
+ */
+type LinkItem = {
+  label: string; // Visible link text
+  href: string; // Destination URL
+  iconSrc?: string; // Optional icon source path
+  iconAlt?: string; // Optional alt text (defaults to empty string)
+};
 
 @Component({
   tag: 'aon-link-card',
@@ -24,115 +28,56 @@ import { Component, Prop, h } from '@stencil/core';
   shadow: true
 })
 export class LinkCard {
-  /** Card heading */
-  @Prop() linkCardTitle!: string;
+  @Prop() linkTitle: string;
+  @Prop() items: string; // JSON-stringified LinkItem[] passed from parent
 
-  /** Link 1 */
-  @Prop() linkOneLabel!: string;
-  @Prop() linkOneHref!: string;
-
-  /** Link 2 */
-  @Prop() linkTwoLabel!: string;
-  @Prop() linkTwoHref!: string;
-
-  /** Link 3 */
-  @Prop() linkThreeLabel!: string;
-  @Prop() linkThreeHref!: string;
+  /**
+   * Safely parses the JSON-stringified items prop.
+   * Returns an empty array if parsing fails or no items are provided.
+   */
+  private parseItems(): LinkItem[] {
+    try {
+      return JSON.parse(this.items) || [];
+    } catch {
+      return [];
+    }
+  }
 
   render() {
-    const {
-      linkCardTitle,
-      linkOneLabel,
-      linkOneHref,
-      linkTwoLabel,
-      linkTwoHref,
-      linkThreeLabel,
-      linkThreeHref
-    } = this;
+    // Parse data once per render; component remains stateless
+    const items = this.parseItems();
+
+    if (!this.linkTitle && items.length === 0) {
+      // Do not render empty container when no displayable content exists
+      return null;
+    }
 
     return (
-      <div class="link-card">
-        <h1>{linkCardTitle}</h1>
+      <div class="wrap">
+        <div class="card">
+          <header class="header">
+            <h3 class="card-title">{this.linkTitle}</h3>
+          </header>
 
-        <ul class="link-list">
-          <li class="link-item">
-            <a href={linkOneHref}>{linkOneLabel}</a>
-          </li>
-
-          <li class="link-item">
-            <a href={linkTwoHref}>{linkTwoLabel}</a>
-          </li>
-
-          <li class="link-item">
-            <a href={linkThreeHref}>{linkThreeLabel}</a>
-          </li>
-        </ul>
+          <ul class="link-list">
+            {items.map(item => (
+              <li class="link-item">
+                {item.iconSrc && (
+                  <img
+                    class="icon"
+                    src={item.iconSrc}
+                    alt={item.iconAlt || ''}
+                  />
+                )}
+                {/* External links open in new tab with security attributes */}
+                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }
 }
-
-// import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
-
-// @Component({
-//   tag: 'link-card',
-//   styleUrl: 'link-card.css',
-//   shadow: true, // isolate DOM + styles for design-system safety
-// })
-// export class LinkCard {
-//   // ---- Public API (controlled by host application) ----
-
-//   /** Display title for the card */
-//   @Prop() linkCardTitle!: string;
-
-//   /** Ordered list of navigation links */
-//   @Prop() links!: Array<{ label: string; href: string }> = [];
-
-//   // ---- Render ----
-//   // Renders a capped preview of links; expansion handled externally
-
-//   render() {
-//     const { linkCardTitle, links } = this;
-
-//     // Limit visible links to initial preview count
-//     const visibleLinks = links.slice(0, 4);
-
-//     // Calculate overflow indicator count (if any)
-//     const hiddenCount = links.length - visibleLinks.length;
-
-//     return (
-//       <div class="link-card">
-//         <h1>{linkCardTitle}</h1>
-
-//         <ul class="link-list">
-//           {visibleLinks.map(({ label, href }, index) => (
-//             <li class="link-item" key={index}>
-//               <a href={href}>
-//                 {label}
-//               </a>
-//             </li>
-//           ))}
-
-//           {/* Overflow indicator shown when additional links exist */}
-//           {hiddenCount > 0 && (
-//             <li class="link-item more-indicator">
-//               +{hiddenCount} more
-//             </li>
-//           )}
-//         </ul>
-//       </div>
-//     );
-//   }
-// }
-
-// Example for what needs to happen in react:
-
-// {/* <link-card
-//   title="Related Resources"
-//   links={[
-//     { label: 'SOC 2 Report', href: '/docs/soc2' },
-//     { label: 'Data Retention Policy', href: '/policies/data-retention' },
-//     { label: 'Security Overview', href: '/security' },
-//   ]}
-// /> */}
