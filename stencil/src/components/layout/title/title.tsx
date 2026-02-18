@@ -1,7 +1,17 @@
-/* ================================
-  TL;DR  --> The section containing the `Trust Center` title
-      1. Also has informaton for extra support and their email link
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Trust Center page title and support section
+
+  - Stateless presentational component; all layout and positioning owned by the React host.
+  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
+    cannot pierce the shadow boundary without CSS custom properties.
+  - All props ship with hardcoded defaults, making the component functional without host
+    configuration; tradeoff is that defaults must be kept in sync with actual business content.
+
+  - Lives in: stencil/components/title/
+  - Depends on: title.css (component-scoped styles), tokens.css (via CSS custom properties)
+  - Exports: <aon-title> — consumed by the React host as the intro/hero section
+    at the top of the Trust Center page, above the navbar.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time

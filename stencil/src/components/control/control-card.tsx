@@ -6,7 +6,6 @@
       - groups nodes by category
       - derives meta: "<n> controls <m> categories"
       - per-card expand/collapse state (each category independent)
-
   - ui behavior:
       - 2 cards per row (desktop), 1 column at tablet (<= 991px)
       - header contains:
@@ -16,7 +15,6 @@
           - show all control titles + status icons
       - expanded:
           - show titles + descriptions (shared primitive reveal)
-
   - shared primitives:
       - .aonToggleIcon (plus -> minus)
       - .aonRevealWrap/.aonRevealInner (pull-down + bottom-first text)
@@ -70,7 +68,58 @@ const CONTROLS_CONNECTION_QUERY = `
   }
 `;
 
+import { Component, Prop, State, h } from "@stencil/core";
+
+// ---------- local types ----------
+
+type ControlNode = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  updatedAt: string;
+  sourceUrl?: string | null;
+};
+
+type ControlsConnectionResponse = {
+  data?: {
+    controlsConnection?: {
+      totalCount?: number;
+      edges?: Array<{ node?: ControlNode }>;
+    };
+  };
+  errors?: Array<{ message?: string }>;
+};
+
+type CategoryGroup = {
+  title: string;
+  items: Array<{ id: string; title: string; description: string }>;
+};
+
+// ---------- graphql doc (kept local so stencil owns grouping) ----------
+
+const CONTROLS_CONNECTION_QUERY = `
+  query ControlsConnection($first: Int!, $after: String, $category: String, $search: String) {
+    controlsConnection(first: $first, after: $after, category: $category, search: $search) {
+      totalCount
+      edges {
+        node {
+          id
+          title
+          description
+          category
+          sourceUrl
+          updatedAt
+        }
+      }
+    }
+  }
+`;
+
 @Component({
+  tag: "aon-control-card",
+  styleUrl: "control-card.css",
+  shadow: true,
   tag: "aon-control-card",
   styleUrl: "control-card.css",
   shadow: true,
