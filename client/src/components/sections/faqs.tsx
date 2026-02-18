@@ -102,7 +102,7 @@ const FaqItem = ({ id, question, answer, isExpanded, onToggle }) => {
         aria-expanded={isExpanded}
       >
         <span>{question}</span>
-        <span className={`arrow ${isExpanded ? 'expanded' : ''}`}>
+        <span className={`arrow ${isExpand`ed ? 'expanded' : ''}`}>
           ▼
         </span>
       </button>
