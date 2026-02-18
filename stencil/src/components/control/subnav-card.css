@@ -1,25 +1,32 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  Styling for the Subnav card
+  TL;DR  -->  Styles for Sub-navigation Card Component
+
+  - Defines layout, background, shadow, and spacing for the card
+  - Formats the title with font, weight, and color
+  - Styles the navigation links, including hover and active states
+  - Removes default list styles and ensures consistent spacing
+  - Uses :host selector to size and center the component container
+  - Intended usage: paired with <aon-subnav-card> for controls page navigation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/* Subnav card Formatting */
+/* Base layout and visual styling for the subnav card */
 
-/* Sizing for the Subnav card */
+/* :host styles the custom element container: block display, fixed width, and centered margin */
 :host {
   display: block;
   width: 260px;
   margin: 20px auto;
 }
 
+/* Card container background, shadow, top border, and spacing */
 .subnav-card {
   background-color: white;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.25);
   border-top: 4px;
-  width: 260px;
   padding-bottom: 0.5px;
 }
 
-/* Default Nav Links inspired by the Rail Navigation Design System Page */
+/* Base styling for navigation links */
 .subnav-card-links {
   list-style: none;
 }
@@ -37,7 +44,7 @@
   padding-bottom: 15px;
 }
 
-/* Active Nav Link inspired by the Rail Navigation Design System Page */
+/* Active state styling for selected navigation link */
 .subnav-card-links a:active {
   font-family: var(--font-default);
   font-size: var(--font-size-small);
@@ -52,7 +59,7 @@
   color: var(--color-teal-dark-hover);
 }
 
-/* Formatting for the Title -> 'Categories`*/
+/* Subnav card title typography and spacing */
 .subnav-card-title {
   padding: 20px 33px 5px;
   color: var(--color-navy);

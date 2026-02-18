@@ -1,16 +1,18 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  Styling for the header which will be the very top of Aon's mockup page
+  TL;DR  -->  Styles for Top-Level Header Web Component
+
+  - Defines layout, typography, and spacing for header
+  - Uses flexbox to align product title and login icon
+  - Adds background, border, shadow, and fixed height
+  - Sets login container dimensions and hover cursor
+  - Sets login icon SVG size for consistent display
+  - Intended usage: paired with <aon-header> component
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/* Header Formatting */
+/* Top-level header layout and styling */
 
-/* Removing margin and padding to accomodate a flush header */
-html,body {
-  margin: 0;
-  padding: 0;
-}
 
-/* Formatting for the text */
+/* Product title typography and spacing */
 .product-title-text {
   font-family: var(--font-default);
   font-weight: var(--font-weight-bold);
@@ -20,7 +22,7 @@ html,body {
   margin: 20px 40px 20px 20px;
 }
 
-/* Formatting for the background */
+/* Header container layout, background, and shadow */
 header {
   display: flex;
   align-items: center;
@@ -32,7 +34,7 @@ header {
   width: 100vw;
 }
 
-/* Formatting for the Login Container  */
+/* Login container layout  */
 .login-container {
   display: flex;
   justify-content: center;
@@ -42,12 +44,12 @@ header {
   width: 44px;
 }
 
-/* Login Container Hover */
+/* Hover effect for login container*/
 .login-container:hover {
   cursor: pointer;
 }
 
-/* Formatting for the Login Icon */
+/* Login icon SVG size */
 .login-icon svg {
   width: 30px;
   height: 44px;

@@ -1,28 +1,33 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  lists the categories of all control cards on the controls page
+  TL;DR  -->  Sub-navigation Card Web Component
 
-  - renders a small "subnav" card with anchor links
-  - links are meant to jump down the page via fragment ids (ex: #infrastructure-security)
-  - each target section on the page must have a matching id attribute
+  - Renders a small card listing control page categories
+  - Each category is an anchor link to a fragment ID on the page
+  - Target sections must have matching ID attributes
+  - Component props allow customization of title and link targets
+  - Uses shadow DOM for style encapsulation
+  - Intended usage: placed on the controls page for quick navigation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-import { Component, Prop, h } from "@stencil/core"; // stencil decorators for defining a web component + its public api
-// `h` is stencil’s jsx factory; jsx compiles to h('tag', ...) calls at build time
+// TODO: Determine optimal placement on controls page
+
+import { Component, Prop, h } from "@stencil/core"; // Imports Stencil decorators and JSX factory for defining the Web Component
+// `h` is the JSX factory function used during compilation
 
 @Component({
   tag: "aon-subnav-card", // registers the custom element <aon-subnav-card>
   styleUrls: ["./subnav-card.css"], // component-local stylesheet
-  shadow: true, // enables shadow dom for dom + style encapsulation
+  shadow: true, // Enables Shadow DOM for DOM and style encapsulation
 })
 export class AonSubnavCard {
 
-  // Props for title and the different sections of the controls page which should be linkable
+  // Component props: card title and section link targets for page navigation
   @Prop() subnavCardTitle: string = "Categories";
-  @Prop() infrastructureSecurityHref: string = "Infrastructure Security";
-  @Prop() organizationalSecurityHref: string = "Organizational Security";
-  @Prop() productSecurityHref: string = "Product Security";
-  @Prop() internalSecurityProceduresHref: string = "Internal Security Procedures";
-  @Prop() dataAndPrivacyHref: string = "Data and Privacy";
+  @Prop() infrastructureSecurityHref: string = "#infrastructure-security";
+  @Prop() organizationalSecurityHref: string = "#organizational-security";
+  @Prop() productSecurityHref: string = "#product-security";
+  @Prop() internalSecurityProceduresHref: string = "#internal-security-procedures";
+  @Prop() dataAndPrivacyHref: string = "#data-and-privacy";
   
 
   render() {
