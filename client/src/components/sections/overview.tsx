@@ -15,20 +15,9 @@ export default function Overview() {
     <section>
       <aon-link-card />
       <aon-link-card />
-
-      {/* selected controls (stencil loads + groups internally) */}
-      <aon-expansion-card
-        data-mode="controls"
-        group-limit="0"
-        preview-limit="3"
-        icon-variant="img"
-        icon-src={statusCheckUrl}
-        show-tile="true"
-        tile-title="Selected Controls"
-        show-meta="true"
-        tile-subtitle=""
-      />
-
+      <aon-expansion-card />
+      <aon-expansion-card />
+      <aon-expansion-card />
       <aon-blue-card
         blue-card-title="Aon Trust Portal"
         blue-card-description="Direct access to widely consumed Aon enterprise controls and artifacts."

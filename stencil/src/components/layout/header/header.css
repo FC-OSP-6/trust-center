@@ -1,20 +1,18 @@
-/* ================================
-  TL;DR  -->  Styling for the very top of Aon's mockup page
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Styles for Top-Level Header Web Component
 
-/*Spacing for */
+  - Defines layout, typography, and spacing for header
+  - Uses flexbox to align product title and login icon
+  - Adds background, border, shadow, and fixed height
+  - Sets login container dimensions and hover cursor
+  - Sets login icon SVG size for consistent display
+  - Intended usage: paired with <aon-header> component
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/* Was trying to use the person icon from Aon's website */
-/* import '~@fortawesome/fontawesome-free/css/all.min.css' */
+/* Top-level header layout and styling */
 
-/* Header Formatting */
 
-html,body {
-  margin: 0;
-  padding: 0;
-}
-
-/* Text Formatting */
+/* Product title typography and spacing */
 .product-title-text {
   font-family: var(--font-default);
   font-weight: var(--font-weight-bold);
@@ -24,7 +22,7 @@ html,body {
   margin: 20px 40px 20px 20px;
 }
 
-/* Background Formatting */
+/* Header container layout, background, and shadow */
 header {
   display: flex;
   align-items: center;
@@ -36,7 +34,7 @@ header {
   width: 100vw;
 }
 
-/* Login Container */
+/* Login container layout  */
 .login-container {
   display: flex;
   justify-content: center;
@@ -46,11 +44,12 @@ header {
   width: 44px;
 }
 
+/* Hover effect for login container*/
 .login-container:hover {
   cursor: pointer;
 }
 
-/* Login Icon */
+/* Login icon SVG size */
 .login-icon svg {
   width: 30px;
   height: 44px;
