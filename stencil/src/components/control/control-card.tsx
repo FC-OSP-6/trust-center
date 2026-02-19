@@ -18,7 +18,7 @@
   - status column icons are centered under the toggle column
 ====================================================== */
 
-import { Component, Prop, State, h } from "@stencil/core";
+import { Component, Prop, State, h } from '@stencil/core';
 
 // ---------- local types ----------
 
@@ -67,27 +67,27 @@ const CONTROLS_CONNECTION_QUERY = `
 `;
 
 @Component({
-  tag: "aon-control-card",
-  styleUrl: "control-card.css",
-  shadow: true,
+  tag: 'aon-control-card',
+  styleUrl: 'control-card.css',
+  shadow: true
 })
 export class ControlCard {
   // ---------- public api (attributes) ----------
 
   // data-mode="controls" -> stencil fetches and groups
-  @Prop({ attribute: "data-mode" }) dataMode: "controls" | "none" = "none";
+  @Prop({ attribute: 'data-mode' }) dataMode: 'controls' | 'none' = 'none';
 
   // controls fetch sizing (mvp defaults)
-  @Prop({ attribute: "fetch-first" }) fetchFirst: number = 100;
+  @Prop({ attribute: 'fetch-first' }) fetchFirst: number = 100;
 
   // optional tile header rendering (all optional)
-  @Prop({ attribute: "show-tile" }) showTile: boolean = false;
-  @Prop({ attribute: "title-text" }) titleText?: string; // optional
-  @Prop({ attribute: "show-meta" }) showMeta: boolean = false; // derived, not hardcoded
-  @Prop({ attribute: "subtitle-text" }) subtitleText?: string; // optional
+  @Prop({ attribute: 'show-tile' }) showTile: boolean = false;
+  @Prop({ attribute: 'title-text' }) titleText?: string; // optional
+  @Prop({ attribute: 'show-meta' }) showMeta: boolean = false; // derived, not hardcoded
+  @Prop({ attribute: 'subtitle-text' }) subtitleText?: string; // optional
 
   // status icon (reuse your earlier green check)
-  @Prop({ attribute: "icon-src" }) iconSrc?: string;
+  @Prop({ attribute: 'icon-src' }) iconSrc?: string;
 
   // ---------- internal state ----------
 
@@ -100,7 +100,7 @@ export class ControlCard {
   // ---------- lifecycle ----------
 
   async componentWillLoad() {
-    if (this.dataMode !== "controls") return;
+    if (this.dataMode !== 'controls') return;
 
     try {
       const { groups, totalCount } = await this.fetchAndGroupControls();
@@ -108,7 +108,7 @@ export class ControlCard {
       this.totalControls = totalCount;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.warn("[aon-control-card] controls load failed:", msg);
+      console.warn('[aon-control-card] controls load failed:', msg);
       this.groups = [];
       this.totalControls = 0;
     }
@@ -122,43 +122,57 @@ export class ControlCard {
     return Math.floor(n);
   }
 
-  private async fetchAndGroupControls(): Promise<{ groups: CategoryGroup[]; totalCount: number }> {
+  private async fetchAndGroupControls(): Promise<{
+    groups: CategoryGroup[];
+    totalCount: number;
+  }> {
     const first = this.getFetchFirst();
 
-    const res = await fetch("/graphql", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
+    // REVIEW: Hardcoded "/graphql" – consider config or base URL (e.g. from env or host) for different environments.
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         query: CONTROLS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null },
-      }),
+        variables: { first, after: null, category: null, search: null }
+      })
     });
+    // REVIEW: No request timeout or AbortController – long-lived requests can't be cancelled if component unmounts.
 
     if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
 
     const json = (await res.json()) as ControlsConnectionResponse;
 
     if (json.errors && json.errors.length) {
-      const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
+      const msg = json.errors
+        .map(e => e.message ?? 'unknown graphql error')
+        .join(' | ');
       throw new Error(`GRAPHQL_ERROR: ${msg}`);
     }
 
     const nodes =
       json.data?.controlsConnection?.edges
-        ?.map((e) => e.node)
-        .filter((n): n is ControlNode => Boolean(n && n.id && n.title && n.category)) ?? [];
+        ?.map(e => e.node)
+        .filter((n): n is ControlNode =>
+          Boolean(n && n.id && n.title && n.category)
+        ) ?? [];
 
-    const totalCount = Number(json.data?.controlsConnection?.totalCount ?? nodes.length) || nodes.length;
+    const totalCount =
+      Number(json.data?.controlsConnection?.totalCount ?? nodes.length) ||
+      nodes.length;
 
     // group by category -> list of controls
-    const map = new Map<string, Array<{ id: string; title: string; description: string }>>();
+    const map = new Map<
+      string,
+      Array<{ id: string; title: string; description: string }>
+    >();
     for (const n of nodes) {
-      const cat = (n.category || "General").trim() || "General";
+      const cat = (n.category || 'General').trim() || 'General';
       const list = map.get(cat) ?? [];
       list.push({
         id: n.id,
-        title: (n.title || "").trim(),
-        description: (n.description || "").trim(),
+        title: (n.title || '').trim(),
+        description: (n.description || '').trim()
       });
       map.set(cat, list);
     }
@@ -167,7 +181,7 @@ export class ControlCard {
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([title, items]) => ({
         title,
-        items: items.sort((a, b) => a.title.localeCompare(b.title)),
+        items: items.sort((a, b) => a.title.localeCompare(b.title))
       }));
 
     return { groups, totalCount };
@@ -180,7 +194,10 @@ export class ControlCard {
   }
 
   private toggleExpanded(key: string) {
-    this.expandedByKey = { ...this.expandedByKey, [key]: !this.isExpanded(key) };
+    this.expandedByKey = {
+      ...this.expandedByKey,
+      [key]: !this.isExpanded(key)
+    };
   }
 
   private renderStatusIcon() {
@@ -188,15 +205,18 @@ export class ControlCard {
       // fallback: simple dot so layout stays stable even if icon missing
       return <span class="statusDot" aria-hidden="true" />;
     }
-
-    return <img class="statusIcon" src={this.iconSrc} alt="" aria-hidden="true" />;
+    // REVIEW: CSS class names are usually kebab-case instead of camelCase (e.g. status-dot, tile-header, card-header-left); consider renaming for consistency with common CSS conventions.
+    // REVIEW: Try adding loading="lazy" and decoding="async" on img for performance; ensure iconSrc is same-origin or use fetchpriority if above-the-fold.
+    return (
+      <img class="statusIcon" src={this.iconSrc} alt="" aria-hidden="true" />
+    );
   }
 
   private renderTileHeader() {
     if (!this.showTile) return null;
 
-    const title = (this.titleText ?? "").trim();
-    const subtitle = (this.subtitleText ?? "").trim();
+    const title = (this.titleText ?? '').trim();
+    const subtitle = (this.subtitleText ?? '').trim();
 
     const categoriesCount = this.groups.length;
     const metaText = `${this.totalControls} controls ${categoriesCount} categories`;
@@ -234,7 +254,11 @@ export class ControlCard {
 
           <div class="cardHeaderRight">
             {/* +/- toggle (animated) */}
-            <span class={{ toggleIcon: true, isOpen: expanded }} aria-hidden="true">
+            {/* REVIEW: class={{ toggleIcon: true, isOpen: expanded }} – in Stencil/JSX, prefer string concatenation or template literal for class to avoid subtle hydration/object reference issues: class={`toggleIcon ${expanded ? 'isOpen' : ''}`} */}
+            <span
+              class={{ toggleIcon: true, isOpen: expanded }}
+              aria-hidden="true"
+            >
               <span class="toggleBarH" />
               <span class="toggleBarV" />
             </span>
@@ -242,14 +266,15 @@ export class ControlCard {
         </button>
 
         {/* column headers (no line breaks; grid aligns rows) */}
+        {/* REVIEW: role="presentation" removes semantics – "Control" and "Status" are column headers; consider role="row" + role="columnheader" or a proper table structure if screen readers should announce them as headers. */}
         <div class="columns" role="presentation">
           <div class="colLeft">Control</div>
           <div class="colRight">Status</div>
         </div>
 
         <ul class="rows" role="list">
-          {group.items.map((c) => {
-            const hasDesc = (c.description ?? "").trim().length > 0;
+          {group.items.map(c => {
+            const hasDesc = (c.description ?? '').trim().length > 0;
 
             return (
               <li class="row" key={c.id}>
@@ -258,7 +283,10 @@ export class ControlCard {
 
                   {/* description "pulls out downward" only when expanded */}
                   {hasDesc && (
-                    <div class={{ rowDescWrap: true, isOpen: expanded }} aria-hidden={!expanded}>
+                    <div
+                      class={{ rowDescWrap: true, isOpen: expanded }}
+                      aria-hidden={!expanded}
+                    >
                       <div class="rowDescInner">{c.description}</div>
                     </div>
                   )}
@@ -281,7 +309,7 @@ export class ControlCard {
         {this.renderTileHeader()}
 
         <div class="grid">
-          {this.groups.map((g) => this.renderCategoryCard(g))}
+          {this.groups.map(g => this.renderCategoryCard(g))}
         </div>
       </div>
     );

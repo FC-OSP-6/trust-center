@@ -20,6 +20,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 @Component({
   tag: 'aon-title', // registers the custom element <aon-title>
   styleUrls: ['./title.css'],
+  // REVIEW: Use styleUrl: 'title.css' for consistency (other components use styleUrl, not styleUrls).
   shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonTitle {
@@ -29,6 +30,7 @@ export class AonTitle {
   @Prop() supportEmail: string = 'cyber.security.support@email.com';
   @Prop() supportEmailLink: string =
     'mailto:cyber.security.support@email.com?subject=Trust-Center-Support';
+  // REVIEW: supportEmail and supportEmailLink duplicate the same default – derive one from the other or accept a single prop to avoid drift.
 
   render() {
     const { trustCenterName, supportMessage, supportEmail, supportEmailLink } =

@@ -14,6 +14,7 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 @Component({
   tag: 'aon-blue-card', // Registers the custom element <aon-blue-card>
   styleUrls: ['./blue-cards.css'],
+  // REVIEW: Use styleUrl: 'blue-cards.css' for consistency with other components.
   shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonBlueCard {
@@ -23,6 +24,7 @@ export class AonBlueCard {
   @Prop() blueCardDescription: string;
   @Prop() blueCardButtonText: string;
   @Prop() blueCardButtonLink: string;
+  // REVIEW: Props have no defaults – undefined title/description/buttonText/buttonLink will render as "undefined"; add defaults or document as required.
 
   render() {
     const {
@@ -38,12 +40,14 @@ export class AonBlueCard {
           <p class="blue-card-description">{blueCardDescription}</p>
         </div>
 
+        {/* REVIEW: Invalid HTML – <button> must not contain <a>. Use <a href={...} class="blue-card-button" ...> or a button that programmatically navigates (e.g. window.location or router). */}
         <button class="blue-card-button">
           <a
             href={blueCardButtonLink}
             target="_blank"
             class="blue-card-button-link"
           >
+            {/* REVIEW: target="_blank" without rel="noopener noreferrer" is a security risk – add rel="noopener noreferrer". */}
             {blueCardButtonText}
           </a>
         </button>

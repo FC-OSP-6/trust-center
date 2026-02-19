@@ -21,7 +21,7 @@
 /* Card container background, shadow, top border, and spacing */
 .subnav-card {
   background-color: white;
-  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.25);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   border-top: 4px;
   padding-bottom: 0.5px;
 }
@@ -67,4 +67,3 @@
   font-family: var(--font-default);
   font-weight: var(--font-weight-bold);
 }
-

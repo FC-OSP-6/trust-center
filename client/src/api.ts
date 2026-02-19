@@ -6,8 +6,7 @@
       - export page fetch helpers used by ui sections
 ================================ */
 
-import type { ControlsConnection, FaqsConnection } from "./types-frontend";
-
+import type { ControlsConnection, FaqsConnection } from './types-frontend';
 
 // ----------  graphql fetch wrapper  ----------
 
@@ -21,20 +20,26 @@ type GraphqlResponse<TData> = {
   errors?: Array<{ message?: string }>; // graphql error list
 };
 
-export async function graphqlFetch<TData, TVars>(args: GraphqlFetchArgs<TVars>): Promise<{ data: TData }> {
+export async function graphqlFetch<TData, TVars>(
+  args: GraphqlFetchArgs<TVars>
+): Promise<{ data: TData }> {
   // request config
-  const url = "/graphql"; // dev proxy expects relative url
+  const url = '/graphql'; // dev proxy expects relative url
+  // REVIEW: Hardcoded "/graphql"; consider centralizing API base path/env config.
 
   // fetch may throw on network failures
   let res: Response;
   try {
     res = await fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ query: args.query, variables: args.variables ?? {} }),
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        query: args.query,
+        variables: args.variables ?? {}
+      })
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown network error";
+    const msg = err instanceof Error ? err.message : 'unknown network error';
     throw new Error(`NETWORK_ERROR: ${msg}`);
   }
 
@@ -48,24 +53,35 @@ export async function graphqlFetch<TData, TVars>(args: GraphqlFetchArgs<TVars>):
 
   // graphql-level errors return 200 with errors[]
   if (json.errors && json.errors.length) {
-    const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
+    const msg = json.errors
+      .map(e => e.message ?? 'unknown graphql error')
+      .join(' | ');
     throw new Error(`GRAPHQL_ERROR: ${msg}`);
   }
 
   // missing data is still a failure
   if (!json.data) {
-    throw new Error("GRAPHQL_ERROR: missing data");
+    throw new Error('GRAPHQL_ERROR: missing data');
   }
 
   return { data: json.data };
 }
 
-
 // ----------  query documents  ----------
 
 export const CONTROLS_CONNECTION_QUERY = /* GraphQL */ `
-  query ControlsConnection($first: Int!, $after: String, $category: String, $search: String) {
-    controlsConnection(first: $first, after: $after, category: $category, search: $search) {
+  query ControlsConnection(
+    $first: Int!
+    $after: String
+    $category: String
+    $search: String
+  ) {
+    controlsConnection(
+      first: $first
+      after: $after
+      category: $category
+      search: $search
+    ) {
       totalCount
       pageInfo {
         hasNextPage
@@ -87,8 +103,18 @@ export const CONTROLS_CONNECTION_QUERY = /* GraphQL */ `
 `;
 
 export const FAQS_CONNECTION_QUERY = /* GraphQL */ `
-  query FaqsConnection($first: Int!, $after: String, $category: String, $search: String) {
-    faqsConnection(first: $first, after: $after, category: $category, search: $search) {
+  query FaqsConnection(
+    $first: Int!
+    $after: String
+    $category: String
+    $search: String
+  ) {
+    faqsConnection(
+      first: $first
+      after: $after
+      category: $category
+      search: $search
+    ) {
       totalCount
       pageInfo {
         hasNextPage
@@ -107,7 +133,6 @@ export const FAQS_CONNECTION_QUERY = /* GraphQL */ `
     }
   }
 `;
-
 
 // ----------  page helpers  ----------
 
@@ -129,42 +154,47 @@ type FaqsConnectionData = {
 function normalizeText(value: string | undefined): string | undefined {
   if (value == null) return undefined;
   const trimmed = value.trim();
-  if (trimmed === "") return undefined;
+  if (trimmed === '') return undefined;
   return trimmed;
 }
 
-export async function fetchControlsConnectionPage(args: FetchConnectionArgs): Promise<ControlsConnection> {
+export async function fetchControlsConnectionPage(
+  args: FetchConnectionArgs
+): Promise<ControlsConnection> {
   // normalize inputs
   const variables = {
     first: args.first,
     after: args.after,
     category: normalizeText(args.category),
-    search: normalizeText(args.search),
+    search: normalizeText(args.search)
   };
 
   // call graphql
   const res = await graphqlFetch<ControlsConnectionData, typeof variables>({
     query: CONTROLS_CONNECTION_QUERY,
-    variables,
+    variables
   });
 
   return res.data.controlsConnection;
 }
 
-export async function fetchFaqsConnectionPage(args: FetchConnectionArgs): Promise<FaqsConnection> {
+export async function fetchFaqsConnectionPage(
+  args: FetchConnectionArgs
+): Promise<FaqsConnection> {
   // normalize inputs
   const variables = {
     first: args.first,
     after: args.after,
     category: normalizeText(args.category),
-    search: normalizeText(args.search),
+    search: normalizeText(args.search)
   };
 
   // call graphql
   const res = await graphqlFetch<FaqsConnectionData, typeof variables>({
     query: FAQS_CONNECTION_QUERY,
-    variables,
+    variables
   });
+  // REVIEW: fetchControlsConnectionPage/fetchFaqsConnectionPage are mostly duplicated; consider a generic connection fetch helper to keep this DRY.
 
   return res.data.faqsConnection;
 }
