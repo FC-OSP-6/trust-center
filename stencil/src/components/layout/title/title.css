@@ -1,6 +1,17 @@
-/* ================================
-  TL;DR  --> Styling for the Title Section
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Component-scoped styles for <aon-title>
+
+  - Scoped to the Shadow DOM of <aon-title>; styles cannot leak in or out without
+    CSS custom properties.
+  - All color and typography values reference tokens.css; no hardcoded design values.
+  - Margin resets on heading and paragraph elements are intentional to override
+    browser defaults within the shadow boundary.
+  - Layout and page-level positioning are delegated to the React host.
+
+  - Lives in: stencil/components/title/
+  - Depends on: tokens.css (CSS custom properties for color, font, and spacing)
+  - Consumed by: title.tsx via the styleUrls declaration at build time
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 :host {
   display: block;
@@ -39,3 +50,8 @@ a {
 a:hover {
   color: var(--color-teal-dark-hover);
 }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 152faa116285c1446018159477d3efcc38ea0688
