@@ -13,7 +13,6 @@
     jump navigation across the five security control category sections.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 // TODO: Determine optimal placement on controls page
 
 import { Component, Prop, h } from "@stencil/core"; // Imports Stencil decorators and JSX factory for defining the Web Component
