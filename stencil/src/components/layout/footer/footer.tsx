@@ -34,13 +34,16 @@ export class AonFooter {
   @Prop() privacyPolicyHref: string = '/privacy-policy';
   @Prop() termsHref: string = '/terms-and-conditions';
   @Prop() logoSrc!: string;
+  // REVIEW: logoSrc is required (!) but has no default – missing prop will render broken img src; add default or document as required in host.
   @Element() el: HTMLElement;
 
   componentDidLoad() {
     const elementInShadowDom =
       this.el.shadowRoot.querySelector('.footer-links');
+    // REVIEW: componentDidLoad only runs querySelector and never uses the result – dead code; remove or implement the intended behavior.
   }
 
+  // REVIEW: Vague comment "FAQS & CONTROLS -- would change" – remove or replace with a concrete TODO.
   //FAQS & CONTROLS -- would change
 
   //

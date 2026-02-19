@@ -43,6 +43,7 @@ export default function Resources() {
         <aon-link-card
           link-title="Client Facing Documents"
           items={JSON.stringify([
+            // REVIEW: Inline JSON.stringify payloads re-allocate every render; extract typed `const` arrays (outside component) and stringify once for DRY/perf.
             {
               label: 'CyQu Privacy Policy',
               href: PrivacyPolicyPDF,     // Local static PDF asset
@@ -74,6 +75,7 @@ export default function Resources() {
         <aon-link-card
           link-title="External Links"
           items={JSON.stringify([
+            // REVIEW: This block duplicates the same shape as above; consider a shared `toLinkCardItems(...)` helper + typed constants.
             {
               label: 'Aon: Ensuring Ongoing Operations',
               href: 'https://www.aon.com/en/capabilities/risk-management/business-continuity-management',

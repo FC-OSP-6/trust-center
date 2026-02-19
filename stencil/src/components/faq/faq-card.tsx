@@ -58,9 +58,11 @@ export class FaqCard {
 
     // this will log to the browser console every render so we can see state changes
     console.log('Rendering FAQ:', { question, isExpanded: this.isExpanded });
+    // REVIEW: Remove console.log in render – causes noise in production and can leak data.
 
     // this will log to the browser console when the component instance exists
     console.log('Component instance:', this);
+    // REVIEW: Remove console.log('Component instance:', this) – same as above.
 
     return (
       <div class={`faq-card ${this.isExpanded ? 'is-expanded' : ''}`}>
@@ -70,6 +72,7 @@ export class FaqCard {
           - contains question text and expand/collapse icon
           - role="button" makes it accessible as interactive element (we keep native semantics via the <button> too)
         */}
+        {/* REVIEW: <header> with onClick is not keyboard-accessible – add tabIndex={0} and onKeyDown (e.g. Enter/Space to toggle) or make the entire toggle a single <button> that wraps question + icon. */}
         <header
           class="faq-header"
           onClick={this.handleToggle}
@@ -95,6 +98,7 @@ export class FaqCard {
           >
             {this.isExpanded ? '−' : '+'}
           </button>
+          {/* REVIEW: Both header onClick and button onClick call handleToggle – button correctly uses stopPropagation, but double handler is easy to break; consider single toggle on the button and remove header onClick, or document that header is the click target. */}
         </header>
 
         {this.isExpanded && (

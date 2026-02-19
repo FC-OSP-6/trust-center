@@ -46,6 +46,7 @@ export default function Faqs() {
 
         if (!isActive) return;
         setItems(nodes);
+        // REVIEW: If I read it right, fetched FAQ nodes are never rendered below (static hardcoded cards are used); wire `items/faqs` into JSX or remove fetch path.
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'unknown faqs fetch error';
 
@@ -67,6 +68,7 @@ export default function Faqs() {
 
   return (
     <section>
+      {/* REVIEW: These hardcoded duplicates should be replaced with a map over fetched data for DRY rendering and real backend coverage. */}
       <aon-faq-card
         question="Do you feel secure?"
         answer="Lorem ipsum dolor sit amet"
@@ -86,6 +88,7 @@ export default function Faqs() {
 
 
 //DeepSeek
+// REVIEW: Large commented-out prototype block below adds maintenance noise; remove or move to docs/snippets if no longer needed.
 
 /*
 

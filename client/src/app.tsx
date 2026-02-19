@@ -18,6 +18,7 @@ export default function App() {
   const path = location.pathname;
 
   const knownPaths = ['/overview', '/controls', '/resources', '/faqs'];
+  // REVIEW: knownPaths duplicates route declarations below; consider deriving both from one route config to keep this DRY.
   const isKnownPath = knownPaths.includes(path);
 
   return (
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/controls" element={<Controls />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/faqs" element={<Faqs />} />
+          {/* REVIEW: Inline Not Found is fine for MVP, but a shared NotFound component improves reuse, styling consistency, and test coverage. */}
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
       </main>

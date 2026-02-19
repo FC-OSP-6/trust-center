@@ -125,6 +125,7 @@ export class ControlCard {
   private async fetchAndGroupControls(): Promise<{ groups: CategoryGroup[]; totalCount: number }> {
     const first = this.getFetchFirst();
 
+    // REVIEW: Hardcoded "/graphql" – consider config or base URL (e.g. from env or host) for different environments.
     const res = await fetch("/graphql", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -133,6 +134,7 @@ export class ControlCard {
         variables: { first, after: null, category: null, search: null },
       }),
     });
+    // REVIEW: No request timeout or AbortController – long-lived requests can't be cancelled if component unmounts.
 
     if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
 
@@ -188,7 +190,8 @@ export class ControlCard {
       // fallback: simple dot so layout stays stable even if icon missing
       return <span class="statusDot" aria-hidden="true" />;
     }
-
+    // REVIEW: CSS class names are usually kebab-case instead of camelCase (e.g. status-dot, tile-header, card-header-left); consider renaming for consistency with common CSS conventions.
+    // REVIEW: Try adding loading="lazy" and decoding="async" on img for performance; ensure iconSrc is same-origin or use fetchpriority if above-the-fold.
     return <img class="statusIcon" src={this.iconSrc} alt="" aria-hidden="true" />;
   }
 
@@ -234,6 +237,7 @@ export class ControlCard {
 
           <div class="cardHeaderRight">
             {/* +/- toggle (animated) */}
+            {/* REVIEW: class={{ toggleIcon: true, isOpen: expanded }} – in Stencil/JSX, prefer string concatenation or template literal for class to avoid subtle hydration/object reference issues: class={`toggleIcon ${expanded ? 'isOpen' : ''}`} */}
             <span class={{ toggleIcon: true, isOpen: expanded }} aria-hidden="true">
               <span class="toggleBarH" />
               <span class="toggleBarV" />
@@ -242,6 +246,7 @@ export class ControlCard {
         </button>
 
         {/* column headers (no line breaks; grid aligns rows) */}
+        {/* REVIEW: role="presentation" removes semantics – "Control" and "Status" are column headers; consider role="row" + role="columnheader" or a proper table structure if screen readers should announce them as headers. */}
         <div class="columns" role="presentation">
           <div class="colLeft">Control</div>
           <div class="colRight">Status</div>

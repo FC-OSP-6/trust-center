@@ -32,6 +32,7 @@ export class AonNavbar {
  
   //Track current URL path for active link highlighting 
 @State() currentPath: string = window.location.pathname;
+  // REVIEW: window is undefined in SSR; guard with typeof window !== 'undefined' or use componentWillLoad to set currentPath so it doesn't run in Node.
 
   // Set up listener for browser back/forward buttons
   componentWillLoad() {
@@ -39,8 +40,10 @@ export class AonNavbar {
       this.currentPath = window.location.pathname; // Update active link on navigation
 
     });
+    // REVIEW: popstate listener is never removed – add componentDidUnload() and removeEventListener('popstate', handler) to avoid leaks when element is disconnected.
   }
   // Check if given path matches current page
+  // REVIEW: currentPath.includes(path) can false-positive (e.g. /overview matches /overview/controls); use path === currentPath or currentPath.startsWith(path) with a trailing slash check depending on route shape.
   isCurrentPage(path: string): boolean {
     return this.currentPath.includes(path);
   }
@@ -50,6 +53,7 @@ export class AonNavbar {
     e.preventDefault(); // Stop default link behavior (prevents page reload)
     window.history.pushState({}, '', `/trust-center${path}`); // Update URL bar
     window.dispatchEvent(new PopStateEvent('popstate')); // Notify React Router
+    // REVIEW: Dispatching popstate to "notify React Router" is brittle – document this contract or prefer a custom event / callback prop so the component doesn't depend on React Router internals.
     this.currentPath = window.location.pathname; // Update active state
   }
 
