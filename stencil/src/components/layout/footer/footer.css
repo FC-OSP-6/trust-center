@@ -1,4 +1,4 @@
- /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Presentational site-level footer layout component
 
   - Defines the structural and visual styling for the Trust Center footer.
@@ -10,7 +10,7 @@
   - Consumed by: Site-level layout in the React host application.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
- :host {
+:host {
   display: block;
   width: 100%;
   font-family: var(--font-default);
@@ -43,7 +43,7 @@
 /* Inline footer navigation links container */
 .footer-links {
   display: flex;
-gap: 20px; /* spacing between footer navigation links */
+  gap: 20px; /* spacing between footer navigation links */
 }
 
 /* Right-aligned footer group (copyright section) */
@@ -51,7 +51,6 @@ gap: 20px; /* spacing between footer navigation links */
   display: flex;
   align-items: center;
   gap: 4px; /* spacing between copyright symbol and text */
-
 }
 
 .footer-copyright {
