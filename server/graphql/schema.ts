@@ -1,11 +1,11 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  graphql schema (sdl)
 
   - defines read-only queries for controls + faqs
   - defines connection/pageinfo for pagination
   - preserves debug fields for early boot verification
   - documents future-only stubs as comments (not executable yet)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 export const typeDefs = /* GraphQL */ `
   # ----------  debug primitives  ----------
