@@ -5,9 +5,8 @@
   - passes only the status icon to reuse the same visual language
 ================================ */
 
-import React from "react";
-import statusCheckUrl from "../../assets/images/status-check.svg";
-
+import React from 'react';
+import statusCheckUrl from '../../assets/images/status-check.svg';
 
 export default function Controls() {
   return (
@@ -25,7 +24,6 @@ export default function Controls() {
         // REVIEW: Empty-string props are redundant unless required to force behavior; prefer omitting them for cleaner markup.
         icon-src={statusCheckUrl}
       />
-
     </section>
   );
 }

@@ -8,7 +8,6 @@
 
 import type * as React from 'react';
 
-
 // ----------  graphql node shapes (ui contract)  ----------
 
 export type Control = {
@@ -27,7 +26,6 @@ export type Faq = {
   category: string; // grouping key
   updatedAt: string; // iso timestamp (or placeholder in seed mode)
 };
-
 
 // ----------  graphql connection shapes (ui contract)  ----------
 
@@ -58,13 +56,15 @@ export type FaqsConnection = {
   totalCount: number; // filtered count
 };
 
-
 // ----------  jsx custom element typing (react + ts)  ----------
 // note:
 // - with "jsx": "react-jsx", ts reads intrinsic elements from "react/jsx-runtime"
 // - so we augment that module (and "react" as a backup)
 
-type HtmlElProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+type HtmlElProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLElement>,
+  HTMLElement
+>;
 
 type AonLinkCardProps = HtmlElProps & {
   'link-card-title'?: string;

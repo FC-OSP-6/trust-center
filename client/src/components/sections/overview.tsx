@@ -5,11 +5,9 @@
       3. Potentially also show the blue card as well
 ================================ */
 
-
-import React from "react";
-import statusCheckUrl from "../../assets/images/status-check.svg";
+import React from 'react';
+import statusCheckUrl from '../../assets/images/status-check.svg';
 // REVIEW: `statusCheckUrl` is imported but unused; remove dead imports to keep lint/type signals clean.
-
 
 export default function Overview() {
   return (
@@ -29,5 +27,3 @@ export default function Overview() {
     </section>
   );
 }
-
-

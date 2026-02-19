@@ -12,7 +12,7 @@
   - optional "tile header" section (Selected Controls) above the grid
 ====================================================== */
 
-import { Component, Prop, State, Watch, h } from "@stencil/core";
+import { Component, Prop, State, Watch, h } from '@stencil/core';
 
 // ----------  local types  ----------
 
@@ -63,51 +63,51 @@ const CONTROLS_CONNECTION_QUERY = `
 // REVIEW: CONTROLS_CONNECTION_QUERY is duplicated with control-card.tsx – extract to a shared module (e.g. graphql/controls.ts) to avoid schema drift.
 
 @Component({
-  tag: "aon-expansion-card",
-  styleUrl: "expansion-card.css",
-  shadow: true,
+  tag: 'aon-expansion-card',
+  styleUrl: 'expansion-card.css',
+  shadow: true
 })
 export class ExpansionCard {
   // ----------  public api (attributes)  ----------
 
   // single card title (single list mode)
-  @Prop({ attribute: "card-title" }) cardTitle: string = "";
+  @Prop({ attribute: 'card-title' }) cardTitle: string = '';
 
   // single list items (single list mode)
-  @Prop({ attribute: "bullet-points-json" }) bulletPointsJson: string = "[]";
+  @Prop({ attribute: 'bullet-points-json' }) bulletPointsJson: string = '[]';
 
   // grouped cards (grouped mode) --> [{ title, items[] }]
-  @Prop({ attribute: "groups-json" }) groupsJson: string = "[]";
+  @Prop({ attribute: 'groups-json' }) groupsJson: string = '[]';
 
   // optional limit for number of groups rendered (grouped mode) --> 0 means "show all"
-  @Prop({ attribute: "group-limit" }) groupLimit?: number;
+  @Prop({ attribute: 'group-limit' }) groupLimit?: number;
 
   // icon source for "img" variant (ex: green check)
-  @Prop({ attribute: "icon-src" }) iconSrc?: string;
+  @Prop({ attribute: 'icon-src' }) iconSrc?: string;
 
   // icon variant used per bullet
-  @Prop({ attribute: "icon-variant" }) iconVariant: "img" | "dot" = "img";
+  @Prop({ attribute: 'icon-variant' }) iconVariant: 'img' | 'dot' = 'img';
 
   // how many bullet points to show when collapsed
-  @Prop({ attribute: "preview-limit" }) previewLimit: number = 3;
+  @Prop({ attribute: 'preview-limit' }) previewLimit: number = 3;
 
   // data mode for auto-loading groups (keeps react dumb; stencil owns grouping)
-  @Prop({ attribute: "data-mode" }) dataMode: "controls" | "none" = "none";
+  @Prop({ attribute: 'data-mode' }) dataMode: 'controls' | 'none' = 'none';
 
   // how many controls to fetch for grouped mode when data-mode="controls"
-  @Prop({ attribute: "fetch-first" }) fetchFirst: number = 50;
+  @Prop({ attribute: 'fetch-first' }) fetchFirst: number = 50;
 
   // optional tile header (section heading above the grid)
-  @Prop({ attribute: "show-tile" }) showTile: boolean = false;
+  @Prop({ attribute: 'show-tile' }) showTile: boolean = false;
 
   // optional tile title (defaults to "Selected Controls" when omitted)
-  @Prop({ attribute: "tile-title" }) tileTitle: string = "";
+  @Prop({ attribute: 'tile-title' }) tileTitle: string = '';
 
   // optional tile subtitle (renders only when non-empty)
-  @Prop({ attribute: "tile-subtitle" }) tileSubtitle: string = "";
+  @Prop({ attribute: 'tile-subtitle' }) tileSubtitle: string = '';
 
   // optional derived meta line visibility (meta is derived, not hardcoded)
-  @Prop({ attribute: "show-meta" }) showMeta: boolean = false;
+  @Prop({ attribute: 'show-meta' }) showMeta: boolean = false;
 
   // ----------  internal state  ----------
 
@@ -137,7 +137,7 @@ export class ExpansionCard {
     const hasProvidedGroups = this.groups.length > 0;
 
     // auto-load controls groups from graphql when requested
-    if (this.dataMode === "controls" && !hasProvidedGroups) {
+    if (this.dataMode === 'controls' && !hasProvidedGroups) {
       try {
         const fetched = await this.fetchControlsGroups();
         this.groups = fetched.groups;
@@ -145,7 +145,7 @@ export class ExpansionCard {
       } catch (err) {
         // keep failures readable for mvp debugging, but avoid crashing render
         const msg = err instanceof Error ? err.message : String(err);
-        console.warn("[aon-expansion-card] controls load failed:", msg);
+        console.warn('[aon-expansion-card] controls load failed:', msg);
         this.groups = [];
         this.derivedTotalCount = null;
       }
@@ -154,12 +154,12 @@ export class ExpansionCard {
 
   // ----------  watchers  ----------
 
-  @Watch("bulletPointsJson")
+  @Watch('bulletPointsJson')
   onBulletPointsJsonChange(next: string) {
     this.syncBulletPoints(next);
   }
 
-  @Watch("groupsJson")
+  @Watch('groupsJson')
   onGroupsJsonChange(next: string) {
     this.syncGroups(next);
   }
@@ -182,9 +182,9 @@ export class ExpansionCard {
       if (!Array.isArray(parsed)) return [];
 
       return parsed
-        .filter((v) => typeof v === "string")
-        .map((v) => v.trim())
-        .filter((v) => v.length > 0);
+        .filter(v => typeof v === 'string')
+        .map(v => v.trim())
+        .filter(v => v.length > 0);
     } catch {
       return [];
     }
@@ -198,20 +198,20 @@ export class ExpansionCard {
       if (!Array.isArray(parsed)) return [];
 
       const groups = parsed
-        .filter((g) => g && typeof g === "object")
-        .map((g) => {
+        .filter(g => g && typeof g === 'object')
+        .map(g => {
           const anyG = g as { title?: unknown; items?: unknown };
-          const title = typeof anyG.title === "string" ? anyG.title.trim() : "";
+          const title = typeof anyG.title === 'string' ? anyG.title.trim() : '';
           const itemsRaw = Array.isArray(anyG.items) ? anyG.items : [];
 
           const items = itemsRaw
-            .filter((v) => typeof v === "string")
-            .map((v) => v.trim())
-            .filter((v) => v.length > 0);
+            .filter(v => typeof v === 'string')
+            .map(v => v.trim())
+            .filter(v => v.length > 0);
 
           return { title, items };
         })
-        .filter((g) => g.title.length > 0 && g.items.length > 0);
+        .filter(g => g.title.length > 0 && g.items.length > 0);
 
       return groups;
     } catch {
@@ -245,13 +245,13 @@ export class ExpansionCard {
   }
 
   private getTileTitle(): string {
-    const raw = (this.tileTitle || "").trim();
+    const raw = (this.tileTitle || '').trim();
     if (raw) return raw;
-    return "Selected Controls";
+    return 'Selected Controls';
   }
 
   private getTileSubtitle(): string {
-    return (this.tileSubtitle || "").trim();
+    return (this.tileSubtitle || '').trim();
   }
 
   private getTileMetaText(): string {
@@ -260,7 +260,7 @@ export class ExpansionCard {
     const categories = this.groups.length;
 
     // if we don't have a reliable count yet, do not render meta
-    if (total == null) return "";
+    if (total == null) return '';
 
     // keep this plain-text so design tokens can style it (no pill, no outline)
     return `${categories} categories, ${total} controls`;
@@ -268,17 +268,20 @@ export class ExpansionCard {
 
   // ----------  data (graphql --> groups)  ----------
 
-  private async fetchControlsGroups(): Promise<{ groups: ExpansionGroup[]; totalCount: number | null }> {
+  private async fetchControlsGroups(): Promise<{
+    groups: ExpansionGroup[];
+    totalCount: number | null;
+  }> {
     const first = this.getFetchFirst();
 
     // note: backend is db-first and falls back to seed json automatically
-    const res = await fetch("/graphql", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         query: CONTROLS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null },
-      }),
+        variables: { first, after: null, category: null, search: null }
+      })
     });
 
     // non-2xx should still surface cleanly
@@ -291,26 +294,31 @@ export class ExpansionCard {
 
     // graphql-level errors return 200 with errors[]
     if (json.errors && json.errors.length) {
-      const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
+      const msg = json.errors
+        .map(e => e.message ?? 'unknown graphql error')
+        .join(' | ');
       throw new Error(`GRAPHQL_ERROR: ${msg}`);
     }
 
-    const totalCount = typeof json.data?.controlsConnection?.totalCount === "number"
-      ? json.data?.controlsConnection?.totalCount ?? null
-      : null;
+    const totalCount =
+      typeof json.data?.controlsConnection?.totalCount === 'number'
+        ? (json.data?.controlsConnection?.totalCount ?? null)
+        : null;
 
     // normalize nodes and ignore null edges
     const nodes =
       json.data?.controlsConnection?.edges
-        ?.map((e) => e.node)
+        ?.map(e => e.node)
         // REVIEW: Filter doesn't require n.id – if downstream logic assumes id, add (n && n.id && n.title && n.category).
         // REVIEW: It is a good practice to always have id returned in node as it is used in cache invalidation.
-        .filter((n): n is ControlsConnectionNode => Boolean(n && n.title && n.category)) ?? [];
+        .filter((n): n is ControlsConnectionNode =>
+          Boolean(n && n.title && n.category)
+        ) ?? [];
 
     // group by category (category -> list of control titles)
     const map = new Map<string, string[]>();
     for (const n of nodes) {
-      const cat = (n.category || "General").trim() || "General";
+      const cat = (n.category || 'General').trim() || 'General';
       const list = map.get(cat) ?? [];
       list.push(n.title.trim());
       map.set(cat, list);
@@ -321,7 +329,7 @@ export class ExpansionCard {
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([title, items]) => ({
         title,
-        items: items.sort((a, b) => a.localeCompare(b)),
+        items: items.sort((a, b) => a.localeCompare(b))
       }));
 
     return { groups, totalCount };
@@ -340,14 +348,17 @@ export class ExpansionCard {
 
   private toggleGroupExpanded(key: string) {
     // grouped mode toggler (copy-on-write to trigger stencil re-render)
-    this.expandedByKey = { ...this.expandedByKey, [key]: !this.isGroupExpanded(key) };
+    this.expandedByKey = {
+      ...this.expandedByKey,
+      [key]: !this.isGroupExpanded(key)
+    };
   }
 
   // ----------  render helpers  ----------
 
   private renderBulletIcon() {
     // icon variant "dot" always renders dot
-    if (this.iconVariant === "dot") {
+    if (this.iconVariant === 'dot') {
       return <span class="iconDot" aria-hidden="true" />;
     }
     // REVIEW: CSS class names are usually kebab-case instead of camelCase (e.g. icon-dot, icon-wrap, tile-heading-row); consider renaming for consistency with common CSS conventions.
@@ -379,7 +390,9 @@ export class ExpansionCard {
     return (
       <div class="tile" part="tile">
         <div class="tileHeadingRow">
-          <h2 class="tileTitle" part="tile-title">{title}</h2>
+          <h2 class="tileTitle" part="tile-title">
+            {title}
+          </h2>
         </div>
 
         {shouldShowMeta && (
@@ -397,7 +410,12 @@ export class ExpansionCard {
     );
   }
 
-  private renderSingleCard(args: { title: string; items: string[]; isExpanded: boolean; onToggle: () => void }) {
+  private renderSingleCard(args: {
+    title: string;
+    items: string[];
+    isExpanded: boolean;
+    onToggle: () => void;
+  }) {
     const { title, items, isExpanded, onToggle } = args;
 
     const limit = this.getPreviewLimit();
@@ -406,7 +424,7 @@ export class ExpansionCard {
     const visibleItems = isExpanded ? items : items.slice(0, limit);
     const hiddenCount = items.length - visibleItems.length;
 
-    const buttonText = isExpanded ? "View Less" : "View All";
+    const buttonText = isExpanded ? 'View Less' : 'View All';
 
     return (
       <div class="card">
@@ -414,7 +432,12 @@ export class ExpansionCard {
           <h3 class="title">{title}</h3>
 
           {hasOverflow && (
-            <button class="toggle" type="button" aria-expanded={isExpanded} onClick={onToggle}>
+            <button
+              class="toggle"
+              type="button"
+              aria-expanded={isExpanded}
+              onClick={onToggle}
+            >
               {buttonText}
             </button>
           )}
@@ -422,7 +445,7 @@ export class ExpansionCard {
 
         <ul class="list" role="list">
           {/* REVIEW: <li class="item"> in map has no key – add key={text} or key={index} for list stability (Stencil/JSX reconciliation). */}
-          {visibleItems.map((text) => (
+          {visibleItems.map(text => (
             <li class="item">
               {this.renderBulletIcon()}
               <span class="text">{text}</span>
@@ -452,7 +475,7 @@ export class ExpansionCard {
           {this.renderTileHeader()}
 
           <div class="groupWrap">
-            {groups.map((g) => {
+            {groups.map(g => {
               // category title is a stable key for our current dataset
               const key = g.title;
 
@@ -460,7 +483,7 @@ export class ExpansionCard {
                 title: g.title,
                 items: g.items,
                 isExpanded: this.isGroupExpanded(key),
-                onToggle: () => this.toggleGroupExpanded(key),
+                onToggle: () => this.toggleGroupExpanded(key)
               });
             })}
           </div>
@@ -469,11 +492,15 @@ export class ExpansionCard {
     }
 
     // fallback to original single list mode
-    const title = this.cardTitle || "";
+    const title = this.cardTitle || '';
     const items = this.bulletPoints;
 
     // avoid rendering empty shells when host provides no data
-    if (this.dataMode !== "controls" && title.trim() === "" && items.length === 0) {
+    if (
+      this.dataMode !== 'controls' &&
+      title.trim() === '' &&
+      items.length === 0
+    ) {
       return null;
     }
 
@@ -485,7 +512,7 @@ export class ExpansionCard {
           title,
           items,
           isExpanded: this.isExpanded,
-          onToggle: this.toggleExpanded,
+          onToggle: this.toggleExpanded
         })}
       </div>
     );

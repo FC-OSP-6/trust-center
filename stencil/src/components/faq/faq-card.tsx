@@ -89,7 +89,7 @@ export class FaqCard {
           <button
             class="state-toggle"
             type="button"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               this.handleToggle();
               this.toggle.emit();

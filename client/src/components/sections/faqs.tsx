@@ -11,9 +11,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { fetchFaqsConnectionPage } from '../../api';
 import type { Faq } from '../../types-frontend';
 
-
 export default function Faqs() {
-
   // single expanded boolean cannot support multiple faq items
   // const [expanded, setExpanded] = useState(false);
   // const [expanded, setExpanded] = useState({})
@@ -42,13 +40,14 @@ export default function Faqs() {
         const res = await fetchFaqsConnectionPage({ first: 25 });
 
         // flatten edges -> nodes  -->  simplest ui contract
-        const nodes = res.edges.map((e) => e.node);
+        const nodes = res.edges.map(e => e.node);
 
         if (!isActive) return;
         setItems(nodes);
         // REVIEW: If I read it right, fetched FAQ nodes are never rendered below (static hardcoded cards are used); wire `items/faqs` into JSX or remove fetch path.
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'unknown faqs fetch error';
+        const msg =
+          err instanceof Error ? err.message : 'unknown faqs fetch error';
 
         if (!isActive) return;
         setErrorText(msg);
@@ -84,8 +83,6 @@ export default function Faqs() {
     </section>
   );
 }
-
-
 
 //DeepSeek
 // REVIEW: Large commented-out prototype block below adds maintenance noise; remove or move to docs/snippets if no longer needed.
