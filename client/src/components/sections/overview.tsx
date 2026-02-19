@@ -29,6 +29,7 @@ export default function Overview() {
       {/* ---------------- resources (link cards) ---------------- */}
       <div className="resources-grid">
         {/* link card  --> client facing documents */}
+        {/* TODO: Multiple empty placeholder cards create duplication/noise; consider rendering from typed data arrays and mapping for DRY composition. */}
         <aon-link-card
           link-title="Client Facing Documents"
           items={JSON.stringify([

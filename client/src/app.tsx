@@ -4,6 +4,9 @@
       - logic for flipping between sections
       - button logic for each component
 ================================ */
+//TODO: knownPaths duplicates route declarations below; consider deriving both from one route config to keep this DRY.
+
+//TODO: REVIEW: Inline Not Found is fine for MVP, but a shared NotFound component improves reuse, styling consistency, and test coverage.
 
 import React from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';

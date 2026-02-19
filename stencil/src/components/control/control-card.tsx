@@ -199,6 +199,9 @@ export class ControlCard {
     return { groups, totalCount };
   }
 
+  // TODO: Abstract above code into a service worker -- Hardcoded "/graphql" – consider config or base URL (e.g. from env or host) for different environments.
+  // TODO: No request timeout or AbortController – long-lived requests can't be cancelled if component unmounts.
+
   // ---------- ui helpers ----------
 
   private isExpanded(key: string): boolean {
@@ -231,6 +234,10 @@ export class ControlCard {
       <img class="statusIcon" src={this.iconSrc} alt="" aria-hidden="true" />
     );
   }
+
+  // TODO: CSS class names are usually kebab-case instead of camelCase (e.g. status-dot, tile-header, card-header-left); consider renaming for consistency with common CSS conventions.
+  // TODO: Try adding loading="lazy" and decoding="async" on img for performance; ensure iconSrc is same-origin or use fetchpriority if above-the-fold.
+  /* TODO: class={{ toggleIcon: true, isOpen: expanded }} – in Stencil/JSX, prefer string concatenation or template literal for class to avoid subtle hydration/object reference issues: class={`toggleIcon ${expanded ? 'isOpen' : ''}`} */
 
   private renderTileHeader() {
     if (!this.showTile) return null;
@@ -275,13 +282,15 @@ export class ControlCard {
 
           <div class="cardHeaderRight">{this.renderToggle(expanded)}</div>
         </button>
-
+        //TODO: role="presentation" removes semantics – "Control" and "Status"
+        are column headers; consider role="row" + role="columnheader" or a
+        proper table structure if screen readers should announce them as
+        headers.
         <div class="columns" role="presentation">
           <div class="colLeft">Control</div>
 
           <div class="colRight">Status</div>
         </div>
-
         <ul class="rows" role="list">
           {group.items.map(c => {
             const hasDesc = (c.description ?? '').trim().length > 0;

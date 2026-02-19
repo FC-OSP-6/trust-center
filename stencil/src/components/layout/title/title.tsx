@@ -16,10 +16,12 @@
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
+//TODO: supportEmail and supportEmailLink duplicate the same default – derive one from the other or accept a single prop to avoid drift.
+
 // Defines the <aon-title> Web Component
 @Component({
   tag: 'aon-title', // registers the custom element <aon-title>
-  styleUrls: ['./title.css'],
+  styleUrl: './title.css',
   shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonTitle {

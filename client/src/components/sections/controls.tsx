@@ -17,8 +17,6 @@ export default function Controls() {
         data-mode="controls"
         show-tile={true}
         show-meta={false}
-        title-text=""
-        subtitle-text=""
         icon-src={statusCheckUrl}
       />
     </section>

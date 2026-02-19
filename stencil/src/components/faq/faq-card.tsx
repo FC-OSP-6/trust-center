@@ -15,6 +15,8 @@
   - graphql schema does NOT expose sourceUrl for Faq  --> do not query it
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+//TODO: <header> with onClick is not keyboard-accessible – add tabIndex={0} and onKeyDown (e.g. Enter/Space to toggle) or make the entire toggle a single <button> that wraps question + icon.
+//TODO: REVIEW: Both header onClick and button onClick call handleToggle – button correctly uses stopPropagation, but double handler is easy to break; consider single toggle on the button and remove header onClick, or document that header is the click target.
 import { Component, Prop, State, h } from '@stencil/core';
 
 // ---------- local types ----------

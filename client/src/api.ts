@@ -6,6 +6,8 @@
       - export page fetch helpers used by ui sections
 ================================ */
 
+// TODO: fetchControlsConnectionPage/fetchFaqsConnectionPage are mostly duplicated; consider a generic connection fetch helper to keep this DRY.
+
 import type { ControlsConnection, FaqsConnection } from './types-frontend';
 
 // ----------  graphql fetch wrapper  ----------

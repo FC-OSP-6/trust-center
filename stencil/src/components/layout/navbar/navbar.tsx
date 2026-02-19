@@ -39,7 +39,10 @@ export class AonNavbar {
       this.currentPath = window.location.pathname; // Update active link on navigation
     });
   }
+  // TODO: popstate listener is never removed – add componentDidUnload() and removeEventListener('popstate', handler) to avoid leaks when element is disconnected.
+
   // Check if given path matches current page
+  // TODO: currentPath.includes(path) can false-positive (e.g. /overview matches /overview/controls); use path === currentPath or currentPath.startsWith(path) with a trailing slash check depending on route shape.
   isCurrentPage(path: string): boolean {
     return this.currentPath.includes(path);
   }
@@ -51,7 +54,7 @@ export class AonNavbar {
     window.dispatchEvent(new PopStateEvent('popstate')); // Notify React Router
     this.currentPath = window.location.pathname; // Update active state
   }
-
+  // TODO: Dispatching popstate to "notify React Router" is brittle – document this contract or prefer a custom event / callback prop so the component doesn't depend on React Router internals.
   render() {
     return (
       <Host>

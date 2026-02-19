@@ -15,6 +15,11 @@
   - shows "+n more" only when collapsed and overflowing
 ====================================================== */
 
+// TODO: CONTROLS_CONNECTION_QUERY is duplicated with control-card.tsx – extract to a shared module (e.g. graphql/controls.ts) to avoid schema drift.
+// TODO: Filter doesn't require n.id – if downstream logic assumes id, add (n && n.id && n.title && n.category).
+// TODO: It is a good practice to always have id returned in node as it is used in cache invalidation.
+//TODO:  <li class="item"> in map has no key – add key={text} or key={index} for list stability (Stencil/JSX reconciliation).
+
 import { Component, Prop, State, Watch, h } from '@stencil/core';
 
 type ControlsNode = {
@@ -383,7 +388,6 @@ export class ExpansionCard {
 
         <ul class="list" role="list">
           {visibleItems.map(t => this.renderBulletRow(t))}
-
           {!this.isExpanded && hiddenCount > 0 && (
             <li class="more" aria-hidden="true">
               +{hiddenCount} more

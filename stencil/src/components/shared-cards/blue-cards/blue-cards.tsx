@@ -11,9 +11,12 @@
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
+//TODO: Props have no defaults – undefined title/description/buttonText/buttonLink will render as "undefined"; add defaults or document as required.
+//TODO: Invalid HTML – <button> must not contain <a>. Use <a href={...} class="blue-card-button" ...> or a button that programmatically navigates (e.g. window.location or router).
+
 @Component({
   tag: 'aon-blue-card', // Registers the custom element <aon-blue-card>
-  styleUrls: ['./blue-cards.css'],
+  styleUrl: './blue-cards.css',
   shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonBlueCard {
@@ -42,6 +45,7 @@ export class AonBlueCard {
           <a
             href={blueCardButtonLink}
             target="_blank"
+            rel="noopener noreferrer"
             class="blue-card-button-link"
           >
             {blueCardButtonText}

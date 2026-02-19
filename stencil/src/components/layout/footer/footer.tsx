@@ -41,9 +41,8 @@ export class AonFooter {
       this.el.shadowRoot.querySelector('.footer-links');
   }
 
-  //FAQS & CONTROLS -- would change
+  // TODO: logoSrc is required (!) but has no default – missing prop will render broken img src; add default or document as required in host.
 
-  //
   render() {
     const { copyright, privacyPolicyHref, termsHref, logoSrc } = this; // Destructure component props for cleaner JSX usage
     return (
