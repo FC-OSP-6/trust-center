@@ -1,108 +1,354 @@
-/* ======================================================
-  TL;DR → Expandable FAQ card
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  --> FAQ cards (stencil-owned data + behavior)
 
-  Responsibilities:
-  - Render a single FAQ item (question + answer)
-  - Display an expand / collapse affordance (+ / −)
-  - Conditionally render the answer content
-  - Manage expansion state locally for now (we can switch to host-controlled React state after the build is stable)
+  goals:
+  - keep react dumb  --> stencil fetches + groups + expands/collapses
+  - reuse the same +/- and reveal behavior as controls (via shared css primitives)
+  - show loading + error + empty states so ui never fails silently
 
-  Data contract:
-  - `question`: string displayed as the FAQ prompt
-  - `answer`: string body text revealed on expansion
-  - `expanded`: optional controlled boolean provided by host (not used yet in this implementation)
-====================================================== */
+  modes:
+  - data-mode="faqs": fetches faqsConnection from /graphql, groups by category, renders page ui
+  - data-mode="single": renders one question/answer pair (backwards compatible)
 
-import { Component, Prop, h, Event, EventEmitter, State } from '@stencil/core';
+  note:
+  - per-item expansion state is internal to stencil
+  - graphql schema does NOT expose sourceUrl for Faq  --> do not query it
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// h - bridge between JSX syntax and runtime
-// stencil virtual dom
+import { Component, Prop, State, h } from "@stencil/core";
 
-// when rendering components, h transforms divs into functions that render
+// ---------- local types ----------
 
-// component - self explanatory
-// props - self explanatory
-//
+type FaqNode = {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  updatedAt: string;
+};
+
+type FaqsConnectionResponse = {
+  data?: {
+    faqsConnection?: {
+      totalCount?: number;
+      edges?: Array<{ node?: FaqNode }>;
+    };
+  };
+  errors?: Array<{ message?: string }>;
+};
+
+type CategoryGroup = {
+  title: string;
+  items: Array<{ id: string; question: string; answer: string }>;
+};
+
+// ---------- graphql doc ----------
+
+const FAQS_CONNECTION_QUERY = `
+  query FaqsConnection($first: Int!, $after: String, $category: String, $search: String) {
+    faqsConnection(first: $first, after: $after, category: $category, search: $search) {
+      totalCount
+      edges {
+        node {
+          id
+          question
+          answer
+          category
+          updatedAt
+        }
+      }
+    }
+  }
+`;
 
 @Component({
-  tag: 'aon-faq-card',
-  styleUrl: 'faq-card.css',
-  shadow: true
+  tag: "aon-faq-card",
+  styleUrl: "faq-card.css",
+  shadow: true,
 })
 export class FaqCard {
-  /** FAQ prompt text */
-  @Prop() question!: string;
+  // ---------- public api ----------
 
-  /** Answer content */
-  @Prop() answer!: string;
+  @Prop({ attribute: "data-mode" }) dataMode: "faqs" | "single" | "none" = "none";
 
-  // we want a boolean of true or false to control the "expanded" state
-  /** internal expanded state (local ui state) */
-  @State() isExpanded: boolean = false;
+  @Prop({ attribute: "fetch-first" }) fetchFirst: number = 25;
 
-  /** controlled expanded state from host (react) (reserved for later; currently not used) */
-  @Prop() expanded!: boolean;
+  // optional tile header (matches controls strategy)
+  @Prop({ attribute: "show-tile" }) showTile: boolean = false;
 
-  // we want an event listener for when the expand & collapse button is clicked.
+  @Prop({ attribute: "title-text" }) titleText?: string;
 
-  /** emitted when the expand/collapse action happens (host can listen if needed) */
-  @Event() toggle!: EventEmitter<void>;
+  @Prop({ attribute: "show-meta" }) showMeta: boolean = false;
 
-  // const [isExpanded, setIsExpanded] = useState(false);
-  private handleToggle = (): void => {
-    this.isExpanded = !this.isExpanded;
-  };
+  @Prop({ attribute: "subtitle-text" }) subtitleText?: string;
 
-  render() {
-    const { question, answer } = this;
+  // optional icon  --> reserved for future use (safe default = unused)
+  @Prop({ attribute: "icon-src" }) iconSrc?: string;
 
-    // this will log to the browser console every render so we can see state changes
-    console.log('Rendering FAQ:', { question, isExpanded: this.isExpanded });
+  // single-item mode (backwards compatible)
+  @Prop() question?: string;
 
-    // this will log to the browser console when the component instance exists
-    console.log('Component instance:', this);
+  @Prop() answer?: string;
+
+  // ---------- internal state ----------
+
+  @State() groups: CategoryGroup[] = [];
+
+  @State() totalFaqs: number = 0;
+
+  @State() expandedById: Record<string, boolean> = {};
+
+  @State() isLoading: boolean = false;
+
+  @State() errorText: string | null = null;
+
+  // ---------- lifecycle ----------
+
+  async componentWillLoad() {
+    if (this.dataMode !== "faqs") return;
+
+    this.isLoading = true;
+
+    this.errorText = null;
+
+    try {
+      const { groups, totalCount } = await this.fetchAndGroupFaqs();
+
+      this.groups = groups;
+
+      this.totalFaqs = totalCount;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+
+      console.warn("[aon-faq-card] faqs load failed:", msg);
+
+      this.errorText = msg;
+
+      this.groups = [];
+
+      this.totalFaqs = 0;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // ---------- data ----------
+
+  private getFetchFirst(): number {
+    const n = Number(this.fetchFirst);
+
+    if (!Number.isFinite(n) || n <= 0) return 25;
+
+    return Math.floor(n);
+  }
+
+  private async fetchAndGroupFaqs(): Promise<{ groups: CategoryGroup[]; totalCount: number }> {
+    const first = this.getFetchFirst();
+
+    const res = await fetch("/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: FAQS_CONNECTION_QUERY,
+        variables: { first, after: null, category: null, search: null },
+      }),
+    });
+
+    if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
+
+    const json = (await res.json()) as FaqsConnectionResponse;
+
+    if (json.errors && json.errors.length) {
+      const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
+
+      throw new Error(`GRAPHQL_ERROR: ${msg}`);
+    }
+
+    const nodes =
+      json.data?.faqsConnection?.edges
+        ?.map((e) => e.node)
+        ?.filter((n): n is FaqNode => Boolean(n && n.id && n.question && n.category)) ?? [];
+
+    const totalCount = Number(json.data?.faqsConnection?.totalCount ?? nodes.length) || nodes.length;
+
+    const map = new Map<string, Array<{ id: string; question: string; answer: string }>>();
+
+    for (const n of nodes) {
+      const cat = (n.category || "General").trim() || "General";
+
+      const list = map.get(cat) ?? [];
+
+      list.push({
+        id: n.id,
+        question: (n.question || "").trim(),
+        answer: (n.answer || "").trim(),
+      });
+
+      map.set(cat, list);
+    }
+
+    const groups: CategoryGroup[] = Array.from(map.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([title, items]) => ({
+        title,
+        items: items.sort((a, b) => a.question.localeCompare(b.question)),
+      }));
+
+    return { groups, totalCount };
+  }
+
+  // ---------- ui helpers ----------
+
+  private isExpanded(id: string): boolean {
+    return Boolean(this.expandedById[id]);
+  }
+
+  private toggleExpanded(id: string) {
+    this.expandedById = { ...this.expandedById, [id]: !this.isExpanded(id) };
+  }
+
+  private renderTileHeader() {
+    if (!this.showTile) return null;
+
+    const title = (this.titleText ?? "").trim();
+
+    const subtitle = (this.subtitleText ?? "").trim();
+
+    const categoriesCount = this.groups.length;
+
+    const metaText = `${this.totalFaqs} faqs ${categoriesCount} categories`;
 
     return (
-      <div class={`faq-card ${this.isExpanded ? 'is-expanded' : ''}`}>
-        {/*
-          header section
-          - clickable area that triggers toggle
-          - contains question text and expand/collapse icon
-          - role="button" makes it accessible as interactive element (we keep native semantics via the <button> too)
-        */}
-        <header
-          class="faq-header"
-          onClick={this.handleToggle}
-          aria-expanded={this.isExpanded ? 'true' : 'false'}
-          aria-controls="faq-content"
-        >
-          <span class="faq-question">{this.question}</span>
+      <header class="tileHeader">
+        <div class="tileText">
+          {title.length > 0 && <h2 class="tileTitle">{title}</h2>}
 
-          {/*
-            chevron / state icon
-            - uses a single button (no nested buttons) to avoid invalid html
-            - stopPropagation prevents the header onClick from double-toggling
-          */}
-          <button
-            class="state-toggle"
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              this.handleToggle();
-              this.toggle.emit();
-            }}
-            aria-label={this.isExpanded ? 'collapse answer' : 'expand answer'}
-          >
-            {this.isExpanded ? '−' : '+'}
-          </button>
+          {this.showMeta && <div class="tileMeta">{metaText}</div>}
+
+          {subtitle.length > 0 && <div class="tileSubtitle">{subtitle}</div>}
+        </div>
+      </header>
+    );
+  }
+
+  private renderToggle(expanded: boolean) {
+    return (
+      <span class={{ aonToggleIcon: true, isOpen: expanded }} aria-hidden="true">
+        <span class="aonToggleBarH" />
+        <span class="aonToggleBarV" />
+      </span>
+    );
+  }
+
+  private renderStateText(text: string) {
+    return <div class="stateText">{text}</div>;
+  }
+
+  private renderFaqRow(item: { id: string; question: string; answer: string }) {
+    const expanded = this.isExpanded(item.id);
+
+    const hasAnswer = (item.answer ?? "").trim().length > 0;
+
+    return (
+      <li class="row" key={item.id}>
+        <button
+          class="rowHeader"
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => this.toggleExpanded(item.id)}
+        >
+          <div class="rowQuestion">{item.question}</div>
+
+          <div class="rowToggle">{this.renderToggle(expanded)}</div>
+        </button>
+
+        {hasAnswer && (
+          <div class={{ aonRevealWrap: true, isOpen: expanded }} aria-hidden={!expanded}>
+            <div class="aonRevealInner">{item.answer}</div>
+          </div>
+        )}
+      </li>
+    );
+  }
+
+  private renderCategoryCard(group: CategoryGroup) {
+    return (
+      <section class="card" key={group.title}>
+        <header class="cardHeaderStatic">
+          <h3 class="cardTitle">{group.title}</h3>
         </header>
 
-        {this.isExpanded && (
-          <p class="faq-answer" id="faq-content">
-            {answer}
-          </p>
-        )}
-      </div>
+        <ul class="rows" role="list">
+          {group.items.map((it) => this.renderFaqRow(it))}
+        </ul>
+      </section>
     );
+  }
+
+  private renderSingle() {
+    const q = (this.question ?? "").trim();
+
+    const a = (this.answer ?? "").trim();
+
+    const expanded = this.isExpanded("__single__");
+
+    if (q.length === 0) return null;
+
+    return (
+      <section class="card">
+        <ul class="rows" role="list">
+          <li class="row">
+            <button
+              class="rowHeader"
+              type="button"
+              aria-expanded={expanded}
+              onClick={() => this.toggleExpanded("__single__")}
+            >
+              <div class="rowQuestion">{q}</div>
+
+              <div class="rowToggle">{this.renderToggle(expanded)}</div>
+            </button>
+
+            {a.length > 0 && (
+              <div class={{ aonRevealWrap: true, isOpen: expanded }} aria-hidden={!expanded}>
+                <div class="aonRevealInner">{a}</div>
+              </div>
+            )}
+          </li>
+        </ul>
+      </section>
+    );
+  }
+
+  // ---------- render ----------
+
+  render() {
+    if (this.dataMode === "faqs") {
+      const hasError = Boolean(this.errorText);
+
+      const hasGroups = this.groups.length > 0;
+
+      const isEmpty = !this.isLoading && !hasError && !hasGroups;
+
+      return (
+        <div class="wrap">
+          {this.renderTileHeader()}
+
+          {this.isLoading && this.renderStateText("loading faqs...")}
+
+          {!this.isLoading && hasError && this.renderStateText(`error: ${this.errorText}`)}
+
+          {isEmpty && this.renderStateText("no faqs found")}
+
+          {hasGroups && <div class="grid">{this.groups.map((g) => this.renderCategoryCard(g))}</div>}
+        </div>
+      );
+    }
+
+    if (this.dataMode === "single") {
+      return <div class="wrap">{this.renderSingle()}</div>;
+    }
+
+    return null;
   }
 }
