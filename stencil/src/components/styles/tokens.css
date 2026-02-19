@@ -1,4 +1,4 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  Design tokens and typography for Stencil components
     - Defines the system-level design tokens (colors, typography, spacing, text decoration) using CSS custom
     properties in :root, serving as the single source of truth for visual decisions.
@@ -14,7 +14,7 @@
     - Assumes alignment with external documents for:
         1. Layout/grid definitions (React layer)
         2. Brand typography approvals (e.g., font family decisions)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* :root serves as the configuration layer of the design system: */
 /* tokens, constants, and shared visual decisions only */
@@ -117,4 +117,25 @@
   /* == Text Decorations == */
   --link-decoration-default: underline;
   --link-decoration-hover: none;
+
+  /* == Motion Tokens == */
+  /* global motion decisions (shared by all stencil components) */
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* toggle (plus -> minus) */
+  --motion-toggle-ms: 320ms;
+
+  /* expansion reveal */
+  --motion-reveal-ms: 420ms;
+
+  /* optional micro-delay so the container opens first, then the text reveals */
+  --motion-reveal-delay-ms: 80ms;
+
+  /* == Shared UI Measurements == */
+  /* keeps +/- and right column consistent across cards/panels */
+  --toggle-hit-col-width: 44px;
+  --toggle-icon-size: 18px;
+  --toggle-bar-length: 14px;
+  --toggle-bar-thickness: 2px;
+  --toggle-bar-radius: 999px;
 }

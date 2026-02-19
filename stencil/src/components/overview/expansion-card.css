@@ -1,18 +1,18 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  styling for expansion cards
 
   - uses tokens for color + type + spacing
-  - keeps layout local to the component
-  - leaves page grid and section spacing to react
-  - tile header is unboxed (no outline) and sits above the grid
-================================ */
+  - supports:
+    - static single-card mode
+    - controls grouped mode (tile + 3-up grid)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 :host {
     display: block;
     font-family: var(--font-default);
 }
 
-/* todo: promote these to tokens.css if multiple components need them */
+/* local component tokens  --> safe since used only here */
 :host {
     --expansion-card-radius: 8px;
     --expansion-card-border: var(--color-gray-05);
@@ -34,12 +34,10 @@
     outline: 0;
 }
 
-/* ensure nothing in the tile header accidentally inherits an outline */
 .tile :where(*) {
     outline: none;
 }
 
-/* first row only contains the title */
 .tileHeadingRow {
     display: flex;
     align-items: baseline;
@@ -47,7 +45,6 @@
     gap: 12px;
 }
 
-/* selected controls heading (no border, no pill) */
 .tileTitle {
     margin: 0;
     font-weight: var(--font-weight-bold);
@@ -56,7 +53,6 @@
     color: var(--color-navy-primary);
 }
 
-/* derived meta line (ex: "24 controls 8 categories") */
 .tileMeta {
     font-weight: var(--font-weight-regular);
     font-size: var(--font-size-small);
@@ -64,7 +60,6 @@
     color: var(--color-gray-02);
 }
 
-/* optional subtitle line under meta */
 .tileSubtitle {
     font-weight: var(--font-weight-regular);
     font-size: var(--font-size-medium);
@@ -72,21 +67,19 @@
     color: var(--color-gray-01);
 }
 
-/* grouped mode wrapper (controls overview) */
+/* grouped mode wrapper */
 .groupWrap {
     display: grid;
     gap: var(--default-local-spacing);
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-/* medium/tablet -> 2 columns */
 @media (max-width: 991px) {
     .groupWrap {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-/* mobile -> 1 column */
 @media (max-width: 575px) {
     .groupWrap {
         grid-template-columns: 1fr;
@@ -94,6 +87,31 @@
     }
 }
 
+/* notice rows (loading/empty/error) */
+.notice {
+    border: 1px solid var(--color-gray-05);
+    border-radius: var(--expansion-card-radius);
+    background: var(--color-surface);
+    padding: var(--default-local-spacing);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
+    color: var(--color-gray-02);
+}
+
+.notice.isError {
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.noticeDetail {
+    margin-top: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-gray-01);
+}
+
+/* card */
 .card {
     background: var(--expansion-card-bg);
     border: 1px solid var(--expansion-card-border);
