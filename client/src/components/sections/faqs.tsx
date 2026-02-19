@@ -5,7 +5,7 @@
   - pass real booleans (not "false" strings) for stencil boolean props
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from "react";
+import React from 'react';
 
 export default function Faqs() {
   return (
@@ -23,11 +23,8 @@ export default function Faqs() {
   );
 }
 
-
-
-
 // /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//   TL;DR  --> A button that when clicked expands to FAQs in the form of separate dropdowns for each question 
+//   TL;DR  --> A button that when clicked expands to FAQs in the form of separate dropdowns for each question
 //       1. Each FAQ will have a button that will expand or shrink to show the answer to that question
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 // // import React from "react";
@@ -38,7 +35,6 @@ export default function Faqs() {
 
 // import { fetchFaqsConnectionPage } from '../../api';
 // import type { Faq } from '../../types-frontend';
-
 
 // export default function Faqs() {
 
@@ -115,8 +111,6 @@ export default function Faqs() {
 //     </section>
 //   );
 // }
-
-
 
 //DeepSeek
 

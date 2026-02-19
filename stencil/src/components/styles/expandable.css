@@ -14,34 +14,34 @@
 /* ---------- +/- toggle ---------- */
 
 .aonToggleIcon {
-    width: var(--toggle-icon-size);
-    height: var(--toggle-icon-size);
-    position: relative;
-    display: inline-block;
+  width: var(--toggle-icon-size);
+  height: var(--toggle-icon-size);
+  position: relative;
+  display: inline-block;
 }
 
 .aonToggleBarH,
 .aonToggleBarV {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: var(--toggle-bar-length);
-    height: var(--toggle-bar-thickness);
-    background: var(--color-teal-dark-secondary);
-    transform: translate(-50%, -50%);
-    border-radius: var(--toggle-bar-radius);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--toggle-bar-length);
+  height: var(--toggle-bar-thickness);
+  background: var(--color-teal-dark-secondary);
+  transform: translate(-50%, -50%);
+  border-radius: var(--toggle-bar-radius);
 }
 
 /* start as vertical bar (plus sign) */
 .aonToggleBarV {
-    transform: translate(-50%, -50%) rotate(90deg);
-    transform-origin: center;
-    transition: transform var(--motion-toggle-ms) var(--motion-ease-out);
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center;
+  transition: transform var(--motion-toggle-ms) var(--motion-ease-out);
 }
 
 /* open => rotate clockwise so it visually collapses into "-" */
 .aonToggleIcon.isOpen .aonToggleBarV {
-    transform: translate(-50%, -50%) rotate(180deg);
+  transform: translate(-50%, -50%) rotate(180deg);
 }
 
 /* ---------- bottom-first reveal ---------- */
@@ -56,41 +56,44 @@
 */
 
 .aonRevealWrap {
-    display: grid;
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transition:
-        grid-template-rows calc(var(--motion-reveal-ms) * 1.5) var(--motion-ease-out),
-        opacity 300ms var(--motion-ease-out);
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows calc(var(--motion-reveal-ms) * 1.5)
+      var(--motion-ease-out),
+    opacity 300ms var(--motion-ease-out);
 }
 
 .aonRevealWrap.isOpen {
-    grid-template-rows: 1fr;
-    opacity: 1;
+  grid-template-rows: 1fr;
+  opacity: 1;
 }
 
 .aonRevealInner {
-    overflow: hidden;
+  overflow: hidden;
 
-    /* typography defaults; components can override if needed */
-    font-weight: var(--font-weight-regular);
-    font-size: var(--font-size-small);
-    line-height: var(--line-height-small);
-    color: var(--color-gray-01);
+  /* typography defaults; components can override if needed */
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-gray-01);
 
-    /* bottom-first reveal */
-    clip-path: inset(100% 0 0 0);
-    transform: translateY(-6px);
+  /* bottom-first reveal */
+  clip-path: inset(100% 0 0 0);
+  transform: translateY(-6px);
 
-    /* micro-delay: container opens first, then glyphs reveal */
-    transition:
-        clip-path var(--motion-reveal-ms) cubic-bezier(0.22, 1, 0.75, 1) var(--motion-reveal-delay-ms),
-        transform var(--motion-reveal-ms) cubic-bezier(0.22, 1, 0.6, 1) calc(var(--motion-reveal-delay-ms) + 20ms);
+  /* micro-delay: container opens first, then glyphs reveal */
+  transition:
+    clip-path var(--motion-reveal-ms) cubic-bezier(0.22, 1, 0.75, 1)
+      var(--motion-reveal-delay-ms),
+    transform var(--motion-reveal-ms) cubic-bezier(0.22, 1, 0.6, 1)
+      calc(var(--motion-reveal-delay-ms) + 20ms);
 
-    will-change: clip-path, transform;
+  will-change: clip-path, transform;
 }
 
 .aonRevealWrap.isOpen .aonRevealInner {
-    clip-path: inset(0 0 0 0);
-    transform: translateY(0);
+  clip-path: inset(0 0 0 0);
+  transform: translateY(0);
 }
