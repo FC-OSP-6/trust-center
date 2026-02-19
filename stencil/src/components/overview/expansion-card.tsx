@@ -1,65 +1,38 @@
 /* ======================================================
-  TL;DR  -->  expandable bullet list card (single or grouped)
+  TL;DR  -->  expandable bullet list card + controls overview mode
 
-  - supports 3 modes:
-      1) single list mode via bullet-points-json
-      2) grouped mode via groups-json (renders multiple cards)
-      3) auto-load grouped controls via data-mode="controls" (graphql default; server falls back to seed json)
-  - renders cards in a responsive grid (css controls 3 -> 2 -> 1 columns)
-  - keeps most logic + styling in stencil (react passes only minimal configuration)
-  - per-card expansion state in grouped mode (each group expands independently)
-  - supports icon variant so this pattern can be reused (ex: link cards)
-  - optional "tile header" section (Selected Controls) above the grid
+  static mode:
+  - renders a single titled card
+  - accepts bullet-points-json (string[])
+
+  controls mode:
+  - fetches controls from graphql (/graphql) in the component (react stays dumb)
+  - relies on server resolver for db-first + seed-json fallback
+  - groups controls by category
+  - shows 3 categories by default (category-limit)
+  - shows 3 controls per category by default (preview-limit)
+  - uses a per-category "view all / view less" toggle (no +/-)
+  - shows "+n more" only when collapsed and overflowing
 ====================================================== */
 
 import { Component, Prop, State, Watch, h } from "@stencil/core";
 
-// ----------  local types  ----------
-
-type ExpansionGroup = {
-  title: string;
-  items: string[];
-};
-
-// graphql node shape we need for controls -> category groups
-type ControlsConnectionNode = {
+type ControlsNode = {
   id: string;
   title: string;
-  description: string;
   category: string;
-  sourceUrl?: string | null;
-  updatedAt: string;
 };
 
-// graphql response shape for minimal parsing
-type ControlsConnectionResponse = {
-  data?: {
-    controlsConnection?: {
-      totalCount?: number;
-      edges?: Array<{ node?: ControlsConnectionNode }>;
-    };
-  };
+type ControlsConnectionPage = {
+  edges: Array<{ cursor: string; node: ControlsNode }>;
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  totalCount: number;
+};
+
+type GraphQLResponse<T> = {
+  data?: T;
   errors?: Array<{ message?: string }>;
 };
-
-// graphql document string  --> kept local so stencil can own the grouping logic
-const CONTROLS_CONNECTION_QUERY = `
-  query ControlsConnection($first: Int!, $after: String, $category: String, $search: String) {
-    controlsConnection(first: $first, after: $after, category: $category, search: $search) {
-      totalCount
-      edges {
-        node {
-          id
-          title
-          description
-          category
-          sourceUrl
-          updatedAt
-        }
-      }
-    }
-  }
-`;
 
 @Component({
   tag: "aon-expansion-card",
@@ -67,110 +40,114 @@ const CONTROLS_CONNECTION_QUERY = `
   shadow: true,
 })
 export class ExpansionCard {
-  // ----------  public api (attributes)  ----------
+  // ----------  public api (shared)  ----------
 
-  // single card title (single list mode)
-  @Prop({ attribute: "card-title" }) cardTitle: string = "";
+  @Prop({ attribute: "data-mode" }) dataMode: "static" | "controls" = "static";
 
-  // single list items (single list mode)
-  @Prop({ attribute: "bullet-points-json" }) bulletPointsJson: string = "[]";
-
-  // grouped cards (grouped mode) --> [{ title, items[] }]
-  @Prop({ attribute: "groups-json" }) groupsJson: string = "[]";
-
-  // optional limit for number of groups rendered (grouped mode) --> 0 means "show all"
-  @Prop({ attribute: "group-limit" }) groupLimit?: number;
-
-  // icon source for "img" variant (ex: green check)
   @Prop({ attribute: "icon-src" }) iconSrc?: string;
 
-  // icon variant used per bullet
-  @Prop({ attribute: "icon-variant" }) iconVariant: "img" | "dot" = "img";
-
-  // how many bullet points to show when collapsed
   @Prop({ attribute: "preview-limit" }) previewLimit: number = 3;
 
-  // data mode for auto-loading groups (keeps react dumb; stencil owns grouping)
-  @Prop({ attribute: "data-mode" }) dataMode: "controls" | "none" = "none";
+  // ----------  static mode props  ----------
 
-  // how many controls to fetch for grouped mode when data-mode="controls"
+  @Prop({ attribute: "card-title" }) cardTitle: string = "";
+
+  @Prop({ attribute: "bullet-points-json" }) bulletPointsJson: string = "[]";
+
+  // ----------  controls mode props  ----------
+
   @Prop({ attribute: "fetch-first" }) fetchFirst: number = 50;
 
-  // optional tile header (section heading above the grid)
+  @Prop({ attribute: "category-limit" }) categoryLimit: number = 3;
+
   @Prop({ attribute: "show-tile" }) showTile: boolean = false;
 
-  // optional tile title (defaults to "Selected Controls" when omitted)
   @Prop({ attribute: "tile-title" }) tileTitle: string = "";
 
-  // optional tile subtitle (renders only when non-empty)
-  @Prop({ attribute: "tile-subtitle" }) tileSubtitle: string = "";
-
-  // optional derived meta line visibility (meta is derived, not hardcoded)
   @Prop({ attribute: "show-meta" }) showMeta: boolean = false;
 
-  // ----------  internal state  ----------
+  @Prop({ attribute: "tile-subtitle" }) tileSubtitle: string = "";
 
-  // single card expansion state (single list mode)
+  // ----------  internal state (static mode)  ----------
+
   @State() isExpanded: boolean = false;
 
-  // parsed single-list items
   @State() bulletPoints: string[] = [];
 
-  // parsed groups for grouped mode (or fetched groups for data-mode="controls")
-  @State() groups: ExpansionGroup[] = [];
+  // ----------  internal state (controls mode)  ----------
 
-  // per-group expansion state (grouped mode) --> avoids expanding all cards at once
-  @State() expandedByKey: Record<string, boolean> = {};
+  @State() isLoading: boolean = false;
 
-  // derived counts for tile meta (controls mode)
-  @State() derivedTotalCount: number | null = null;
+  @State() errorMessage: string = "";
+
+  @State() groupedCategories: Array<{ category: string; titles: string[] }> = [];
+
+  @State() totalControls: number = 0;
+
+  @State() expandedByCategory: Record<string, boolean> = {};
 
   // ----------  lifecycle  ----------
 
-  async componentWillLoad() {
-    // always sync parsed props first so we can detect host-provided grouped mode
-    this.syncBulletPoints(this.bulletPointsJson);
-    this.syncGroups(this.groupsJson);
-
-    // if host provided groups-json, we do not auto-load
-    const hasProvidedGroups = this.groups.length > 0;
-
-    // auto-load controls groups from graphql when requested
-    if (this.dataMode === "controls" && !hasProvidedGroups) {
-      try {
-        const fetched = await this.fetchControlsGroups();
-        this.groups = fetched.groups;
-        this.derivedTotalCount = fetched.totalCount;
-      } catch (err) {
-        // keep failures readable for mvp debugging, but avoid crashing render
-        const msg = err instanceof Error ? err.message : String(err);
-        console.warn("[aon-expansion-card] controls load failed:", msg);
-        this.groups = [];
-        this.derivedTotalCount = null;
-      }
-    }
+  componentWillLoad() {
+    this.bootstrap();
   }
 
   // ----------  watchers  ----------
 
   @Watch("bulletPointsJson")
   onBulletPointsJsonChange(next: string) {
+    if (this.dataMode !== "static") return;
     this.syncBulletPoints(next);
   }
 
-  @Watch("groupsJson")
-  onGroupsJsonChange(next: string) {
-    this.syncGroups(next);
+  @Watch("dataMode")
+  onDataModeChange() {
+    this.bootstrap();
   }
 
-  // ----------  parsing helpers  ----------
+  @Watch("fetchFirst")
+  onFetchFirstChange() {
+    if (this.dataMode !== "controls") return;
+    this.fetchAndGroupControls();
+  }
+
+  // ----------  bootstrap  ----------
+
+  private bootstrap() {
+    if (this.dataMode === "controls") {
+      this.fetchAndGroupControls();
+      return;
+    }
+
+    this.syncBulletPoints(this.bulletPointsJson);
+  }
+
+  // ----------  shared helpers (numbers)  ----------
+
+  private toSafeInt(value: unknown, fallback: number): number {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    if (n <= 0) return fallback;
+    return Math.floor(n);
+  }
+
+  private getPreviewLimit(): number {
+    return this.toSafeInt(this.previewLimit, 3);
+  }
+
+  private getCategoryLimit(): number {
+    return this.toSafeInt(this.categoryLimit, 3);
+  }
+
+  private getFetchFirst(): number {
+    const requested = this.toSafeInt(this.fetchFirst, 50);
+    return Math.min(requested, 50);
+  }
+
+  // ----------  static mode parsing  ----------
 
   private syncBulletPoints(raw: string) {
     this.bulletPoints = this.parseBulletPoints(raw);
-  }
-
-  private syncGroups(raw: string) {
-    this.groups = this.parseGroups(raw);
   }
 
   private parseBulletPoints(raw: string): string[] {
@@ -178,6 +155,7 @@ export class ExpansionCard {
 
     try {
       const parsed = JSON.parse(raw) as unknown;
+
       if (!Array.isArray(parsed)) return [];
 
       return parsed
@@ -189,221 +167,189 @@ export class ExpansionCard {
     }
   }
 
-  private parseGroups(raw: string): ExpansionGroup[] {
-    if (!raw) return [];
+  // ----------  controls mode fetch  ----------
 
-    try {
-      const parsed = JSON.parse(raw) as unknown;
-      if (!Array.isArray(parsed)) return [];
-
-      const groups = parsed
-        .filter((g) => g && typeof g === "object")
-        .map((g) => {
-          const anyG = g as { title?: unknown; items?: unknown };
-          const title = typeof anyG.title === "string" ? anyG.title.trim() : "";
-          const itemsRaw = Array.isArray(anyG.items) ? anyG.items : [];
-
-          const items = itemsRaw
-            .filter((v) => typeof v === "string")
-            .map((v) => v.trim())
-            .filter((v) => v.length > 0);
-
-          return { title, items };
-        })
-        .filter((g) => g.title.length > 0 && g.items.length > 0);
-
-      return groups;
-    } catch {
-      return [];
-    }
+  private buildControlsQuery(): string {
+    return `
+      query ControlsConnection($first: Int!, $after: String) {
+        controlsConnection(first: $first, after: $after) {
+          edges {
+            cursor
+            node {
+              id
+              title
+              category
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          totalCount
+        }
+      }
+    `;
   }
 
-  private getPreviewLimit(): number {
-    const n = Number(this.previewLimit);
-    if (!Number.isFinite(n)) return 3;
-    if (n <= 0) return 3;
-    return Math.floor(n);
-  }
-
-  private getGroupLimit(): number | null {
-    const n = this.groupLimit == null ? NaN : Number(this.groupLimit);
-    if (!Number.isFinite(n)) return null;
-
-    // 0 means "show all" (explicitly requested by host)
-    if (n === 0) return null;
-
-    if (n < 0) return null;
-    return Math.floor(n);
-  }
-
-  private getFetchFirst(): number {
-    const n = Number(this.fetchFirst);
-    if (!Number.isFinite(n)) return 50;
-    if (n <= 0) return 50;
-    return Math.floor(n);
-  }
-
-  private getTileTitle(): string {
-    const raw = (this.tileTitle || "").trim();
-    if (raw) return raw;
-    return "Selected Controls";
-  }
-
-  private getTileSubtitle(): string {
-    return (this.tileSubtitle || "").trim();
-  }
-
-  private getTileMetaText(): string {
-    // meta is derived (counts), not hardcoded
-    const total = this.derivedTotalCount;
-    const categories = this.groups.length;
-
-    // if we don't have a reliable count yet, do not render meta
-    if (total == null) return "";
-
-    // keep this plain-text so design tokens can style it (no pill, no outline)
-    return `${categories} categories, ${total} controls`;
-  }
-
-  // ----------  data (graphql --> groups)  ----------
-
-  private async fetchControlsGroups(): Promise<{ groups: ExpansionGroup[]; totalCount: number | null }> {
-    const first = this.getFetchFirst();
-
-    // note: backend is db-first and falls back to seed json automatically
+  private async postGraphQL<T>(body: { query: string; variables: Record<string, unknown> }): Promise<GraphQLResponse<T>> {
     const res = await fetch("/graphql", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        query: CONTROLS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null },
-      }),
+      body: JSON.stringify(body),
     });
 
-    // non-2xx should still surface cleanly
-    if (!res.ok) {
-      throw new Error(`NETWORK_ERROR: http ${res.status}`);
-    }
+    const json = (await res.json()) as GraphQLResponse<T>;
 
-    // parse json once
-    const json = (await res.json()) as ControlsConnectionResponse;
-
-    // graphql-level errors return 200 with errors[]
-    if (json.errors && json.errors.length) {
-      const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
-      throw new Error(`GRAPHQL_ERROR: ${msg}`);
-    }
-
-    const totalCount = typeof json.data?.controlsConnection?.totalCount === "number"
-      ? json.data?.controlsConnection?.totalCount ?? null
-      : null;
-
-    // normalize nodes and ignore null edges
-    const nodes =
-      json.data?.controlsConnection?.edges
-        ?.map((e) => e.node)
-        .filter((n): n is ControlsConnectionNode => Boolean(n && n.title && n.category)) ?? [];
-
-    // group by category (category -> list of control titles)
-    const map = new Map<string, string[]>();
-    for (const n of nodes) {
-      const cat = (n.category || "General").trim() || "General";
-      const list = map.get(cat) ?? [];
-      list.push(n.title.trim());
-      map.set(cat, list);
-    }
-
-    // stable display order (alphabetical groups + alphabetical items)
-    const groups: ExpansionGroup[] = Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([title, items]) => ({
-        title,
-        items: items.sort((a, b) => a.localeCompare(b)),
-      }));
-
-    return { groups, totalCount };
+    return json;
   }
 
-  // ----------  ui helpers  ----------
+  private toErrorMessage(err: unknown): string {
+    if (err instanceof Error && err.message) return err.message;
+    return String(err);
+  }
+
+  private async fetchAllControls(): Promise<{ nodes: ControlsNode[]; totalCount: number }> {
+    const first = this.getFetchFirst();
+    const query = this.buildControlsQuery();
+
+    let after: string | null = null;
+    let safetyPages = 0;
+
+    const nodes: ControlsNode[] = [];
+    let totalCount = 0;
+
+    while (safetyPages < 25) {
+      const variables = {
+        first,
+        ...(after ? { after } : {}),
+      };
+
+      const resp = await this.postGraphQL<{ controlsConnection: ControlsConnectionPage }>({
+        query,
+        variables,
+      });
+
+      if (resp.errors && resp.errors.length) {
+        const msg = resp.errors.map((e) => e.message || "GraphQL error").join(" | ");
+        throw new Error(msg);
+      }
+
+      const page = resp.data?.controlsConnection;
+
+      if (!page) {
+        throw new Error("GraphQL response missing controlsConnection");
+      }
+
+      totalCount = Number(page.totalCount || 0);
+
+      page.edges.forEach((e) => {
+        if (!e?.node) return;
+        nodes.push(e.node);
+      });
+
+      if (!page.pageInfo?.hasNextPage) break;
+      if (!page.pageInfo?.endCursor) break;
+
+      after = page.pageInfo.endCursor;
+      safetyPages += 1;
+    }
+
+    return { nodes, totalCount };
+  }
+
+  private groupByCategory(nodes: ControlsNode[]): Array<{ category: string; titles: string[] }> {
+    const map = new Map<string, string[]>();
+
+    nodes.forEach((n) => {
+      const category = (n.category || "General").trim() || "General";
+      const title = (n.title || "").trim();
+
+      if (!title) return;
+
+      const next = map.get(category) ?? [];
+      next.push(title);
+      map.set(category, next);
+    });
+
+    const groups: Array<{ category: string; titles: string[] }> = [];
+
+    map.forEach((titles, category) => {
+      groups.push({ category, titles });
+    });
+
+    return groups;
+  }
+
+  private async fetchAndGroupControls() {
+    this.isLoading = true;
+    this.errorMessage = "";
+    this.groupedCategories = [];
+    this.totalControls = 0;
+    this.expandedByCategory = {};
+
+    try {
+      const { nodes, totalCount } = await this.fetchAllControls();
+      const groups = this.groupByCategory(nodes);
+
+      this.totalControls = totalCount || nodes.length;
+      this.groupedCategories = groups;
+    } catch (err) {
+      this.errorMessage = this.toErrorMessage(err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // ----------  ui helpers (static mode)  ----------
 
   private toggleExpanded = () => {
-    // single list mode toggler
     this.isExpanded = !this.isExpanded;
   };
 
-  private isGroupExpanded(key: string): boolean {
-    return Boolean(this.expandedByKey[key]);
+  // ----------  ui helpers (controls mode)  ----------
+
+  private isCategoryExpanded(category: string): boolean {
+    return Boolean(this.expandedByCategory[category]);
   }
 
-  private toggleGroupExpanded(key: string) {
-    // grouped mode toggler (copy-on-write to trigger stencil re-render)
-    this.expandedByKey = { ...this.expandedByKey, [key]: !this.isGroupExpanded(key) };
-  }
+  private toggleCategoryExpanded = (category: string) => {
+    const next = { ...this.expandedByCategory };
+    next[category] = !Boolean(next[category]);
+    this.expandedByCategory = next;
+  };
 
-  // ----------  render helpers  ----------
+  // ----------  render helpers (shared list row)  ----------
 
-  private renderBulletIcon() {
-    // icon variant "dot" always renders dot
-    if (this.iconVariant === "dot") {
-      return <span class="iconDot" aria-hidden="true" />;
-    }
-
-    // icon variant "img" uses iconSrc if provided
-    if (this.iconSrc) {
-      return (
-        <span class="iconWrap" aria-hidden="true">
-          <img class="iconImg" src={this.iconSrc} alt="" />
-        </span>
-      );
-    }
-
-    // fallback when img variant is requested but iconSrc is missing
-    return <span class="iconDot" aria-hidden="true" />;
-  }
-
-  private renderTileHeader() {
-    // tile header is optional and should never borrow the bordered card wrapper
-    if (!this.showTile) return null;
-
-    const title = this.getTileTitle();
-    const subtitle = this.getTileSubtitle();
-
-    const metaText = this.getTileMetaText();
-    const shouldShowMeta = Boolean(this.showMeta && metaText);
-
-    const shouldShowSubtitle = Boolean(subtitle);
-
+  private renderBulletRow(text: string) {
     return (
-      <div class="tile" part="tile">
-        <div class="tileHeadingRow">
-          <h2 class="tileTitle" part="tile-title">{title}</h2>
-        </div>
-
-        {shouldShowMeta && (
-          <div class="tileMeta" part="tile-meta">
-            {metaText}
-          </div>
+      <li class="item">
+        {this.iconSrc ? (
+          <span class="iconWrap" aria-hidden="true">
+            <img class="iconImg" src={this.iconSrc} alt="" />
+          </span>
+        ) : (
+          <span class="iconDot" aria-hidden="true" />
         )}
 
-        {shouldShowSubtitle && (
-          <div class="tileSubtitle" part="tile-subtitle">
-            {subtitle}
-          </div>
-        )}
-      </div>
+        <span class="text">{text}</span>
+      </li>
     );
   }
 
-  private renderSingleCard(args: { title: string; items: string[]; isExpanded: boolean; onToggle: () => void }) {
-    const { title, items, isExpanded, onToggle } = args;
+  // ----------  render (static mode)  ----------
 
+  private renderStaticCard() {
+    const title = this.cardTitle || "";
+    const items = this.bulletPoints;
     const limit = this.getPreviewLimit();
 
     const hasOverflow = items.length > limit;
-    const visibleItems = isExpanded ? items : items.slice(0, limit);
+    const visibleItems = this.isExpanded ? items : items.slice(0, limit);
     const hiddenCount = items.length - visibleItems.length;
 
-    const buttonText = isExpanded ? "View Less" : "View All";
+    const buttonText = this.isExpanded ? "View Less" : "View All";
+
+    if (!title && items.length === 0) return null;
 
     return (
       <div class="card">
@@ -411,21 +357,16 @@ export class ExpansionCard {
           <h3 class="title">{title}</h3>
 
           {hasOverflow && (
-            <button class="toggle" type="button" aria-expanded={isExpanded} onClick={onToggle}>
+            <button class="toggle" type="button" aria-expanded={this.isExpanded} onClick={this.toggleExpanded}>
               {buttonText}
             </button>
           )}
         </header>
 
         <ul class="list" role="list">
-          {visibleItems.map((text) => (
-            <li class="item">
-              {this.renderBulletIcon()}
-              <span class="text">{text}</span>
-            </li>
-          ))}
+          {visibleItems.map((t) => this.renderBulletRow(t))}
 
-          {!isExpanded && hiddenCount > 0 && (
+          {!this.isExpanded && hiddenCount > 0 && (
             <li class="more" aria-hidden="true">
               +{hiddenCount} more
             </li>
@@ -435,55 +376,110 @@ export class ExpansionCard {
     );
   }
 
-  // ----------  render  ----------
+  // ----------  render (controls mode)  ----------
 
-  render() {
-    // grouped mode has priority when groups exist
-    const groupLimit = this.getGroupLimit();
-    const groups = groupLimit ? this.groups.slice(0, groupLimit) : this.groups;
+  private renderControlsTile() {
+    if (!this.showTile) return null;
 
-    if (groups.length > 0) {
+    const categoriesCount = this.groupedCategories.length;
+    const subtitle = (this.tileSubtitle || "").trim();
+
+    return (
+      <div class="tile">
+        <div class="tileHeadingRow">
+          <h3 class="tileTitle">{this.tileTitle || "Selected Controls"}</h3>
+
+          {this.showMeta && (
+            <div class="tileMeta">
+              {this.totalControls} controls&nbsp;&nbsp;{categoriesCount} categories
+            </div>
+          )}
+        </div>
+
+        {subtitle && <div class="tileSubtitle">{subtitle}</div>}
+      </div>
+    );
+  }
+
+  private renderControlsCards() {
+    const limitCategories = this.getCategoryLimit();
+    const limitItems = this.getPreviewLimit();
+
+    const visibleCategories = this.groupedCategories.slice(0, limitCategories);
+
+    if (this.isLoading) {
+      return <div class="notice">Loading selected controls…</div>;
+    }
+
+    if (this.errorMessage) {
       return (
-        <div class="wrap">
-          {this.renderTileHeader()}
-
-          <div class="groupWrap">
-            {groups.map((g) => {
-              // category title is a stable key for our current dataset
-              const key = g.title;
-
-              return this.renderSingleCard({
-                title: g.title,
-                items: g.items,
-                isExpanded: this.isGroupExpanded(key),
-                onToggle: () => this.toggleGroupExpanded(key),
-              });
-            })}
-          </div>
+        <div class="notice isError">
+          Failed to load controls from GraphQL.
+          <div class="noticeDetail">{this.errorMessage}</div>
         </div>
       );
     }
 
-    // fallback to original single list mode
-    const title = this.cardTitle || "";
-    const items = this.bulletPoints;
-
-    // avoid rendering empty shells when host provides no data
-    if (this.dataMode !== "controls" && title.trim() === "" && items.length === 0) {
-      return null;
+    if (!visibleCategories.length) {
+      return <div class="notice">No controls available.</div>;
     }
 
     return (
-      <div class="wrap">
-        {this.renderTileHeader()}
+      <div class="groupWrap">
+        {visibleCategories.map((group) => {
+          const isOpen = this.isCategoryExpanded(group.category);
+          const hasOverflow = group.titles.length > limitItems;
 
-        {this.renderSingleCard({
-          title,
-          items,
-          isExpanded: this.isExpanded,
-          onToggle: this.toggleExpanded,
+          const visibleTitles = isOpen ? group.titles : group.titles.slice(0, limitItems);
+          const hiddenCount = group.titles.length - visibleTitles.length;
+
+          const buttonText = isOpen ? "View Less" : "View All";
+
+          return (
+            <div class="card">
+              <header class="header">
+                <h3 class="title">{group.category}</h3>
+
+                {hasOverflow && (
+                  <button
+                    class="toggle"
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() => this.toggleCategoryExpanded(group.category)}
+                  >
+                    {buttonText}
+                  </button>
+                )}
+              </header>
+
+              <ul class="list" role="list">
+                {visibleTitles.map((t) => this.renderBulletRow(t))}
+
+                {!isOpen && hiddenCount > 0 && (
+                  <li class="more" aria-hidden="true">
+                    +{hiddenCount} more
+                  </li>
+                )}
+              </ul>
+            </div>
+          );
         })}
       </div>
     );
+  }
+
+  // ----------  render (root)  ----------
+
+  render() {
+    if (this.dataMode === "controls") {
+      return (
+        <div class="wrap">
+          {this.renderControlsTile()}
+          {this.renderControlsCards()}
+        </div>
+      );
+    }
+
+    return <div class="wrap">{this.renderStaticCard()}</div>;
   }
 }
