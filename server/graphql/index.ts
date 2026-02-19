@@ -13,7 +13,6 @@ import { randomUUID } from 'node:crypto'; // avoid uuid dependency  -->  randomi
 import { typeDefs } from './schema'; // sdl contract  -->  source of truth for types + queries
 import { resolvers } from './resolvers'; // resolver map  -->  executable behavior for schema fields
 
-
 // ----------  request context shape  ----------
 
 // auth placeholder
@@ -46,7 +45,9 @@ export function createGraphQLHandler() {
       const requestId = randomUUID(); // unique id per request for tracing
 
       // trace log  -->  proves context exists
-      console.log(`[gql]  ${requestId}  ${initialContext.request.method}  ${initialContext.request.url}`);
+      console.log(
+        `[gql]  ${requestId}  ${initialContext.request.method}  ${initialContext.request.url}`
+      );
 
       // context sanity  -->  confirms required keys exist + admin is false by default
       console.log(`[gql ctx]  requestId=${requestId}  keys=db,auth,requestId  isAdmin=false`);
@@ -56,6 +57,6 @@ export function createGraphQLHandler() {
         auth: { userEmail: null, isAuthenticated: false, isAdmin: false }, // default auth state
         requestId, // make uuid available to resolvers
       };
-    },
+    }
   });
 }

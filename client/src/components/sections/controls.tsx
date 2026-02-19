@@ -1,17 +1,29 @@
 /* ================================
-  TL;DR  --> A button that when clicked expands to show the following subsections: 
-      1. Infrastructure Security
-      2. Organizational Security
-      3. Product Security
-      4. Internal Security Procedures
-      5. Data and Privacy
+  TL;DR  --> controls page section
+
+  - react stays dumb  --> stencil fetches + groups + expands/collapses
+  - passes only the status icon to reuse the same visual language
 ================================ */
-import React from 'react';
+
+import React from "react";
+import statusCheckUrl from "../../assets/images/status-check.svg";
+
 
 export default function Controls() {
   return (
     <section>
-      <aon-link-card />
+      <aon-subnav-card />
+
+      {/* tile header values match the mock (title + optional meta + optional subtitle) */}
+      <aon-control-card
+        data-mode="controls"
+        show-tile
+        show-meta="false"
+        title-text=""
+        subtitle-text=""
+        icon-src={statusCheckUrl}
+      />
+
     </section>
   );
 }

@@ -4,12 +4,14 @@
       - logic for flipping between sections
       - button logic for each component
 ================================ */
+
 import React from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Overview from './components/sections/overview';
 import Controls from './components/sections/controls';
 import Resources from './components/sections/resources';
 import Faqs from './components/sections/faqs';
+import logo from './assets/images/aon-logo.svg';
 
 export default function App() {
   const location = useLocation();
@@ -20,7 +22,13 @@ export default function App() {
 
   return (
     <div className="trust-center-app">
-      {isKnownPath && <aon-navbar />}
+      {isKnownPath && (
+        <>
+          <aon-header />
+          <aon-title />
+          <aon-navbar />
+        </>
+      )}
 
       <main>
         <Routes>
@@ -33,7 +41,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {isKnownPath && <aon-footer />}
+      {isKnownPath && <aon-footer logo-src={logo} />}
     </div>
   );
 }

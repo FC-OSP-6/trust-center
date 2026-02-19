@@ -1,0 +1,68 @@
+ /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Presentational site-level footer layout component
+
+  - Defines the structural and visual styling for the Trust Center footer.
+  - Uses Flexbox for horizontal layout distribution (left: branding + nav, right: legal).
+  - Relies exclusively on design system CSS variables for typography, spacing, and color tokens.
+  - Scoped within Shadow DOM (:host) to ensure style encapsulation and prevent global leakage.
+  - Contains no business logic, state, or interactivity beyond link hover styling.
+  - Exports: CSS styling for <aon-footer> Web Component.
+  - Consumed by: Site-level layout in the React host application.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+ :host {
+  display: block;
+  width: 100%;
+  font-family: var(--font-default);
+  font-size: var(--font-size-xsmall);
+}
+
+/* Primary footer layout container */
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-top: 1px solid var(--color-gray-05);
+
+  padding: 30px 20px; /* 30 vertical, 20 horizontal */
+}
+
+/* Left-aligned footer group (logo + navigation links) */
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* space between logo and links */
+}
+
+.footer-logo {
+  width: 79px;
+  height: 30px;
+}
+
+/* Inline footer navigation links container */
+.footer-links {
+  display: flex;
+gap: 20px; /* spacing between footer navigation links */
+}
+
+/* Right-aligned footer group (copyright section) */
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* spacing between copyright symbol and text */
+
+}
+
+.footer-copyright {
+  color: var(--color-gray-02);
+}
+
+/* Anchor link styling (default + hover states) */
+a {
+  color: var(--color-teal-dark-secondary);
+}
+
+a:hover {
+  color: var(--color-teal-dark-hover);
+} 

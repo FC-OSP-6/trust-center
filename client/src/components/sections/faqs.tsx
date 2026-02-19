@@ -6,22 +6,80 @@
 
 //On the client side
 
-import { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import { fetchFaqsConnectionPage } from '../../api';
+import type { Faq } from '../../types-frontend';
 
 
 export default function Faqs() {
 
-  //this line should not exist
-  const [expanded, setExpanded] = useState(false);
-  //const [expanded, setExpanded] = useState({})
+  // single expanded boolean cannot support multiple faq items
+  // const [expanded, setExpanded] = useState(false);
+  // const [expanded, setExpanded] = useState({})
 
   //Handle Toggle
 
+  // ui state  -->  basic loading/errors for mvp visibility
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorText, setErrorText] = useState<string | null>(null);
+
+  // data state  -->  store nodes only (ui cares about the node payload)
+  const [items, setItems] = useState<Faq[]>([]);
+
+  // computed view  -->  stable derived list for rendering
+  const faqs = useMemo(() => items, [items]);
+
+  useEffect(() => {
+    let isActive = true; // guards state updates after unmount
+
+    async function load() {
+      setIsLoading(true);
+      setErrorText(null);
+
+      try {
+        // first page only  -->  enough to prove db + graphql + ui wiring
+        const res = await fetchFaqsConnectionPage({ first: 25 });
+
+        // flatten edges -> nodes  -->  simplest ui contract
+        const nodes = res.edges.map((e) => e.node);
+
+        if (!isActive) return;
+        setItems(nodes);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'unknown faqs fetch error';
+
+        if (!isActive) return;
+        setErrorText(msg);
+        setItems([]); // keep the visual state deterministic
+      } finally {
+        if (!isActive) return;
+        setIsLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      isActive = false; // cleanup flag
+    };
+  }, []);
+
   return (
     <section>
-      <faq-card question="Do you feel secure?" answer="Lorem ipsum dolor sit amet"/>
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
+      <aon-faq-card
+        question="Do you feel secure?"
+        answer="Lorem ipsum dolor sit amet"
+      />
     </section>
-    
   );
 }
 
@@ -44,7 +102,7 @@ const FaqItem = ({ id, question, answer, isExpanded, onToggle }) => {
         aria-expanded={isExpanded}
       >
         <span>{question}</span>
-        <span className={`arrow ${isExpanded ? 'expanded' : ''}`}>
+        <span className={`arrow ${isExpand`ed ? 'expanded' : ''}`}>
           ▼
         </span>
       </button>

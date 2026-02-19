@@ -1,0 +1,83 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Component-scoped styles for <aon-navbar>
+
+  - Scoped to the Shadow DOM of <aon-navbar>; styles cannot leak in or out without
+    CSS custom properties.
+  - Color and typography values reference tokens.css where available; some hardcoded
+    hex values remain where token coverage is incomplete (e.g. hover red #B80012,
+    border gray #e5e5e5) — tradeoff is reduced maintainability until tokens are extended.
+  - Transparent bottom border on .nav-item is intentional to reserve layout space
+    and prevent shift when the active or hover underline appears.
+  - Responsive breakpoints adjust font size and padding at 767px and 575px;
+    horizontal scroll is enabled at mobile to prevent link overflow.
+  - Layout and page-level positioning are delegated to the React host.
+
+  - Lives in: stencil/components/navbar/
+  - Depends on: tokens.css (CSS custom properties for color, font, and spacing)
+  - Consumed by: navbar.tsx via the styleUrl declaration at build time
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* Shadow host element - makes component full width */
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Main navbar container - horizontal layout with white background */
+.navbar {
+  display: flex;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual navigation links - base styling */
+.nav-item {
+  font-family: 'Helvetica Now Text', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--color-gray-02, #5d6d78); /* Gray text by default */
+  text-decoration: none;
+  padding: 16px 24px;
+  border-bottom: 4px solid transparent; /* Reserves space for active/hover underline; prevents layout shift */
+  transition: all 0.1s ease; /* Smooth hover animations */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Hover state - light background + red text + red underline */
+.nav-item:hover {
+  background-color: var(--color-gray-07, #eef6f7);
+  color: #B80012;
+  border-bottom-color: #B80012;
+}
+
+/* Active state - current page indicator with bold navy text */
+.nav-item.active {
+  color: var(--color-navy-primary, #262836);
+  border-bottom-color: var(--color-navy-primary, #262836);
+  font-weight: 700;
+}
+
+/* Tablet breakpoint - smaller font and padding */
+@media (max-width: 767px) {
+  .nav-item {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+}
+
+/* Mobile breakpoint - allow horizontal scrolling if needed */
+@media (max-width: 575px) {
+  .navbar {
+    overflow-x: auto; /* Enable horizontal scroll */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+  
+  .nav-item {
+    font-size: 12px;
+    padding: 12px 12px;
+  }
+}

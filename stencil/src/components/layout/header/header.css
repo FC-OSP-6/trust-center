@@ -1,0 +1,68 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Styles for Top-Level Header Web Component
+
+  - Defines layout, typography, and spacing for header
+  - Uses flexbox to align product title and login icon
+  - Adds background, border, shadow, and fixed height
+  - Sets login container dimensions and hover cursor
+  - Sets login icon SVG size for consistent display
+  - Intended usage: paired with <aon-header> component
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/* Top-level header layout and styling */
+
+
+/* Product title typography and spacing */
+.product-title-text {
+  font-family: var(--font-default);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-large);
+  color: var(--color-gray-01);
+  margin: 20px 40px 20px 20px;
+}
+
+/* Header container layout, background, and shadow */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white; 
+  border-bottom: 0.2px solid var(--color-gray-08);
+  box-shadow:  0 2px 4px 0 rgba(0,0,0,0.25);
+  height: 64px;
+  width: 100vw;
+}
+
+/* Login container layout  */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 20px 10px 10px;
+  height: 44px;
+  width: 44px;
+}
+
+/* Hover effect for login container*/
+.login-container:hover {
+  cursor: pointer;
+}
+
+/* Login icon SVG size */
+.login-icon svg {
+  width: 30px;
+  height: 44px;
+}
+
+
+
+
+
+
+
+
+
+
+
+

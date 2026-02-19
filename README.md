@@ -1,6 +1,5 @@
 #CyQu Trust Center Prototype
 
-
 ##What is CYQU Trust Center?
 
 Cyber Quotient Evaluation is a cybersecurity service provided by Aon Cyber Solutions.
@@ -21,13 +20,11 @@ Step 1. Go to the root folder
 Step 2. Run the command npm install to install dependencies
 Step 3. Npm run dev to run the client and server concurrently.
 
-
 ##Tech Stack:
 
 ##Why GraphQL?
 
 ##Why StencilJS?
-
 
 ##Common Problems:
 
@@ -40,6 +37,7 @@ Step 3. Npm run dev to run the client and server concurrently.
 Client, server, stencil, testing.
 
 ##Golden demo flow (draft):
+
 ## How to Run Locally
 
 ```bash
@@ -51,6 +49,7 @@ npm run dev
 ```
 
 **Or run separately:**
+
 ```bash
 # Terminal 1 - Start server only
 npm run dev:server
@@ -60,6 +59,7 @@ npm run dev:client
 ```
 
 **Verify:**
+
 - Client runs at http://localhost:5173
 - Server runs at http://localhost:4000
 - Server logs "Server ready" in terminal

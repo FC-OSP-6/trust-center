@@ -1,43 +1,51 @@
-/* ================================
-  TL;DR  -->  lists the categories of all control cards on the controls page
-      1. links down the page to each control card
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  In-page section jump navigation card
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+  - Stateless presentational component; all routing and layout owned by the React host.
+  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
+    cannot pierce the shadow boundary without CSS custom properties.
+  - All link targets and the card title are configurable via props with default values;
+    fragment hrefs assume matching id attributes exist on the host page.
 
+  - Lives in: stencil/components/subnav-card/
+  - Depends on: subnav-card.css (component-scoped styles), tokens.css (via CSS custom properties)
+  - Exports: <aon-subnav-card> — consumed by the React Controls page to provide
+    jump navigation across the five security control category sections.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// Defines the <aon-subnav-card> Web Component
+// TODO: Determine optimal placement on controls page
+
+import { Component, Prop, h } from "@stencil/core"; // Imports Stencil decorators and JSX factory for defining the Web Component
+// `h` is the JSX factory function used during compilation
+
 @Component({
-  tag: 'aon-subnav-card', // registers the custom element <aon-subnav-card>
-  styleUrls: ['./subnav-card.css'], 
-  shadow: true, // enables Shadow DOM for DOM and style encapsulation
+  tag: "aon-subnav-card", // registers the custom element <aon-subnav-card>
+  styleUrls: ["./subnav-card.css"], // component-local stylesheet
+  shadow: true, // Enables Shadow DOM for DOM and style encapsulation
 })
-
 export class AonSubnavCard {
 
+  // Component props: card title and section link targets for page navigation
   @Prop() subnavCardTitle: string = "Categories";
-  @Prop() infrastructureSecurityHref: string = "Infrastructure Security";
-  @Prop() organizationalSecurityHref: string = "Organizational Security";
-  @Prop() productSecurityHref: string = "Product Security";
-  @Prop() internalSecurityProceduresHref: string = "Internal Security Procedures";
-  @Prop() dataAndPrivacyHref: string = "Data and Privacy";
-
+  @Prop() infrastructureSecurityHref: string = "#infrastructure-security";
+  @Prop() organizationalSecurityHref: string = "#organizational-security";
+  @Prop() productSecurityHref: string = "#product-security";
+  @Prop() internalSecurityProceduresHref: string = "#internal-security-procedures";
+  @Prop() dataAndPrivacyHref: string = "#data-and-privacy";
   
 
-  //
   render() {
     return (
-     <div class="subnav-card">
-      <div class="subnav-card-title">{this.subnavCardTitle}</div>
-      <div class="subnav-card-links">
-        <a href={this.infrastructureSecurityHref}>Infrastructure Security</a>
-        <a href={this.organizationalSecurityHref}>Organizational Security</a>
-        <a href={this.productSecurityHref}>Product Security</a>
-        <a href={this.internalSecurityProceduresHref}>Internal Security Procedures</a>
-        <a href={this.dataAndPrivacyHref}>Data and Privacy</a>
+       <div class="subnav-card">
+          <div class="subnav-card-title">{this.subnavCardTitle}</div>
+          <ul class="subnav-card-links">
+            <li><a href={this.infrastructureSecurityHref}>Infrastructure Security</a></li>
+            <li><a href={this.organizationalSecurityHref}>Organizational Security</a></li>
+            <li><a href={this.productSecurityHref}>Product Security</a></li>
+            <li><a href={this.internalSecurityProceduresHref}>Internal Security Procedures</a></li>
+            <li><a href={this.dataAndPrivacyHref}>Data and Privacy</a></li>
+          </ul>
       </div>
-     </div>
     );
   }
 }
