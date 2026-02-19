@@ -21,12 +21,14 @@ import { Component, Prop, h } from "@stencil/core"; // Imports Stencil decorator
 @Component({
   tag: "aon-subnav-card", // registers the custom element <aon-subnav-card>
   styleUrls: ["./subnav-card.css"], // component-local stylesheet
+  // REVIEW: Prefer styleUrl: 'subnav-card.css' for consistency with control-card and other components (styleUrls works but project mixes both).
   shadow: true, // Enables Shadow DOM for DOM and style encapsulation
 })
 export class AonSubnavCard {
 
   // Component props: card title and section link targets for page navigation
   @Prop() subnavCardTitle: string = "Categories";
+  // REVIEW: Category links and labels are hardcoded – if categories come from API (e.g. controls page), this will drift; consider a single prop e.g. categories: Array<{ label, href }> or data-mode that fetches and renders.
   @Prop() infrastructureSecurityHref: string = "#infrastructure-security";
   @Prop() organizationalSecurityHref: string = "#organizational-security";
   @Prop() productSecurityHref: string = "#product-security";

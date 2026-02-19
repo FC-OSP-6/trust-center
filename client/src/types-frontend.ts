@@ -68,6 +68,7 @@ type HtmlElProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HT
 
 type AonLinkCardProps = HtmlElProps & {
   'link-card-title'?: string;
+  // REVIEW: This interface appears stale vs current usage (`link-title` + `items`); update typings to match actual web component API.
 
   'link-one-label'?: string;
   'link-one-href'?: string;
@@ -91,6 +92,7 @@ type AonBlueCardProps = HtmlElProps & {
   'blue-card-description'?: string;
   'blue-card-footer-label'?: string;
   'blue-card-footer-link'?: string;
+  // REVIEW: Prop names look outdated (`footer-*`) compared with current attributes (`blue-card-button-text` / `blue-card-button-link`); this weakens type safety.
 };
 
 type AonFooterProps = HtmlElProps & {

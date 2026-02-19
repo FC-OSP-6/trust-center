@@ -8,11 +8,13 @@
 
 import React from "react";
 import statusCheckUrl from "../../assets/images/status-check.svg";
+// REVIEW: `statusCheckUrl` is imported but unused; remove dead imports to keep lint/type signals clean.
 
 
 export default function Overview() {
   return (
     <section>
+      {/* REVIEW: Multiple empty placeholder cards create duplication/noise; consider rendering from typed data arrays and mapping for DRY composition. */}
       <aon-link-card />
       <aon-link-card />
       <aon-expansion-card />

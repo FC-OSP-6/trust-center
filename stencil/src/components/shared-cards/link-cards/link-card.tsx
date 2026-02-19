@@ -60,6 +60,7 @@ export class LinkCard {
           </header>
 
           <ul class="link-list">
+            {/* REVIEW: List items in map have no key – add key={item.href} or key={index} for list stability (Stencil/JSX reconciliation). */}
             {items.map(item => (
               <li class="link-item">
                 {item.iconSrc && (

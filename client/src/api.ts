@@ -24,6 +24,7 @@ type GraphqlResponse<TData> = {
 export async function graphqlFetch<TData, TVars>(args: GraphqlFetchArgs<TVars>): Promise<{ data: TData }> {
   // request config
   const url = "/graphql"; // dev proxy expects relative url
+  // REVIEW: Hardcoded "/graphql"; consider centralizing API base path/env config.
 
   // fetch may throw on network failures
   let res: Response;
@@ -165,6 +166,7 @@ export async function fetchFaqsConnectionPage(args: FetchConnectionArgs): Promis
     query: FAQS_CONNECTION_QUERY,
     variables,
   });
+  // REVIEW: fetchControlsConnectionPage/fetchFaqsConnectionPage are mostly duplicated; consider a generic connection fetch helper to keep this DRY.
 
   return res.data.faqsConnection;
 }

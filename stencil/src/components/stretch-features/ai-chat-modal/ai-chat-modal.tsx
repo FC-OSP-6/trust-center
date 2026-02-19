@@ -5,3 +5,4 @@
       3. There should be a section for the ai message to appear
       4. There should also be an input section for the user, with a send
 ================================ */
+// REVIEW: File is a stub (comment only) – add a minimal @Component with tag and render, or remove until implemented.

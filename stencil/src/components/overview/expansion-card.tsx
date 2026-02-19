@@ -60,6 +60,7 @@ const CONTROLS_CONNECTION_QUERY = `
     }
   }
 `;
+// REVIEW: CONTROLS_CONNECTION_QUERY is duplicated with control-card.tsx – extract to a shared module (e.g. graphql/controls.ts) to avoid schema drift.
 
 @Component({
   tag: "aon-expansion-card",
@@ -302,6 +303,8 @@ export class ExpansionCard {
     const nodes =
       json.data?.controlsConnection?.edges
         ?.map((e) => e.node)
+        // REVIEW: Filter doesn't require n.id – if downstream logic assumes id, add (n && n.id && n.title && n.category).
+        // REVIEW: It is a good practice to always have id returned in node as it is used in cache invalidation.
         .filter((n): n is ControlsConnectionNode => Boolean(n && n.title && n.category)) ?? [];
 
     // group by category (category -> list of control titles)
@@ -347,7 +350,7 @@ export class ExpansionCard {
     if (this.iconVariant === "dot") {
       return <span class="iconDot" aria-hidden="true" />;
     }
-
+    // REVIEW: CSS class names are usually kebab-case instead of camelCase (e.g. icon-dot, icon-wrap, tile-heading-row); consider renaming for consistency with common CSS conventions.
     // icon variant "img" uses iconSrc if provided
     if (this.iconSrc) {
       return (
@@ -418,6 +421,7 @@ export class ExpansionCard {
         </header>
 
         <ul class="list" role="list">
+          {/* REVIEW: <li class="item"> in map has no key – add key={text} or key={index} for list stability (Stencil/JSX reconciliation). */}
           {visibleItems.map((text) => (
             <li class="item">
               {this.renderBulletIcon()}

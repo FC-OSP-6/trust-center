@@ -19,8 +19,10 @@ export default function Controls() {
         data-mode="controls"
         show-tile
         show-meta="false"
+        // REVIEW: For custom elements, passing `"false"` (a string) as an attribute can still behave truthy; verify boolean prop handling or set via DOM property/ref.
         title-text=""
         subtitle-text=""
+        // REVIEW: Empty-string props are redundant unless required to force behavior; prefer omitting them for cleaner markup.
         icon-src={statusCheckUrl}
       />
 
