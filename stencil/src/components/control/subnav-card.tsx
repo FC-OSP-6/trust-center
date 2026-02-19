@@ -1,13 +1,17 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  Sub-navigation Card Web Component
+  TL;DR  -->  In-page section jump navigation card
 
-  - Renders a small card listing control page categories
-  - Each category is an anchor link to a fragment ID on the page
-  - Target sections must have matching ID attributes
-  - Component props allow customization of title and link targets
-  - Uses shadow DOM for style encapsulation
-  - Intended usage: placed on the controls page for quick navigation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  - Stateless presentational component; all routing and layout owned by the React host.
+  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
+    cannot pierce the shadow boundary without CSS custom properties.
+  - All link targets and the card title are configurable via props with default values;
+    fragment hrefs assume matching id attributes exist on the host page.
+
+  - Lives in: stencil/components/subnav-card/
+  - Depends on: subnav-card.css (component-scoped styles), tokens.css (via CSS custom properties)
+  - Exports: <aon-subnav-card> — consumed by the React Controls page to provide
+    jump navigation across the five security control category sections.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 // TODO: Determine optimal placement on controls page
 

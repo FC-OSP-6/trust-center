@@ -12,6 +12,7 @@
 import { Component, h } from '@stencil/core'; // Imports Stencil decorators and JSX factory for defining the Web Component
 // `h` is the JSX factory function used during compilation
 
+
 // Defines the <aon-header> Web Component
 @Component({
   tag: 'aon-header', // Registers the custom HTML element <aon-header>

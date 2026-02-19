@@ -43,12 +43,9 @@
   /* Gray text by default */
   text-decoration: none;
   padding: 16px 24px;
-  border-bottom: 4px solid transparent;
-  /* Reserves space for active/hover underline; prevents layout shift */
-  transition: all 0.1s ease;
-  /* Smooth hover animations */
-  white-space: nowrap;
-  /* Prevent text wrapping */
+  border-bottom: 4px solid transparent; /* Reserves space for active/hover underline; prevents layout shift */
+  transition: all 0.1s ease; /* Smooth hover animations */
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 /* Hover state - light background + red text + red underline */
