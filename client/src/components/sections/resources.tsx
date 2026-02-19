@@ -20,7 +20,6 @@ import PenetrationTestsPDF from '../../assets/PDFs/CyQuPenetrationTestReports.pd
 import PrivacyPolicyPDF from '../../assets/PDFs/CyQuPrivacyPolicy.pdf';
 import CyberSecurityRiskManagement from '../../assets/PDFs/Aon Cyber Security and Risk Management Overview - Mock.pdf';
 
-
 /**
  * Resources
  *
@@ -35,18 +34,16 @@ export default function Resources() {
   return (
     /* Section container: defines semantic grouping for resources */
     <section className="resources-section">
-
       {/* Grid container: controls layout of link cards (handled via external CSS) */}
       <div className="resources-grid">
-
         {/* Link Card: Internal / downloadable documents */}
         <aon-link-card
           link-title="Client Facing Documents"
           items={JSON.stringify([
             {
               label: 'CyQu Privacy Policy',
-              href: PrivacyPolicyPDF,     // Local static PDF asset
-              iconSrc: PDF,               // Indicates downloadable file
+              href: PrivacyPolicyPDF, // Local static PDF asset
+              iconSrc: PDF, // Indicates downloadable file
               iconAlt: 'PDF file'
             },
             {
@@ -77,7 +74,7 @@ export default function Resources() {
             {
               label: 'Aon: Ensuring Ongoing Operations',
               href: 'https://www.aon.com/en/capabilities/risk-management/business-continuity-management',
-              iconSrc: External,          // Indicates outbound navigation
+              iconSrc: External, // Indicates outbound navigation
               iconAlt: 'External link'
             },
             {
@@ -111,7 +108,6 @@ export default function Resources() {
           blue-card-button-link="https://aonmt.tbs.aon.com/login?returnUrl=%2Fhome"
         />
       </div>
-
     </section>
   );
 }

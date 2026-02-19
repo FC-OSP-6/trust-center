@@ -15,7 +15,7 @@
   - graphql schema does NOT expose sourceUrl for Faq  --> do not query it
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, State, h } from "@stencil/core";
+import { Component, Prop, State, h } from '@stencil/core';
 
 // ---------- local types ----------
 
@@ -62,28 +62,29 @@ const FAQS_CONNECTION_QUERY = `
 `;
 
 @Component({
-  tag: "aon-faq-card",
-  styleUrl: "faq-card.css",
-  shadow: true,
+  tag: 'aon-faq-card',
+  styleUrl: 'faq-card.css',
+  shadow: true
 })
 export class FaqCard {
   // ---------- public api ----------
 
-  @Prop({ attribute: "data-mode" }) dataMode: "faqs" | "single" | "none" = "none";
+  @Prop({ attribute: 'data-mode' }) dataMode: 'faqs' | 'single' | 'none' =
+    'none';
 
-  @Prop({ attribute: "fetch-first" }) fetchFirst: number = 25;
+  @Prop({ attribute: 'fetch-first' }) fetchFirst: number = 25;
 
   // optional tile header (matches controls strategy)
-  @Prop({ attribute: "show-tile" }) showTile: boolean = false;
+  @Prop({ attribute: 'show-tile' }) showTile: boolean = false;
 
-  @Prop({ attribute: "title-text" }) titleText?: string;
+  @Prop({ attribute: 'title-text' }) titleText?: string;
 
-  @Prop({ attribute: "show-meta" }) showMeta: boolean = false;
+  @Prop({ attribute: 'show-meta' }) showMeta: boolean = false;
 
-  @Prop({ attribute: "subtitle-text" }) subtitleText?: string;
+  @Prop({ attribute: 'subtitle-text' }) subtitleText?: string;
 
   // optional icon  --> reserved for future use (safe default = unused)
-  @Prop({ attribute: "icon-src" }) iconSrc?: string;
+  @Prop({ attribute: 'icon-src' }) iconSrc?: string;
 
   // single-item mode (backwards compatible)
   @Prop() question?: string;
@@ -105,7 +106,7 @@ export class FaqCard {
   // ---------- lifecycle ----------
 
   async componentWillLoad() {
-    if (this.dataMode !== "faqs") return;
+    if (this.dataMode !== 'faqs') return;
 
     this.isLoading = true;
 
@@ -120,7 +121,7 @@ export class FaqCard {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
 
-      console.warn("[aon-faq-card] faqs load failed:", msg);
+      console.warn('[aon-faq-card] faqs load failed:', msg);
 
       this.errorText = msg;
 
@@ -142,16 +143,19 @@ export class FaqCard {
     return Math.floor(n);
   }
 
-  private async fetchAndGroupFaqs(): Promise<{ groups: CategoryGroup[]; totalCount: number }> {
+  private async fetchAndGroupFaqs(): Promise<{
+    groups: CategoryGroup[];
+    totalCount: number;
+  }> {
     const first = this.getFetchFirst();
 
-    const res = await fetch("/graphql", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         query: FAQS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null },
-      }),
+        variables: { first, after: null, category: null, search: null }
+      })
     });
 
     if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
@@ -159,29 +163,38 @@ export class FaqCard {
     const json = (await res.json()) as FaqsConnectionResponse;
 
     if (json.errors && json.errors.length) {
-      const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
+      const msg = json.errors
+        .map(e => e.message ?? 'unknown graphql error')
+        .join(' | ');
 
       throw new Error(`GRAPHQL_ERROR: ${msg}`);
     }
 
     const nodes =
       json.data?.faqsConnection?.edges
-        ?.map((e) => e.node)
-        ?.filter((n): n is FaqNode => Boolean(n && n.id && n.question && n.category)) ?? [];
+        ?.map(e => e.node)
+        ?.filter((n): n is FaqNode =>
+          Boolean(n && n.id && n.question && n.category)
+        ) ?? [];
 
-    const totalCount = Number(json.data?.faqsConnection?.totalCount ?? nodes.length) || nodes.length;
+    const totalCount =
+      Number(json.data?.faqsConnection?.totalCount ?? nodes.length) ||
+      nodes.length;
 
-    const map = new Map<string, Array<{ id: string; question: string; answer: string }>>();
+    const map = new Map<
+      string,
+      Array<{ id: string; question: string; answer: string }>
+    >();
 
     for (const n of nodes) {
-      const cat = (n.category || "General").trim() || "General";
+      const cat = (n.category || 'General').trim() || 'General';
 
       const list = map.get(cat) ?? [];
 
       list.push({
         id: n.id,
-        question: (n.question || "").trim(),
-        answer: (n.answer || "").trim(),
+        question: (n.question || '').trim(),
+        answer: (n.answer || '').trim()
       });
 
       map.set(cat, list);
@@ -191,7 +204,7 @@ export class FaqCard {
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([title, items]) => ({
         title,
-        items: items.sort((a, b) => a.question.localeCompare(b.question)),
+        items: items.sort((a, b) => a.question.localeCompare(b.question))
       }));
 
     return { groups, totalCount };
@@ -210,9 +223,9 @@ export class FaqCard {
   private renderTileHeader() {
     if (!this.showTile) return null;
 
-    const title = (this.titleText ?? "").trim();
+    const title = (this.titleText ?? '').trim();
 
-    const subtitle = (this.subtitleText ?? "").trim();
+    const subtitle = (this.subtitleText ?? '').trim();
 
     const categoriesCount = this.groups.length;
 
@@ -233,7 +246,10 @@ export class FaqCard {
 
   private renderToggle(expanded: boolean) {
     return (
-      <span class={{ aonToggleIcon: true, isOpen: expanded }} aria-hidden="true">
+      <span
+        class={{ aonToggleIcon: true, isOpen: expanded }}
+        aria-hidden="true"
+      >
         <span class="aonToggleBarH" />
         <span class="aonToggleBarV" />
       </span>
@@ -247,7 +263,7 @@ export class FaqCard {
   private renderFaqRow(item: { id: string; question: string; answer: string }) {
     const expanded = this.isExpanded(item.id);
 
-    const hasAnswer = (item.answer ?? "").trim().length > 0;
+    const hasAnswer = (item.answer ?? '').trim().length > 0;
 
     return (
       <li class="row" key={item.id}>
@@ -263,7 +279,10 @@ export class FaqCard {
         </button>
 
         {hasAnswer && (
-          <div class={{ aonRevealWrap: true, isOpen: expanded }} aria-hidden={!expanded}>
+          <div
+            class={{ aonRevealWrap: true, isOpen: expanded }}
+            aria-hidden={!expanded}
+          >
             <div class="aonRevealInner">{item.answer}</div>
           </div>
         )}
@@ -279,18 +298,18 @@ export class FaqCard {
         </header>
 
         <ul class="rows" role="list">
-          {group.items.map((it) => this.renderFaqRow(it))}
+          {group.items.map(it => this.renderFaqRow(it))}
         </ul>
       </section>
     );
   }
 
   private renderSingle() {
-    const q = (this.question ?? "").trim();
+    const q = (this.question ?? '').trim();
 
-    const a = (this.answer ?? "").trim();
+    const a = (this.answer ?? '').trim();
 
-    const expanded = this.isExpanded("__single__");
+    const expanded = this.isExpanded('__single__');
 
     if (q.length === 0) return null;
 
@@ -302,7 +321,7 @@ export class FaqCard {
               class="rowHeader"
               type="button"
               aria-expanded={expanded}
-              onClick={() => this.toggleExpanded("__single__")}
+              onClick={() => this.toggleExpanded('__single__')}
             >
               <div class="rowQuestion">{q}</div>
 
@@ -310,7 +329,10 @@ export class FaqCard {
             </button>
 
             {a.length > 0 && (
-              <div class={{ aonRevealWrap: true, isOpen: expanded }} aria-hidden={!expanded}>
+              <div
+                class={{ aonRevealWrap: true, isOpen: expanded }}
+                aria-hidden={!expanded}
+              >
                 <div class="aonRevealInner">{a}</div>
               </div>
             )}
@@ -323,7 +345,7 @@ export class FaqCard {
   // ---------- render ----------
 
   render() {
-    if (this.dataMode === "faqs") {
+    if (this.dataMode === 'faqs') {
       const hasError = Boolean(this.errorText);
 
       const hasGroups = this.groups.length > 0;
@@ -334,18 +356,24 @@ export class FaqCard {
         <div class="wrap">
           {this.renderTileHeader()}
 
-          {this.isLoading && this.renderStateText("loading faqs...")}
+          {this.isLoading && this.renderStateText('loading faqs...')}
 
-          {!this.isLoading && hasError && this.renderStateText(`error: ${this.errorText}`)}
+          {!this.isLoading &&
+            hasError &&
+            this.renderStateText(`error: ${this.errorText}`)}
 
-          {isEmpty && this.renderStateText("no faqs found")}
+          {isEmpty && this.renderStateText('no faqs found')}
 
-          {hasGroups && <div class="grid">{this.groups.map((g) => this.renderCategoryCard(g))}</div>}
+          {hasGroups && (
+            <div class="grid">
+              {this.groups.map(g => this.renderCategoryCard(g))}
+            </div>
+          )}
         </div>
       );
     }
 
-    if (this.dataMode === "single") {
+    if (this.dataMode === 'single') {
       return <div class="wrap">{this.renderSingle()}</div>;
     }
 

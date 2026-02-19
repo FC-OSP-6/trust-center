@@ -8,20 +8,17 @@
    - Expects global design tokens to be defined in :root.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-
 /* Root host element: establishes block context and typography inheritance */
 :host {
   display: block;
   font-family: var(--font-default);
 }
 
-
 /* Outer wrapper: vertical layout container for card spacing */
 .wrap {
   display: grid;
   gap: var(--default-local-spacing);
 }
-
 
 /* Card container: defines surface, border, radius, and internal padding */
 .card {
@@ -31,7 +28,6 @@
   padding: var(--default-local-spacing);
 }
 
-
 /* Header: horizontal layout for title and optional right-aligned content */
 .header {
   display: flex;
@@ -39,7 +35,6 @@
   justify-content: space-between;
   gap: 12px;
 }
-
 
 /* Title typography: applies hierarchy and brand color */
 .card-title {
@@ -50,7 +45,6 @@
   color: var(--color-navy-primary);
 }
 
-
 /* Link list: removes default list styling and establishes vertical rhythm */
 .link-list {
   margin: 16px 0 0 0; /* separates list from header */
@@ -60,7 +54,6 @@
   gap: 10px;
 }
 
-
 /* Individual row: two-column layout (icon + link text) */
 .link-item {
   display: grid;
@@ -68,7 +61,6 @@
   align-items: start;
   gap: 10px;
 }
-
 
 /* Icon: fixed sizing and visual alignment within grid column */
 .icon {
@@ -80,7 +72,6 @@
   color: var(--color-gray-02);
 }
 
-
 /* Anchor: applies design-system link styling */
 a {
   color: var(--color-teal-dark-secondary);
@@ -90,10 +81,8 @@ a {
   line-height: var(--line-height-medium);
 }
 
-
 /* Hover state: reinforces interactive affordance */
 a:hover {
   color: var(--color-teal-dark-hover);
   text-decoration: var(--link-decoration-hover);
 }
-
