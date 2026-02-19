@@ -1,4 +1,4 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  graphql resolvers
 
   - maps schema fields to db queries
@@ -6,7 +6,7 @@
   - keeps deterministic ordering (updated_at desc, id desc)
   - logs which data source served each request (db vs mock)
   - preserves debug resolvers for early boot verification
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from "./index"; // shared per-request context shape
 import { query } from "../db/index"; // shared pg query wrapper (singleton pool)

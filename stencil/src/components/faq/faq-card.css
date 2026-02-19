@@ -4,10 +4,10 @@
   - matches controls strategy:
       - wrap padding so cards never touch viewport edge
       - token-driven typography + colors (no local tokens)
-      - 2-column grid  ->  1 column at tablet (<= 991px)
+      - 2-column grid -> 1 column at tablet (<= 991px)
   - reuses shared animation primitives:
-      - .aonToggleIcon (plus / minus)
-      - .aonRevealWrap / .aonRevealInner -->  pull-down + bottom-first text
+      - .aonToggleIcon (plus -> minus)
+      - .aonRevealWrap/.aonRevealInner (pull-down + bottom-first text)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* shared primitives must be imported inside shadow component css */

@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-/* ================================
-  TL;DR  -->  The styling for link-cards 
-================================ */
-=======
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Shadow-DOM Link Card Styling Module
+  TL;DR  -->  Shadow-DOM Link Card Styling Module
 
    - Encapsulates all visual styling for <aon-link-card>.
    - Establishes internal layout (card, header, list, rows).
@@ -102,4 +97,3 @@ a:hover {
   text-decoration: var(--link-decoration-hover);
 }
 
->>>>>>> annie

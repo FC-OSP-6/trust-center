@@ -3,7 +3,6 @@
 
   - react stays dumb  --> stencil fetches + groups + expands/collapses
   - passes only the status icon to reuse the same visual language
-  - pass real booleans (not "false" strings) for stencil boolean props
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React from "react";

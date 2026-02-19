@@ -58,3 +58,67 @@ body {
   width: 100%;
   max-width: 1200px;
 }
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Overview Section Layout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* mirror the resources page layout primitives */
+.overview-section {
+  padding: var(--space-global-lg) var(--space-global-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-global-lg);
+}
+
+/* selected controls wrapper */
+.overview-selected-controls {
+  width: 100%;
+  max-width: 1200px;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-global-sm);
+}
+
+.overview-selected-controls-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* 3-up grid like the mock (falls back to 2 / 1 on smaller screens) */
+.overview-expansion-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-global-md);
+}
+
+@media (max-width: 991px) {
+  .overview-expansion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .overview-expansion-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* error text (not a debug panel; just a failure message) */
+.overview-error {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.overview-error-detail {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  opacity: 0.9;
+}

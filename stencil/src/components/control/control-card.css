@@ -5,14 +5,9 @@
   - cards never touch viewport edges (wrap padding-inline)
   - token-driven type scale + spacing rhythm (no local tokens)
   - status/icons centered under the status column
-  - +/- toggle animation:
-      - horizontal bar stays
-      - vertical bar rotates clockwise and visually collapses into "-"
-  - expanded descriptions:
-      - layout opens downward from the title row
-      - text reveal is bottom-first (you see bottom of text before top)
-      - micro-delay: container opens first, then glyphs reveal (still ease-out)
-  - easing: ease-out only (snappy; no laggy ease-in feel)
+  - reuses shared primitives:
+      - .aonToggleIcon (plus -> minus)
+      - .aonRevealWrap/.aonRevealInner (pull-down + bottom-first text)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* shared primitives must be imported inside shadow component css */

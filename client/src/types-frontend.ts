@@ -1,130 +1,121 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  types only found in the frontend
 
   - declares ui-facing node shapes
   - declares graphql connection shapes used by fetch wrappers
   - declares jsx typing for stencil custom elements (react + ts)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type * as React from 'react';
-
-
-// ----------  graphql node shapes (ui contract)  ----------
+import React from "react";
 
 export type Control = {
-  id: string; // uuid (or stable key)
-  title: string; // short name for bullet display
-  description: string; // long text
-  category: string; // grouping key
-  sourceUrl: string | null; // optional reference url
-  updatedAt: string; // iso timestamp (or placeholder in seed mode)
+  id: string;
+  title: string;
+  category: string;
+  status?: string;
+  description?: string;
 };
 
 export type Faq = {
-  id: string; // uuid (or stable key)
-  question: string; // user-facing question
-  answer: string; // user-facing answer
-  category: string; // grouping key
-  updatedAt: string; // iso timestamp (or placeholder in seed mode)
+  id: string;
+  question: string;
+  answer: string;
 };
-
-
-// ----------  graphql connection shapes (ui contract)  ----------
 
 export type PageInfo = {
-  hasNextPage: boolean; // pagination flag
-  endCursor: string | null; // next cursor
+  hasNextPage: boolean;
+  endCursor: string | null;
 };
 
-export type ControlEdge = {
-  cursor: string; // opaque cursor
-  node: Control; // node payload
+export type Edge<T> = {
+  cursor: string;
+  node: T;
 };
 
-export type ControlsConnection = {
-  edges: ControlEdge[]; // connection list
-  pageInfo: PageInfo; // pagination metadata
-  totalCount: number; // filtered count
+export type Connection<T> = {
+  edges: Array<Edge<T>>;
+  pageInfo: PageInfo;
 };
 
-export type FaqEdge = {
-  cursor: string; // opaque cursor
-  node: Faq; // node payload
-};
-
-export type FaqsConnection = {
-  edges: FaqEdge[]; // connection list
-  pageInfo: PageInfo; // pagination metadata
-  totalCount: number; // filtered count
-};
-
-
-// ----------  jsx custom element typing (react + ts)  ----------
-// note:
-// - with "jsx": "react-jsx", ts reads intrinsic elements from "react/jsx-runtime"
-// - so we augment that module (and "react" as a backup)
+export type ControlsConnection = Connection<Control>;
+export type FaqsConnection = Connection<Faq>;
 
 type HtmlElProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
 
 type AonLinkCardProps = HtmlElProps & {
-  'link-card-title'?: string;
-
-  'link-one-label'?: string;
-  'link-one-href'?: string;
-
-  'link-two-label'?: string;
-  'link-two-href'?: string;
-
-  'link-three-label'?: string;
-  'link-three-href'?: string;
+  "link-title"?: string;
+  items?: string;
 };
 
 type AonExpansionCardProps = HtmlElProps & {
-  'card-title'?: string;
-  'bullet-points-json'?: string;
-  'icon-src'?: string;
-  'preview-limit'?: number | string;
+  /* mode switch */
+  "data-mode"?: "static" | "controls" | string;
+
+  /* shared */
+  "icon-src"?: string;
+  "preview-limit"?: number | string;
+
+  /* static mode */
+  "card-title"?: string;
+  "bullet-points-json"?: string;
+
+  /* controls mode */
+  "fetch-first"?: number | string;
+  "category-limit"?: number | string;
+  "show-tile"?: boolean;
+  "tile-title"?: string;
+  "show-meta"?: boolean;
+  "tile-subtitle"?: string;
 };
 
 type AonBlueCardProps = HtmlElProps & {
-  'blue-card-title'?: string;
-  'blue-card-description'?: string;
-  'blue-card-footer-label'?: string;
-  'blue-card-footer-link'?: string;
+  "blue-card-title"?: string;
+  "blue-card-description"?: string;
+  "blue-card-button-text"?: string;
+  "blue-card-button-link"?: string;
 };
 
 type AonFooterProps = HtmlElProps & {
-  'logo-src'?: string;
-  'footer-tagline'?: string;
-  'footer-link-label'?: string;
-  'footer-link-href'?: string;
+  "logo-src"?: string;
+  "footer-tagline"?: string;
+  "footer-link-label"?: string;
+  "footer-link-href"?: string;
+};
+
+type AonControlCardProps = HtmlElProps & {
+  "data-mode"?: "controls" | "none" | string;
+  "fetch-first"?: number | string;
+  "show-tile"?: boolean;
+  "title-text"?: string;
+  "show-meta"?: boolean;
+  "subtitle-text"?: string;
+  "icon-src"?: string;
+};
+
+type AonFaqCardProps = HtmlElProps & {
+  "data-mode"?: "faqs" | "single" | "none" | string;
+  "fetch-first"?: number | string;
+  "show-header"?: boolean;
+  "question-text"?: string;
+  "answer-text"?: string;
 };
 
 interface AonStencilIntrinsicElements {
-  // overview
-  'aon-link-card': AonLinkCardProps;
-  'aon-expansion-card': AonExpansionCardProps;
-  'aon-blue-card': AonBlueCardProps;
+  "aon-link-card": AonLinkCardProps;
+  "aon-expansion-card": AonExpansionCardProps;
+  "aon-blue-card": AonBlueCardProps;
 
-  // layout (used in app.tsx)
-  'aon-header': HtmlElProps;
-  'aon-title': HtmlElProps;
-  'aon-navbar': HtmlElProps;
-  'aon-footer': AonFooterProps;
+  "aon-header": HtmlElProps;
+  "aon-title": HtmlElProps;
+  "aon-navbar": HtmlElProps;
+  "aon-footer": AonFooterProps;
 
-  // common in other sections
-  'aon-control-card': HtmlElProps;
-  'aon-faq-card': HtmlElProps;
-  'aon-subnav-card': HtmlElProps;
+  "aon-control-card": AonControlCardProps;
+  "aon-faq-card": AonFaqCardProps;
+  "aon-subnav-card": HtmlElProps;
 }
 
-declare module 'react/jsx-runtime' {
-  namespace JSX {
-    interface IntrinsicElements extends AonStencilIntrinsicElements {}
-  }
-}
-
-declare module 'react' {
+declare module "react/jsx-runtime" {
   namespace JSX {
     interface IntrinsicElements extends AonStencilIntrinsicElements {}
   }

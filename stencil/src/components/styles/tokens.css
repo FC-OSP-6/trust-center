@@ -1,4 +1,4 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  Design tokens and typography for Stencil components
     - Defines the system-level design tokens (colors, typography, spacing, text decoration) using CSS custom
     properties in :root, serving as the single source of truth for visual decisions.
@@ -14,7 +14,7 @@
     - Assumes alignment with external documents for:
         1. Layout/grid definitions (React layer)
         2. Brand typography approvals (e.g., font family decisions)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* :root serves as the configuration layer of the design system: */
 /* tokens, constants, and shared visual decisions only */
