@@ -11,9 +11,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
  :host {
-=======
-:host {
->>>>>>> 152faa116285c1446018159477d3efcc38ea0688
   display: block;
   width: 100%;
   font-family: var(--font-default);
@@ -68,8 +65,4 @@ a {
 
 a:hover {
   color: var(--color-teal-dark-hover);
-<<<<<<< HEAD
-} 
-=======
 }
->>>>>>> 152faa116285c1446018159477d3efcc38ea0688
