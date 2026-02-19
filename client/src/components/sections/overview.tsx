@@ -7,20 +7,20 @@
   3) selected controls  --> stencil fetches + groups from graphql (db-first, json fallback happens server-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from "react";
+import React from 'react';
 
 /* icon assets  --> used by link cards */
-import PDF from "../../assets/images/pdf-svgrepo-com.svg";
-import External from "../../assets/images/external-link-svgrepo-com.svg";
+import PDF from '../../assets/images/pdf-svgrepo-com.svg';
+import External from '../../assets/images/external-link-svgrepo-com.svg';
 
 /* pdf assets  --> bundled static files */
-import ClientPrivacySummaryPDF from "../../assets/PDFs/Aon Client Privacy Summary - Mock.pdf";
-import PenetrationTestsPDF from "../../assets/PDFs/CyQuPenetrationTestReports.pdf";
-import PrivacyPolicyPDF from "../../assets/PDFs/CyQuPrivacyPolicy.pdf";
-import CyberSecurityRiskManagement from "../../assets/PDFs/Aon Cyber Security and Risk Management Overview - Mock.pdf";
+import ClientPrivacySummaryPDF from '../../assets/PDFs/Aon Client Privacy Summary - Mock.pdf';
+import PenetrationTestsPDF from '../../assets/PDFs/CyQuPenetrationTestReports.pdf';
+import PrivacyPolicyPDF from '../../assets/PDFs/CyQuPrivacyPolicy.pdf';
+import CyberSecurityRiskManagement from '../../assets/PDFs/Aon Cyber Security and Risk Management Overview - Mock.pdf';
 
 /* bullet icon for selected controls  --> passed into stencil expansion list */
-import statusCheckUrl from "../../assets/images/status-check.svg";
+import statusCheckUrl from '../../assets/images/status-check.svg';
 
 export default function Overview() {
   return (
@@ -33,29 +33,29 @@ export default function Overview() {
           link-title="Client Facing Documents"
           items={JSON.stringify([
             {
-              label: "CyQu Privacy Policy",
+              label: 'CyQu Privacy Policy',
               href: PrivacyPolicyPDF,
               iconSrc: PDF,
-              iconAlt: "PDF file",
+              iconAlt: 'PDF file'
             },
             {
-              label: "CyQu Penetration Test Reports",
+              label: 'CyQu Penetration Test Reports',
               href: PenetrationTestsPDF,
               iconSrc: PDF,
-              iconAlt: "PDF file",
+              iconAlt: 'PDF file'
             },
             {
-              label: "Aon: Client Privacy Summary",
+              label: 'Aon: Client Privacy Summary',
               href: ClientPrivacySummaryPDF,
               iconSrc: PDF,
-              iconAlt: "PDF file",
+              iconAlt: 'PDF file'
             },
             {
-              label: "Aon: Cyber Security and Risk Management Overview",
+              label: 'Aon: Cyber Security and Risk Management Overview',
               href: CyberSecurityRiskManagement,
               iconSrc: PDF,
-              iconAlt: "PDF file",
-            },
+              iconAlt: 'PDF file'
+            }
           ])}
         />
 
@@ -64,29 +64,29 @@ export default function Overview() {
           link-title="External Links"
           items={JSON.stringify([
             {
-              label: "Aon: Ensuring Ongoing Operations",
-              href: "https://www.aon.com/en/capabilities/risk-management/business-continuity-management",
+              label: 'Aon: Ensuring Ongoing Operations',
+              href: 'https://www.aon.com/en/capabilities/risk-management/business-continuity-management',
               iconSrc: External,
-              iconAlt: "External link",
+              iconAlt: 'External link'
             },
             {
-              label: "Aon Secure",
-              href: "https://www.aon.com/en/capabilities/cyber-resilience",
+              label: 'Aon Secure',
+              href: 'https://www.aon.com/en/capabilities/cyber-resilience',
               iconSrc: External,
-              iconAlt: "External link",
+              iconAlt: 'External link'
             },
             {
-              label: "Aon’s Policies and Standards",
-              href: "https://www.aon.com/en/about/leadership-and-governance/code-of-business-conduct",
+              label: 'Aon’s Policies and Standards',
+              href: 'https://www.aon.com/en/about/leadership-and-governance/code-of-business-conduct',
               iconSrc: External,
-              iconAlt: "External link",
+              iconAlt: 'External link'
             },
             {
-              label: "Aon: Security - Submit Request",
-              href: "https://www.aon.com/en/about/leadership-and-governance/report-an-emergency",
+              label: 'Aon: Security - Submit Request',
+              href: 'https://www.aon.com/en/about/leadership-and-governance/report-an-emergency',
               iconSrc: External,
-              iconAlt: "External link",
-            },
+              iconAlt: 'External link'
+            }
           ])}
         />
       </div>

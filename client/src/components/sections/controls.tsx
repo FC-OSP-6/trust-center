@@ -5,8 +5,8 @@
   - passes only the status icon to reuse the same visual language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from "react";
-import statusCheckUrl from "../../assets/images/status-check.svg";
+import React from 'react';
+import statusCheckUrl from '../../assets/images/status-check.svg';
 
 export default function Controls() {
   return (

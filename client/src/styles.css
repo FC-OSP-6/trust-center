@@ -59,7 +59,6 @@ body {
   max-width: 1200px;
 }
 
-
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    Overview Section Layout
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -118,7 +117,9 @@ body {
 }
 
 .overview-error-detail {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   font-size: 12px;
   opacity: 0.9;
 }
