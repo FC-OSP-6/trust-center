@@ -30,31 +30,73 @@ import { Component, h, State, Host } from '@stencil/core';
 export class AonNavbar {
   // Renders a static navigation list; routing / expansion handled externally
 
-  //Track current URL path for active link highlighting
-  @State() currentPath: string = window.location.pathname;
+  // Initialize empty - will be set in componentWillLoad for SSR safety
+  @State() currentPath: string = '';
 
-  // Set up listener for browser back/forward buttons
+  // Store handler reference to enable proper cleanup on component unload
+  private popstateHandler: () => void;
+
+  // Runs before component renders - safe place for browser-only initialization
   componentWillLoad() {
-    window.addEventListener('popstate', () => {
-      this.currentPath = window.location.pathname; // Update active link on navigation
-    });
+    // Guard: Only access window in browser environment (SSR safe)
+    if (typeof window !== 'undefined') {
+      this.currentPath = window.location.pathname;
+
+      // Create named handler function (not inline) so we can store reference for later removal
+      this.popstateHandler = () => {
+        this.currentPath = window.location.pathname;
+      };
+
+      // Add listener with stored handler reference
+      window.addEventListener('popstate', this.popstateHandler);
+    }
+  }
+
+  // Runs when component is removed from DOM - cleanup to prevent memory leaks
+  /**
+  [stencil]  [ ERROR ]  Replace "componentDidUnload()" with "disconnectedCallback()": src/components/layout/navbar/navbar.tsx:56:3
+[stencil]            The "componentDidUnload()" method was removed in Stencil 2. Please
+[stencil]            use the "disconnectedCallback()" method instead.
+  */
+  disconnectedCallback() {
+    if (typeof window !== 'undefined' && this.popstateHandler) {
+      // Remove listener using same function reference that was added
+      window.removeEventListener('popstate', this.popstateHandler);
+    }
   }
   // TODO: popstate listener is never removed – add componentDidUnload() and removeEventListener('popstate', handler) to avoid leaks when element is disconnected.
-
-  // Check if given path matches current page
+  // DONE
   // TODO: currentPath.includes(path) can false-positive (e.g. /overview matches /overview/controls); use path === currentPath or currentPath.startsWith(path) with a trailing slash check depending on route shape.
+  //DONE
+  // Check if given path matches current page
+  // Uses startsWith with trailing slash to avoid false positives
+  // e.g., /overview will NOT match /overview/controls
   isCurrentPage(path: string): boolean {
-    return this.currentPath.includes(path);
+    const pathWithSlash = `${path}/`;
+    return (
+      this.currentPath === path || this.currentPath.startsWith(pathWithSlash)
+    );
   }
 
   // Handle click navigation without page reload (SPA behavior)
   navigateTo(path: string, e: Event) {
     e.preventDefault(); // Stop default link behavior (prevents page reload)
     window.history.pushState({}, '', `/trust-center${path}`); // Update URL bar
-    window.dispatchEvent(new PopStateEvent('popstate')); // Notify React Router
-    this.currentPath = window.location.pathname; // Update active state
+
+    // Emit custom event instead of relying on React Router's popstate listener
+    // Parent component (React host) is responsible for handling navigation
+    this.currentPath = window.location.pathname;
+
+    // TODO: Dispatching popstate to "notify React Router" is brittle – document this contract or prefer a custom event / callback prop so the component doesn't depend on React Router internals.
+    //DONE
+    // Dispatch custom event that parent can listen for
+    const event = new CustomEvent('aonNavigate', {
+      detail: { path: `/trust-center${path}` },
+      bubbles: true,
+      composed: true // allows event to cross Shadow DOM boundary
+    });
+    window.dispatchEvent(event);
   }
-  // TODO: Dispatching popstate to "notify React Router" is brittle – document this contract or prefer a custom event / callback prop so the component doesn't depend on React Router internals.
   render() {
     return (
       <Host>
