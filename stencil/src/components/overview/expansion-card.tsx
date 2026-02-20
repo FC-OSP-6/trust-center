@@ -436,7 +436,7 @@ export class ExpansionCard {
 
     if (this.errorMessage) {
       return (
-        <div class="notice-is-error">
+        <div class="notice is-error">
           Failed to load controls from GraphQL.
           <div class="notice-detail">{this.errorMessage}</div>
         </div>
