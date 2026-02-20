@@ -78,19 +78,19 @@ const CONTROLS_CONNECTION_QUERY = `
 export class ControlCard {
   // ---------- public api (attributes) ----------
 
-  @Prop({ attribute: 'data-mode' }) dataMode: 'controls' | 'none' = 'none';
+  @Prop() dataMode: 'controls' | 'none' = 'none';
 
-  @Prop({ attribute: 'fetch-first' }) fetchFirst: number = 100;
+  @Prop() fetchFirst: number = 100;
 
-  @Prop({ attribute: 'show-tile' }) showTile: boolean = false;
+  @Prop() showTile: boolean = false;
 
-  @Prop({ attribute: 'title-text' }) titleText?: string;
+  @Prop() titleText?: string;
 
-  @Prop({ attribute: 'show-meta' }) showMeta: boolean = false;
+  @Prop() showMeta: boolean = false;
 
-  @Prop({ attribute: 'subtitle-text' }) subtitleText?: string;
+  @Prop() subtitleText?: string;
 
-  @Prop({ attribute: 'icon-src' }) iconSrc?: string;
+  @Prop() iconSrc?: string;
 
   // ---------- internal state ----------
 
@@ -251,13 +251,13 @@ export class ControlCard {
     const metaText = `${this.totalControls} controls ${categoriesCount} categories`;
 
     return (
-      <header class="tileHeader">
-        <div class="tileText">
-          {title.length > 0 && <h2 class="tileTitle">{title}</h2>}
+      <header class="tile-header">
+        <div class="tile-text">
+          {title.length > 0 && <h2 class="tile-title">{title}</h2>}
 
-          {this.showMeta && <div class="tileMeta">{metaText}</div>}
+          {this.showMeta && <div class="tile-meta">{metaText}</div>}
 
-          {subtitle.length > 0 && <div class="tileSubtitle">{subtitle}</div>}
+          {subtitle.length > 0 && <div class="tile-subtitle">{subtitle}</div>}
         </div>
       </header>
     );
@@ -271,25 +271,25 @@ export class ControlCard {
     return (
       <section class="card">
         <button
-          class="cardHeader"
+          class="card-header"
           type="button"
           aria-expanded={expanded}
           onClick={() => this.toggleExpanded(key)}
         >
-          <div class="cardHeaderLeft">
-            <h3 class="cardTitle">{group.title}</h3>
+          <div class="card-header-left">
+            <h3 class="card-title">{group.title}</h3>
           </div>
 
-          <div class="cardHeaderRight">{this.renderToggle(expanded)}</div>
+          <div class="card-header-right">{this.renderToggle(expanded)}</div>
         </button>
-        //TODO: role="presentation" removes semantics – "Control" and "Status"
+        {/* TODO: role="presentation" removes semantics – "Control" and "Status"
         are column headers; consider role="row" + role="columnheader" or a
         proper table structure if screen readers should announce them as
-        headers.
+        headers. */}
         <div class="columns" role="presentation">
-          <div class="colLeft">Control</div>
+          <div class="col-left">Control</div>
 
-          <div class="colRight">Status</div>
+          <div class="col-right">Status</div>
         </div>
         <ul class="rows" role="list">
           {group.items.map(c => {
@@ -297,20 +297,20 @@ export class ControlCard {
 
             return (
               <li class="row" key={c.id}>
-                <div class="rowLeft">
-                  <div class="rowTitle">{c.title}</div>
+                <div class="row-left">
+                  <div class="row-title">{c.title}</div>
 
                   {hasDesc && (
                     <div
                       class={{ aonRevealWrap: true, isOpen: expanded }}
                       aria-hidden={!expanded}
                     >
-                      <div class="aonRevealInner">{c.description}</div>
+                      <div class="aon-reveal-inner">{c.description}</div>
                     </div>
                   )}
                 </div>
 
-                <div class="rowRight">{this.renderStatusIcon()}</div>
+                <div class="row-right">{this.renderStatusIcon()}</div>
               </li>
             );
           })}
