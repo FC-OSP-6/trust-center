@@ -11,7 +11,6 @@
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
-//TODO: Props have no defaults – undefined title/description/buttonText/buttonLink will render as "undefined"; add defaults or document as required.
 //TODO: Invalid HTML – <button> must not contain <a>. Use <a href={...} class="blue-card-button" ...> or a button that programmatically navigates (e.g. window.location or router).
 
 @Component({
@@ -22,10 +21,16 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 export class AonBlueCard {
   // Web Component definition and render logic for <aon-blue-card>
 
-  @Prop() blueCardTitle!: string;
-  @Prop() blueCardDescription!: string;
-  @Prop() blueCardButtonText!: string;
-  @Prop() blueCardButtonLink!: string;
+  @Prop() blueCardTitle: string;
+  @Prop() blueCardDescription: string;
+  @Prop() blueCardButtonText: string;
+  @Prop() blueCardButtonLink: string;
+
+  private handleClick() {
+    if (!this.blueCardButtonLink) return;
+
+    window.open(this.blueCardButtonLink, '_blank', 'noopener,noreferrer');
+  }
 
   render() {
     const {
@@ -37,19 +42,14 @@ export class AonBlueCard {
     return (
       <div class="blue-card">
         <div class="blue-card-text">
-          <h5 class="blue-card-title">{blueCardTitle}</h5>
-          <p class="blue-card-description">{blueCardDescription}</p>
+          {blueCardTitle && <h5 class="blue-card-title">{blueCardTitle}</h5>}
+          {blueCardDescription && (
+            <p class="blue-card-description">{blueCardDescription}</p>
+          )}
         </div>
 
-        <button class="blue-card-button">
-          <a
-            href={blueCardButtonLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="blue-card-button-link"
-          >
-            {blueCardButtonText}
-          </a>
+        <button class="blue-card-button" onClick={() => this.handleClick()}>
+          {blueCardButtonText}
         </button>
       </div>
     );

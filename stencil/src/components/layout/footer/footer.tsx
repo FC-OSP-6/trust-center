@@ -33,7 +33,7 @@ export class AonFooter {
   @Prop() copyright: string = 'Copyright 2026 AON PLC'; // TODO: Move year generation to the React layer and pass the computed value as a prop
   @Prop() privacyPolicyHref: string = '/privacy-policy';
   @Prop() termsHref: string = '/terms-and-conditions';
-  @Prop() logoSrc!: string;
+  @Prop() logoSrc: string;
   @Element() el: HTMLElement;
 
   componentDidLoad() {
@@ -49,7 +49,7 @@ export class AonFooter {
       <footer role="contentinfo">
         <div class="footer-content">
           <div class="footer-left">
-            <img class="footer-logo" src={logoSrc} alt="Company logo" />
+            {this.logoSrc && <img src={this.logoSrc} alt="Company logo" />}
 
             <div class="footer-links">
               <a href={privacyPolicyHref}>Privacy Policy</a>
