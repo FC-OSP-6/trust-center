@@ -248,7 +248,7 @@ export class FaqCard {
   private renderToggle(expanded: boolean) {
     return (
       <span
-        class={{ aonToggleIcon: true, isOpen: expanded }}
+        class={{ 'aon-toggle-icon': true, 'is-open': expanded }}
         aria-hidden="true"
       >
         <span class="aon-toggle-bar-H" />
@@ -281,7 +281,7 @@ export class FaqCard {
 
         {hasAnswer && (
           <div
-            class={{ aonRevealWrap: true, isOpen: expanded }}
+            class={{ 'aon-reveal-wrap': true, 'is-open': expanded }}
             aria-hidden={!expanded}
           >
             <div class="aon-reveal-inner">{item.answer}</div>
@@ -331,7 +331,7 @@ export class FaqCard {
 
             {a.length > 0 && (
               <div
-                class={{ aonRevealWrap: true, isOpen: expanded }}
+                class={{ 'aon-reveal-wrap': true, 'is-open': expanded }}
                 aria-hidden={!expanded}
               >
                 <div class="aon-reveal-inner">{a}</div>

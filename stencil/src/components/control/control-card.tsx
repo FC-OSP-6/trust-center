@@ -218,7 +218,7 @@ export class ControlCard {
   private renderToggle(expanded: boolean) {
     return (
       <span
-        class={{ aonToggleIcon: true, isOpen: expanded }}
+        class={{ 'aon-toggle-icon': true, 'is-open': expanded }}
         aria-hidden="true"
       >
         <span class="aon-toggle-bar-h" />
@@ -228,10 +228,10 @@ export class ControlCard {
   }
 
   private renderStatusIcon() {
-    if (!this.iconSrc) return <span class="statusDot" aria-hidden="true" />;
+    if (!this.iconSrc) return <span class="status-dot" aria-hidden="true" />;
 
     return (
-      <img class="statusIcon" src={this.iconSrc} alt="" aria-hidden="true" />
+      <img class="status-icon" src={this.iconSrc} alt="" aria-hidden="true" />
     );
   }
 
@@ -302,7 +302,7 @@ export class ControlCard {
 
                   {hasDesc && (
                     <div
-                      class={{ aonRevealWrap: true, isOpen: expanded }}
+                      class={{ 'aon-reveal-wrap': true, 'is-open': expanded }}
                       aria-hidden={!expanded}
                     >
                       <div class="aon-reveal-inner">{c.description}</div>
