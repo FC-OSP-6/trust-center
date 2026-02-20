@@ -29,12 +29,10 @@ export class AonTitle {
   @Prop() supportMessage =
     'Resources to address common cyber security questions from clients.';
   @Prop() supportEmail: string = 'cyber.security.support@email.com';
-  @Prop() supportEmailLink: string =
-    'mailto:cyber.security.support@email.com?subject=Trust-Center-Support';
 
   render() {
-    const { trustCenterName, supportMessage, supportEmail, supportEmailLink } =
-      this; // Destructure component props for cleaner JSX usage
+    const { trustCenterName, supportMessage, supportEmail } = this; // Destructure component props for cleaner JSX usage
+    const mailTo = `mailto:${supportEmail}?subject=Trust-Center-Support`;
     return (
       <div class="title-section">
         <div class="name">
@@ -44,7 +42,7 @@ export class AonTitle {
           <p>{supportMessage}</p>
         </div>
         <div class="support-email">
-          <a href={supportEmailLink}>{supportEmail}</a>
+          <a href={mailTo}>{supportEmail}</a>
         </div>
       </div>
     );
