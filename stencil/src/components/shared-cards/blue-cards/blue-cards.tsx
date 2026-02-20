@@ -11,9 +11,11 @@
 import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
 // `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
 
+//TODO: Invalid HTML – <button> must not contain <a>. Use <a href={...} class="blue-card-button" ...> or a button that programmatically navigates (e.g. window.location or router).
+
 @Component({
   tag: 'aon-blue-card', // Registers the custom element <aon-blue-card>
-  styleUrls: ['./blue-cards.css'],
+  styleUrl: './blue-cards.css',
   shadow: true // enables Shadow DOM for DOM and style encapsulation
 })
 export class AonBlueCard {
@@ -23,6 +25,12 @@ export class AonBlueCard {
   @Prop() blueCardDescription: string;
   @Prop() blueCardButtonText: string;
   @Prop() blueCardButtonLink: string;
+
+  private handleClick() {
+    if (!this.blueCardButtonLink) return;
+
+    window.open(this.blueCardButtonLink, '_blank', 'noopener,noreferrer');
+  }
 
   render() {
     const {
@@ -34,18 +42,14 @@ export class AonBlueCard {
     return (
       <div class="blue-card">
         <div class="blue-card-text">
-          <h5 class="blue-card-title">{blueCardTitle}</h5>
-          <p class="blue-card-description">{blueCardDescription}</p>
+          {blueCardTitle && <h5 class="blue-card-title">{blueCardTitle}</h5>}
+          {blueCardDescription && (
+            <p class="blue-card-description">{blueCardDescription}</p>
+          )}
         </div>
 
-        <button class="blue-card-button">
-          <a
-            href={blueCardButtonLink}
-            target="_blank"
-            class="blue-card-button-link"
-          >
-            {blueCardButtonText}
-          </a>
+        <button class="blue-card-button" onClick={() => this.handleClick()}>
+          {blueCardButtonText}
         </button>
       </div>
     );

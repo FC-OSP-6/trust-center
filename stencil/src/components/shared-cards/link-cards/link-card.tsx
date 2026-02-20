@@ -11,6 +11,8 @@
 
 import { Component, Prop, h } from '@stencil/core';
 
+//TODO: List items in map have no key – add key={item.href} or key={index} for list stability (Stencil/JSX reconciliation).
+
 /**
  * Shape of each link rendered inside the card.
  * Passed from parent via JSON-stringified `items` prop.
