@@ -13,15 +13,15 @@
 
 /* ---------- +/- toggle ---------- */
 
-.aonToggleIcon {
+.aon-toggle-icon {
   width: var(--toggle-icon-size);
   height: var(--toggle-icon-size);
   position: relative;
   display: inline-block;
 }
 
-.aonToggleBarH,
-.aonToggleBarV {
+.aon-toggle-bar-h,
+.aon-toggle-bar-v {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -33,14 +33,14 @@
 }
 
 /* start as vertical bar (plus sign) */
-.aonToggleBarV {
+.aon-toggle-bar-v {
   transform: translate(-50%, -50%) rotate(90deg);
   transform-origin: center;
   transition: transform var(--motion-toggle-ms) var(--motion-ease-out);
 }
 
 /* open => rotate clockwise so it visually collapses into "-" */
-.aonToggleIcon.isOpen .aonToggleBarV {
+.aon-toggle-icon.is-open .aon-toggle-bar-v {
   transform: translate(-50%, -50%) rotate(180deg);
 }
 
@@ -55,7 +55,7 @@
   - aonRevealInner: clips from top (clip-path inset top=100%) -> top=0
 */
 
-.aonRevealWrap {
+.aon-reveal-wrap {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
@@ -65,12 +65,12 @@
     opacity 300ms var(--motion-ease-out);
 }
 
-.aonRevealWrap.isOpen {
+.aon-reveal-wrap.is-open {
   grid-template-rows: 1fr;
   opacity: 1;
 }
 
-.aonRevealInner {
+.aon-reveal-inner {
   overflow: hidden;
 
   /* typography defaults; components can override if needed */
@@ -93,7 +93,7 @@
   will-change: clip-path, transform;
 }
 
-.aonRevealWrap.isOpen .aonRevealInner {
+.aon-reveal-wrap.is-open .aon-reveal-inner {
   clip-path: inset(0 0 0 0);
   transform: translateY(0);
 }

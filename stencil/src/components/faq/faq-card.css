@@ -35,19 +35,19 @@
 
 /* ---------- tile header (optional) ---------- */
 
-.tileHeader {
+.tile-header {
   padding: 0;
   margin: 0;
   border: 0;
   background: transparent;
 }
 
-.tileText {
+.tile-text {
   display: grid;
   gap: 6px;
 }
 
-.tileTitle {
+.tile-title {
   margin: 0;
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xxlarge);
@@ -55,14 +55,14 @@
   color: var(--color-navy-primary);
 }
 
-.tileMeta {
+.tile-meta {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   color: var(--color-gray-02);
 }
 
-.tileSubtitle {
+.tile-subtitle {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
@@ -71,7 +71,7 @@
 
 /* ---------- state text (loading/error/empty) ---------- */
 
-.stateText {
+.state-text {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -107,17 +107,17 @@
   overflow: hidden;
 }
 
-.cardHeaderStatic {
+.card-header-static {
   padding: 16px var(--default-local-spacing);
 }
 
 @media (max-width: 575px) {
-  .cardHeaderStatic {
+  .card-header-static {
     padding: 16px var(--mobile-local-spacing);
   }
 }
 
-.cardTitle {
+.card-title {
   margin: 0;
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
@@ -150,7 +150,7 @@
 }
 
 /* clickable question row: question left, toggle right */
-.rowHeader {
+.row-header {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr var(--toggle-hit-col-width);
@@ -163,29 +163,29 @@
   text-align: left;
 }
 
-.rowHeader:focus {
+.row-header:focus {
   outline: none;
 }
 
-.rowHeader:focus-visible {
+.row-header:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-gray-06);
   border-radius: 6px;
 }
 
-.rowQuestion {
+.row-question {
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
   color: var(--color-gray-01);
 }
 
-.rowToggle {
+.row-toggle {
   display: grid;
   place-items: center;
 }
 
 /* faq answers should be slightly softer than questions */
-.aonRevealInner {
+.aon-reveal-inner {
   color: var(--color-gray-02);
 }

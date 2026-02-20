@@ -35,19 +35,19 @@
 
 /* ---------- tile header (optional) ---------- */
 
-.tileHeader {
+.tile-header {
   padding: 0;
   margin: 0;
   border: 0;
   background: transparent;
 }
 
-.tileText {
+.tile-text {
   display: grid;
   gap: 6px;
 }
 
-.tileTitle {
+.tile-title {
   margin: 0;
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xxlarge);
@@ -55,14 +55,14 @@
   color: var(--color-navy-primary);
 }
 
-.tileMeta {
+.tile-meta {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   color: var(--color-gray-02);
 }
 
-.tileSubtitle {
+.tile-subtitle {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
@@ -99,7 +99,7 @@
 }
 
 /* header is a single row: title left, toggle right */
-.cardHeader {
+.card-header {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr var(--toggle-hit-col-width);
@@ -112,21 +112,21 @@
 }
 
 @media (max-width: 575px) {
-  .cardHeader {
+  .card-header {
     padding: 16px var(--mobile-local-spacing);
   }
 }
 
-.cardHeader:focus {
+.card-header:focus {
   outline: none;
 }
 
-.cardHeader:focus-visible {
+.card-header:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-gray-06);
 }
 
-.cardTitle {
+.card-title {
   margin: 0;
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
@@ -134,7 +134,7 @@
   color: var(--color-navy-primary);
 }
 
-.cardHeaderRight {
+.card-header-right {
   display: grid;
   place-items: center;
 }
@@ -155,8 +155,8 @@
 }
 
 /* mockups show normal case + bold (not all caps) */
-.colLeft,
-.colRight {
+.col-left,
+.col-right {
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -165,7 +165,7 @@
   letter-spacing: normal;
 }
 
-.colRight {
+.col-right {
   text-align: center;
 }
 
@@ -195,31 +195,31 @@
   column-gap: 12px;
 }
 
-.rowLeft {
+.row-left {
   display: grid;
   gap: 6px;
 }
 
-.rowTitle {
+.row-title {
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
   color: var(--color-gray-01);
 }
 
-.rowRight {
+.row-right {
   display: grid;
   place-items: center;
   padding-top: 1px;
 }
 
-.statusIcon {
+.status-icon {
   width: 18px;
   height: 18px;
   display: block;
 }
 
-.statusDot {
+.status-dot {
   width: 10px;
   height: 10px;
   border-radius: 999px;
@@ -228,6 +228,6 @@
 }
 
 /* controls descriptions should read as muted detail */
-.aonRevealInner {
+.aon-reveal-inner {
   color: var(--color-gray-02);
 }

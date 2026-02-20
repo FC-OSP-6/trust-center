@@ -50,6 +50,8 @@ type AonLinkCardProps = HtmlElProps & {
   items?: string;
 };
 
+//TODO: This interface appears stale vs current usage (`link-title` + `items`); update typings to match actual web component API.
+
 type AonExpansionCardProps = HtmlElProps & {
   /* mode switch */
   'data-mode'?: 'static' | 'controls' | string;
@@ -77,6 +79,7 @@ type AonBlueCardProps = HtmlElProps & {
   'blue-card-button-text'?: string;
   'blue-card-button-link'?: string;
 };
+// TODO: Prop names look outdated (`footer-*`) compared with current attributes (`blue-card-button-text` / `blue-card-button-link`); this weakens type safety.
 
 type AonFooterProps = HtmlElProps & {
   'logo-src'?: string;
