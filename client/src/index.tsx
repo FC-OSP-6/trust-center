@@ -13,13 +13,20 @@ import './styles.css';
 import App from './app';
 import { defineCustomElements } from '../../stencil/loader/index.es2017.js';
 
-// Register Stencil Web Components once
-defineCustomElements(window);
+// Register Stencil Web Components once (browser-only, SSR safe)
+if (typeof window !== 'undefined') {
+  defineCustomElements(window);
+}
 
-// TODO: If this ever runs in SSR/tests, guard with `typeof window !== "undefined"` before calling defineCustomElements.
-// TODO: Non-null assertion can hide runtime boot issues; prefer an explicit null check with a clear thrown error.
+// Get root container with explicit null check
+const container = document.getElementById('root');
+if (!container) {
+  throw new Error(
+    'Root container not found: Could not find element with id="root". ' +
+      'Please ensure your HTML file includes a <div id="root"></div> element.'
+  );
+}
 
-const container = document.getElementById('root')!;
 const root = createRoot(container);
 
 root.render(
