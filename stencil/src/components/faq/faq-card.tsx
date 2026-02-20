@@ -71,22 +71,21 @@ const FAQS_CONNECTION_QUERY = `
 export class FaqCard {
   // ---------- public api ----------
 
-  @Prop({ attribute: 'data-mode' }) dataMode: 'faqs' | 'single' | 'none' =
-    'none';
+  @Prop() dataMode: 'faqs' | 'single' | 'none' = 'none';
 
-  @Prop({ attribute: 'fetch-first' }) fetchFirst: number = 25;
+  @Prop() fetchFirst: number = 25;
 
   // optional tile header (matches controls strategy)
-  @Prop({ attribute: 'show-tile' }) showTile: boolean = false;
+  @Prop() showTile: boolean = false;
 
-  @Prop({ attribute: 'title-text' }) titleText?: string;
+  @Prop() titleText?: string;
 
-  @Prop({ attribute: 'show-meta' }) showMeta: boolean = false;
+  @Prop() showMeta: boolean = false;
 
-  @Prop({ attribute: 'subtitle-text' }) subtitleText?: string;
+  @Prop() subtitleText?: string;
 
   // optional icon  --> reserved for future use (safe default = unused)
-  @Prop({ attribute: 'icon-src' }) iconSrc?: string;
+  @Prop() iconSrc?: string;
 
   // single-item mode (backwards compatible)
   @Prop() question?: string;
@@ -234,13 +233,13 @@ export class FaqCard {
     const metaText = `${this.totalFaqs} faqs ${categoriesCount} categories`;
 
     return (
-      <header class="tileHeader">
-        <div class="tileText">
-          {title.length > 0 && <h2 class="tileTitle">{title}</h2>}
+      <header class="tile-header">
+        <div class="tile-text">
+          {title.length > 0 && <h2 class="tile-title">{title}</h2>}
 
-          {this.showMeta && <div class="tileMeta">{metaText}</div>}
+          {this.showMeta && <div class="tile-meta">{metaText}</div>}
 
-          {subtitle.length > 0 && <div class="tileSubtitle">{subtitle}</div>}
+          {subtitle.length > 0 && <div class="tile-subtitle">{subtitle}</div>}
         </div>
       </header>
     );
@@ -252,14 +251,14 @@ export class FaqCard {
         class={{ aonToggleIcon: true, isOpen: expanded }}
         aria-hidden="true"
       >
-        <span class="aonToggleBarH" />
-        <span class="aonToggleBarV" />
+        <span class="aon-toggle-bar-H" />
+        <span class="aon-toggle-bar-V" />
       </span>
     );
   }
 
   private renderStateText(text: string) {
-    return <div class="stateText">{text}</div>;
+    return <div class="state-text">{text}</div>;
   }
 
   private renderFaqRow(item: { id: string; question: string; answer: string }) {
@@ -270,14 +269,14 @@ export class FaqCard {
     return (
       <li class="row" key={item.id}>
         <button
-          class="rowHeader"
+          class="row-header"
           type="button"
           aria-expanded={expanded}
           onClick={() => this.toggleExpanded(item.id)}
         >
-          <div class="rowQuestion">{item.question}</div>
+          <div class="row-question">{item.question}</div>
 
-          <div class="rowToggle">{this.renderToggle(expanded)}</div>
+          <div class="row-toggle">{this.renderToggle(expanded)}</div>
         </button>
 
         {hasAnswer && (
@@ -285,7 +284,7 @@ export class FaqCard {
             class={{ aonRevealWrap: true, isOpen: expanded }}
             aria-hidden={!expanded}
           >
-            <div class="aonRevealInner">{item.answer}</div>
+            <div class="aon-reveal-inner">{item.answer}</div>
           </div>
         )}
       </li>
@@ -295,8 +294,8 @@ export class FaqCard {
   private renderCategoryCard(group: CategoryGroup) {
     return (
       <section class="card" key={group.title}>
-        <header class="cardHeaderStatic">
-          <h3 class="cardTitle">{group.title}</h3>
+        <header class="card-header-static">
+          <h3 class="card-title">{group.title}</h3>
         </header>
 
         <ul class="rows" role="list">
@@ -320,14 +319,14 @@ export class FaqCard {
         <ul class="rows" role="list">
           <li class="row">
             <button
-              class="rowHeader"
+              class="row-header"
               type="button"
               aria-expanded={expanded}
               onClick={() => this.toggleExpanded('__single__')}
             >
-              <div class="rowQuestion">{q}</div>
+              <div class="row-question">{q}</div>
 
-              <div class="rowToggle">{this.renderToggle(expanded)}</div>
+              <div class="row-toggle">{this.renderToggle(expanded)}</div>
             </button>
 
             {a.length > 0 && (
@@ -335,7 +334,7 @@ export class FaqCard {
                 class={{ aonRevealWrap: true, isOpen: expanded }}
                 aria-hidden={!expanded}
               >
-                <div class="aonRevealInner">{a}</div>
+                <div class="aon-reveal-inner">{a}</div>
               </div>
             )}
           </li>
