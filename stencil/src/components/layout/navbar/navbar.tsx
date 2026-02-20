@@ -59,10 +59,7 @@ export class AonNavbar {
       window.removeEventListener('popstate', this.popstateHandler);
     }
   }
-  // TODO: popstate listener is never removed – add componentDidUnload() and removeEventListener('popstate', handler) to avoid leaks when element is disconnected.
-  // DONE
-  // TODO: currentPath.includes(path) can false-positive (e.g. /overview matches /overview/controls); use path === currentPath or currentPath.startsWith(path) with a trailing slash check depending on route shape.
-  //DONE
+
   // Check if given path matches current page
   // Uses startsWith with trailing slash to avoid false positives
   // e.g., /overview will NOT match /overview/controls
@@ -82,8 +79,6 @@ export class AonNavbar {
     // Parent component (React host) is responsible for handling navigation
     this.currentPath = window.location.pathname;
 
-    // TODO: Dispatching popstate to "notify React Router" is brittle – document this contract or prefer a custom event / callback prop so the component doesn't depend on React Router internals.
-    //DONE
     // Dispatch custom event that parent can listen for
     const event = new CustomEvent('aonNavigate', {
       detail: { path: `/trust-center${path}` },
