@@ -18,7 +18,7 @@
 // TODO: CONTROLS_CONNECTION_QUERY is duplicated with control-card.tsx – extract to a shared module (e.g. graphql/controls.ts) to avoid schema drift.
 // TODO: Filter doesn't require n.id – if downstream logic assumes id, add (n && n.id && n.title && n.category).
 // TODO: It is a good practice to always have id returned in node as it is used in cache invalidation.
-//TODO:  <li class="item"> in map has no key – add key={text} or key={index} for list stability (Stencil/JSX reconciliation).
+// TODO:  <li class="item"> in map has no key – add key={text} or key={index} for list stability (Stencil/JSX reconciliation).
 
 import { Component, Prop, State, Watch, h } from '@stencil/core';
 
@@ -47,31 +47,31 @@ type GraphQLResponse<T> = {
 export class ExpansionCard {
   // ----------  public api (shared)  ----------
 
-  @Prop({ attribute: 'data-mode' }) dataMode: 'static' | 'controls' = 'static';
+  @Prop() dataMode: 'static' | 'controls' = 'static';
 
-  @Prop({ attribute: 'icon-src' }) iconSrc?: string;
+  @Prop() iconSrc?: string;
 
-  @Prop({ attribute: 'preview-limit' }) previewLimit: number = 3;
+  @Prop() previewLimit: number = 3;
 
   // ----------  static mode props  ----------
 
-  @Prop({ attribute: 'card-title' }) cardTitle: string = '';
+  @Prop() cardTitle: string = '';
 
-  @Prop({ attribute: 'bullet-points-json' }) bulletPointsJson: string = '[]';
+  @Prop() bulletPointsJson: string = '[]';
 
   // ----------  controls mode props  ----------
 
-  @Prop({ attribute: 'fetch-first' }) fetchFirst: number = 50;
+  @Prop() fetchFirst: number = 50;
 
-  @Prop({ attribute: 'category-limit' }) categoryLimit: number = 3;
+  @Prop() categoryLimit: number = 3;
 
-  @Prop({ attribute: 'show-tile' }) showTile: boolean = false;
+  @Prop() showTile: boolean = false;
 
-  @Prop({ attribute: 'tile-title' }) tileTitle: string = '';
+  @Prop() tileTitle: string = '';
 
-  @Prop({ attribute: 'show-meta' }) showMeta: boolean = false;
+  @Prop() showMeta: boolean = false;
 
-  @Prop({ attribute: 'tile-subtitle' }) tileSubtitle: string = '';
+  @Prop() tileSubtitle: string = '';
 
   // ----------  internal state (static mode)  ----------
 
@@ -342,11 +342,11 @@ export class ExpansionCard {
     return (
       <li class="item">
         {this.iconSrc ? (
-          <span class="iconWrap" aria-hidden="true">
-            <img class="iconImg" src={this.iconSrc} alt="" />
+          <span class="icon-wrap" aria-hidden="true">
+            <img class="icon-img" src={this.iconSrc} alt="" />
           </span>
         ) : (
-          <span class="iconDot" aria-hidden="true" />
+          <span class="icon-dot" aria-hidden="true" />
         )}
 
         <span class="text">{text}</span>
@@ -408,18 +408,18 @@ export class ExpansionCard {
 
     return (
       <div class="tile">
-        <div class="tileHeadingRow">
-          <h3 class="tileTitle">{this.tileTitle || 'Selected Controls'}</h3>
+        <div class="tile-heading-row">
+          <h3 class="tile-title">{this.tileTitle || 'Selected Controls'}</h3>
 
           {this.showMeta && (
-            <div class="tileMeta">
+            <div class="tile-meta">
               {this.totalControls} controls&nbsp;&nbsp;{categoriesCount}{' '}
               categories
             </div>
           )}
         </div>
 
-        {subtitle && <div class="tileSubtitle">{subtitle}</div>}
+        {subtitle && <div class="tile-subtitle">{subtitle}</div>}
       </div>
     );
   }
@@ -436,9 +436,9 @@ export class ExpansionCard {
 
     if (this.errorMessage) {
       return (
-        <div class="notice isError">
+        <div class="notice-is-error">
           Failed to load controls from GraphQL.
-          <div class="noticeDetail">{this.errorMessage}</div>
+          <div class="notice-detail">{this.errorMessage}</div>
         </div>
       );
     }
@@ -448,7 +448,7 @@ export class ExpansionCard {
     }
 
     return (
-      <div class="groupWrap">
+      <div class="group-wrap">
         {visibleCategories.map(group => {
           const isOpen = this.isCategoryExpanded(group.category);
           const hasOverflow = group.titles.length > limitItems;
