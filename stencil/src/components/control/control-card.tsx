@@ -221,8 +221,8 @@ export class ControlCard {
         class={{ aonToggleIcon: true, isOpen: expanded }}
         aria-hidden="true"
       >
-        <span class="aonToggleBarH" />
-        <span class="aonToggleBarV" />
+        <span class="aon-toggle-bar-h" />
+        <span class="aon-toggle-bar-v" />
       </span>
     );
   }
