@@ -22,10 +22,10 @@ import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorator
 export class AonBlueCard {
   // Web Component definition and render logic for <aon-blue-card>
 
-  @Prop() blueCardTitle: string;
-  @Prop() blueCardDescription: string;
-  @Prop() blueCardButtonText: string;
-  @Prop() blueCardButtonLink: string;
+  @Prop() blueCardTitle!: string;
+  @Prop() blueCardDescription!: string;
+  @Prop() blueCardButtonText!: string;
+  @Prop() blueCardButtonLink!: string;
 
   render() {
     const {
