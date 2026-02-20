@@ -15,7 +15,12 @@
   - shows "+n more" only when collapsed and overflowing
 ====================================================== */
 
-import { Component, Prop, State, Watch, h } from "@stencil/core";
+// TODO: CONTROLS_CONNECTION_QUERY is duplicated with control-card.tsx – extract to a shared module (e.g. graphql/controls.ts) to avoid schema drift.
+// TODO: Filter doesn't require n.id – if downstream logic assumes id, add (n && n.id && n.title && n.category).
+// TODO: It is a good practice to always have id returned in node as it is used in cache invalidation.
+// TODO:  <li class="item"> in map has no key – add key={text} or key={index} for list stability (Stencil/JSX reconciliation).
+
+import { Component, Prop, State, Watch, h } from '@stencil/core';
 
 type ControlsNode = {
   id: string;
@@ -35,38 +40,38 @@ type GraphQLResponse<T> = {
 };
 
 @Component({
-  tag: "aon-expansion-card",
-  styleUrl: "expansion-card.css",
-  shadow: true,
+  tag: 'aon-expansion-card',
+  styleUrl: 'expansion-card.css',
+  shadow: true
 })
 export class ExpansionCard {
   // ----------  public api (shared)  ----------
 
-  @Prop({ attribute: "data-mode" }) dataMode: "static" | "controls" = "static";
+  @Prop() dataMode: 'static' | 'controls' = 'static';
 
-  @Prop({ attribute: "icon-src" }) iconSrc?: string;
+  @Prop() iconSrc?: string;
 
-  @Prop({ attribute: "preview-limit" }) previewLimit: number = 3;
+  @Prop() previewLimit: number = 3;
 
   // ----------  static mode props  ----------
 
-  @Prop({ attribute: "card-title" }) cardTitle: string = "";
+  @Prop() cardTitle: string = '';
 
-  @Prop({ attribute: "bullet-points-json" }) bulletPointsJson: string = "[]";
+  @Prop() bulletPointsJson: string = '[]';
 
   // ----------  controls mode props  ----------
 
-  @Prop({ attribute: "fetch-first" }) fetchFirst: number = 50;
+  @Prop() fetchFirst: number = 50;
 
-  @Prop({ attribute: "category-limit" }) categoryLimit: number = 3;
+  @Prop() categoryLimit: number = 3;
 
-  @Prop({ attribute: "show-tile" }) showTile: boolean = false;
+  @Prop() showTile: boolean = false;
 
-  @Prop({ attribute: "tile-title" }) tileTitle: string = "";
+  @Prop() tileTitle: string = '';
 
-  @Prop({ attribute: "show-meta" }) showMeta: boolean = false;
+  @Prop() showMeta: boolean = false;
 
-  @Prop({ attribute: "tile-subtitle" }) tileSubtitle: string = "";
+  @Prop() tileSubtitle: string = '';
 
   // ----------  internal state (static mode)  ----------
 
@@ -78,9 +83,10 @@ export class ExpansionCard {
 
   @State() isLoading: boolean = false;
 
-  @State() errorMessage: string = "";
+  @State() errorMessage: string = '';
 
-  @State() groupedCategories: Array<{ category: string; titles: string[] }> = [];
+  @State() groupedCategories: Array<{ category: string; titles: string[] }> =
+    [];
 
   @State() totalControls: number = 0;
 
@@ -94,27 +100,27 @@ export class ExpansionCard {
 
   // ----------  watchers  ----------
 
-  @Watch("bulletPointsJson")
+  @Watch('bulletPointsJson')
   onBulletPointsJsonChange(next: string) {
-    if (this.dataMode !== "static") return;
+    if (this.dataMode !== 'static') return;
     this.syncBulletPoints(next);
   }
 
-  @Watch("dataMode")
+  @Watch('dataMode')
   onDataModeChange() {
     this.bootstrap();
   }
 
-  @Watch("fetchFirst")
+  @Watch('fetchFirst')
   onFetchFirstChange() {
-    if (this.dataMode !== "controls") return;
+    if (this.dataMode !== 'controls') return;
     this.fetchAndGroupControls();
   }
 
   // ----------  bootstrap  ----------
 
   private bootstrap() {
-    if (this.dataMode === "controls") {
+    if (this.dataMode === 'controls') {
       this.fetchAndGroupControls();
       return;
     }
@@ -159,9 +165,9 @@ export class ExpansionCard {
       if (!Array.isArray(parsed)) return [];
 
       return parsed
-        .filter((v) => typeof v === "string")
-        .map((v) => v.trim())
-        .filter((v) => v.length > 0);
+        .filter(v => typeof v === 'string')
+        .map(v => v.trim())
+        .filter(v => v.length > 0);
     } catch {
       return [];
     }
@@ -191,11 +197,14 @@ export class ExpansionCard {
     `;
   }
 
-  private async postGraphQL<T>(body: { query: string; variables: Record<string, unknown> }): Promise<GraphQLResponse<T>> {
-    const res = await fetch("/graphql", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
+  private async postGraphQL<T>(body: {
+    query: string;
+    variables: Record<string, unknown>;
+  }): Promise<GraphQLResponse<T>> {
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body)
     });
 
     const json = (await res.json()) as GraphQLResponse<T>;
@@ -208,7 +217,10 @@ export class ExpansionCard {
     return String(err);
   }
 
-  private async fetchAllControls(): Promise<{ nodes: ControlsNode[]; totalCount: number }> {
+  private async fetchAllControls(): Promise<{
+    nodes: ControlsNode[];
+    totalCount: number;
+  }> {
     const first = this.getFetchFirst();
     const query = this.buildControlsQuery();
 
@@ -221,28 +233,32 @@ export class ExpansionCard {
     while (safetyPages < 25) {
       const variables = {
         first,
-        ...(after ? { after } : {}),
+        ...(after ? { after } : {})
       };
 
-      const resp = await this.postGraphQL<{ controlsConnection: ControlsConnectionPage }>({
+      const resp = await this.postGraphQL<{
+        controlsConnection: ControlsConnectionPage;
+      }>({
         query,
-        variables,
+        variables
       });
 
       if (resp.errors && resp.errors.length) {
-        const msg = resp.errors.map((e) => e.message || "GraphQL error").join(" | ");
+        const msg = resp.errors
+          .map(e => e.message || 'GraphQL error')
+          .join(' | ');
         throw new Error(msg);
       }
 
       const page = resp.data?.controlsConnection;
 
       if (!page) {
-        throw new Error("GraphQL response missing controlsConnection");
+        throw new Error('GraphQL response missing controlsConnection');
       }
 
       totalCount = Number(page.totalCount || 0);
 
-      page.edges.forEach((e) => {
+      page.edges.forEach(e => {
         if (!e?.node) return;
         nodes.push(e.node);
       });
@@ -257,12 +273,14 @@ export class ExpansionCard {
     return { nodes, totalCount };
   }
 
-  private groupByCategory(nodes: ControlsNode[]): Array<{ category: string; titles: string[] }> {
+  private groupByCategory(
+    nodes: ControlsNode[]
+  ): Array<{ category: string; titles: string[] }> {
     const map = new Map<string, string[]>();
 
-    nodes.forEach((n) => {
-      const category = (n.category || "General").trim() || "General";
-      const title = (n.title || "").trim();
+    nodes.forEach(n => {
+      const category = (n.category || 'General').trim() || 'General';
+      const title = (n.title || '').trim();
 
       if (!title) return;
 
@@ -282,7 +300,7 @@ export class ExpansionCard {
 
   private async fetchAndGroupControls() {
     this.isLoading = true;
-    this.errorMessage = "";
+    this.errorMessage = '';
     this.groupedCategories = [];
     this.totalControls = 0;
     this.expandedByCategory = {};
@@ -324,11 +342,11 @@ export class ExpansionCard {
     return (
       <li class="item">
         {this.iconSrc ? (
-          <span class="iconWrap" aria-hidden="true">
-            <img class="iconImg" src={this.iconSrc} alt="" />
+          <span class="icon-wrap" aria-hidden="true">
+            <img class="icon-img" src={this.iconSrc} alt="" />
           </span>
         ) : (
-          <span class="iconDot" aria-hidden="true" />
+          <span class="icon-dot" aria-hidden="true" />
         )}
 
         <span class="text">{text}</span>
@@ -339,7 +357,7 @@ export class ExpansionCard {
   // ----------  render (static mode)  ----------
 
   private renderStaticCard() {
-    const title = this.cardTitle || "";
+    const title = this.cardTitle || '';
     const items = this.bulletPoints;
     const limit = this.getPreviewLimit();
 
@@ -347,7 +365,7 @@ export class ExpansionCard {
     const visibleItems = this.isExpanded ? items : items.slice(0, limit);
     const hiddenCount = items.length - visibleItems.length;
 
-    const buttonText = this.isExpanded ? "View Less" : "View All";
+    const buttonText = this.isExpanded ? 'View Less' : 'View All';
 
     if (!title && items.length === 0) return null;
 
@@ -357,15 +375,19 @@ export class ExpansionCard {
           <h3 class="title">{title}</h3>
 
           {hasOverflow && (
-            <button class="toggle" type="button" aria-expanded={this.isExpanded} onClick={this.toggleExpanded}>
+            <button
+              class="toggle"
+              type="button"
+              aria-expanded={this.isExpanded}
+              onClick={this.toggleExpanded}
+            >
               {buttonText}
             </button>
           )}
         </header>
 
         <ul class="list" role="list">
-          {visibleItems.map((t) => this.renderBulletRow(t))}
-
+          {visibleItems.map(t => this.renderBulletRow(t))}
           {!this.isExpanded && hiddenCount > 0 && (
             <li class="more" aria-hidden="true">
               +{hiddenCount} more
@@ -382,21 +404,22 @@ export class ExpansionCard {
     if (!this.showTile) return null;
 
     const categoriesCount = this.groupedCategories.length;
-    const subtitle = (this.tileSubtitle || "").trim();
+    const subtitle = (this.tileSubtitle || '').trim();
 
     return (
       <div class="tile">
-        <div class="tileHeadingRow">
-          <h3 class="tileTitle">{this.tileTitle || "Selected Controls"}</h3>
+        <div class="tile-heading-row">
+          <h3 class="tile-title">{this.tileTitle || 'Selected Controls'}</h3>
 
           {this.showMeta && (
-            <div class="tileMeta">
-              {this.totalControls} controls&nbsp;&nbsp;{categoriesCount} categories
+            <div class="tile-meta">
+              {this.totalControls} controls&nbsp;&nbsp;{categoriesCount}{' '}
+              categories
             </div>
           )}
         </div>
 
-        {subtitle && <div class="tileSubtitle">{subtitle}</div>}
+        {subtitle && <div class="tile-subtitle">{subtitle}</div>}
       </div>
     );
   }
@@ -413,9 +436,9 @@ export class ExpansionCard {
 
     if (this.errorMessage) {
       return (
-        <div class="notice isError">
+        <div class="notice is-error">
           Failed to load controls from GraphQL.
-          <div class="noticeDetail">{this.errorMessage}</div>
+          <div class="notice-detail">{this.errorMessage}</div>
         </div>
       );
     }
@@ -425,15 +448,17 @@ export class ExpansionCard {
     }
 
     return (
-      <div class="groupWrap">
-        {visibleCategories.map((group) => {
+      <div class="group-wrap">
+        {visibleCategories.map(group => {
           const isOpen = this.isCategoryExpanded(group.category);
           const hasOverflow = group.titles.length > limitItems;
 
-          const visibleTitles = isOpen ? group.titles : group.titles.slice(0, limitItems);
+          const visibleTitles = isOpen
+            ? group.titles
+            : group.titles.slice(0, limitItems);
           const hiddenCount = group.titles.length - visibleTitles.length;
 
-          const buttonText = isOpen ? "View Less" : "View All";
+          const buttonText = isOpen ? 'View Less' : 'View All';
 
           return (
             <div class="card">
@@ -453,7 +478,7 @@ export class ExpansionCard {
               </header>
 
               <ul class="list" role="list">
-                {visibleTitles.map((t) => this.renderBulletRow(t))}
+                {visibleTitles.map(t => this.renderBulletRow(t))}
 
                 {!isOpen && hiddenCount > 0 && (
                   <li class="more" aria-hidden="true">
@@ -471,7 +496,7 @@ export class ExpansionCard {
   // ----------  render (root)  ----------
 
   render() {
-    if (this.dataMode === "controls") {
+    if (this.dataMode === 'controls') {
       return (
         <div class="wrap">
           {this.renderControlsTile()}

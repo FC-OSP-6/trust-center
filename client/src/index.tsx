@@ -16,6 +16,9 @@ import { defineCustomElements } from '../../stencil/loader/index.es2017.js';
 // Register Stencil Web Components once
 defineCustomElements(window);
 
+// TODO: If this ever runs in SSR/tests, guard with `typeof window !== "undefined"` before calling defineCustomElements.
+// TODO: Non-null assertion can hide runtime boot issues; prefer an explicit null check with a clear thrown error.
+
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 

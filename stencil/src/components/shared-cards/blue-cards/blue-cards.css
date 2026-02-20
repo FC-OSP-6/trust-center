@@ -25,7 +25,6 @@
   padding: 20px;
   background-color: var(--color-gray-06);
   margin: 20px;
-/* TODO: Consider removing margin and delegating layout spacing to the host (React) layer */
 }
 
 .blue-card-text {
@@ -51,14 +50,8 @@
   line-height: var(--line-height-medium);
   background-color: var(--color-teal-dark-secondary);
   border-radius: 4px;
-}
-
-/* Styles anchor inside the button; scoped to Shadow DOM */
-a {
-  text-decoration: none;
   color: var(--color-gray-06);
 }
-
 
 /* Adjust button typography for small tablet breakpoint */
 @media (min-width: 576px) and (max-width: 767px) {
@@ -66,8 +59,4 @@ a {
     font-size: 15px;
     line-height: var(--line-height-medium);
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 152faa116285c1446018159477d3efcc38ea0688

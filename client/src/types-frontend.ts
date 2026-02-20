@@ -6,7 +6,7 @@
   - declares jsx typing for stencil custom elements (react + ts)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from "react";
+import React from 'react';
 
 export type Control = {
   id: string;
@@ -40,82 +40,88 @@ export type Connection<T> = {
 export type ControlsConnection = Connection<Control>;
 export type FaqsConnection = Connection<Faq>;
 
-type HtmlElProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+type HtmlElProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLElement>,
+  HTMLElement
+>;
 
 type AonLinkCardProps = HtmlElProps & {
-  "link-title"?: string;
+  'link-title'?: string;
   items?: string;
 };
 
+//TODO: This interface appears stale vs current usage (`link-title` + `items`); update typings to match actual web component API.
+
 type AonExpansionCardProps = HtmlElProps & {
   /* mode switch */
-  "data-mode"?: "static" | "controls" | string;
+  'data-mode'?: 'static' | 'controls' | string;
 
   /* shared */
-  "icon-src"?: string;
-  "preview-limit"?: number | string;
+  'icon-src'?: string;
+  'preview-limit'?: number | string;
 
   /* static mode */
-  "card-title"?: string;
-  "bullet-points-json"?: string;
+  'card-title'?: string;
+  'bullet-points-json'?: string;
 
   /* controls mode */
-  "fetch-first"?: number | string;
-  "category-limit"?: number | string;
-  "show-tile"?: boolean;
-  "tile-title"?: string;
-  "show-meta"?: boolean;
-  "tile-subtitle"?: string;
+  'fetch-first'?: number | string;
+  'category-limit'?: number | string;
+  'show-tile'?: boolean;
+  'tile-title'?: string;
+  'show-meta'?: boolean;
+  'tile-subtitle'?: string;
 };
 
 type AonBlueCardProps = HtmlElProps & {
-  "blue-card-title"?: string;
-  "blue-card-description"?: string;
-  "blue-card-button-text"?: string;
-  "blue-card-button-link"?: string;
+  'blue-card-title'?: string;
+  'blue-card-description'?: string;
+  'blue-card-button-text'?: string;
+  'blue-card-button-link'?: string;
 };
+// TODO: Prop names look outdated (`footer-*`) compared with current attributes (`blue-card-button-text` / `blue-card-button-link`); this weakens type safety.
 
 type AonFooterProps = HtmlElProps & {
-  "logo-src"?: string;
-  "footer-tagline"?: string;
-  "footer-link-label"?: string;
-  "footer-link-href"?: string;
+  'logo-src'?: string;
+  'footer-tagline'?: string;
+  'footer-link-label'?: string;
+  'footer-link-href'?: string;
 };
 
 type AonControlCardProps = HtmlElProps & {
-  "data-mode"?: "controls" | "none" | string;
-  "fetch-first"?: number | string;
-  "show-tile"?: boolean;
-  "title-text"?: string;
-  "show-meta"?: boolean;
-  "subtitle-text"?: string;
-  "icon-src"?: string;
+  'data-mode'?: 'controls' | 'none' | string;
+  'fetch-first'?: number | string;
+  'show-tile'?: boolean;
+  'title-text'?: string;
+  'show-meta'?: boolean;
+  'subtitle-text'?: string;
+  'icon-src'?: string;
 };
 
 type AonFaqCardProps = HtmlElProps & {
-  "data-mode"?: "faqs" | "single" | "none" | string;
-  "fetch-first"?: number | string;
-  "show-header"?: boolean;
-  "question-text"?: string;
-  "answer-text"?: string;
+  'data-mode'?: 'faqs' | 'single' | 'none' | string;
+  'fetch-first'?: number | string;
+  'show-header'?: boolean;
+  'question-text'?: string;
+  'answer-text'?: string;
 };
 
 interface AonStencilIntrinsicElements {
-  "aon-link-card": AonLinkCardProps;
-  "aon-expansion-card": AonExpansionCardProps;
-  "aon-blue-card": AonBlueCardProps;
+  'aon-link-card': AonLinkCardProps;
+  'aon-expansion-card': AonExpansionCardProps;
+  'aon-blue-card': AonBlueCardProps;
 
-  "aon-header": HtmlElProps;
-  "aon-title": HtmlElProps;
-  "aon-navbar": HtmlElProps;
-  "aon-footer": AonFooterProps;
+  'aon-header': HtmlElProps;
+  'aon-title': HtmlElProps;
+  'aon-navbar': HtmlElProps;
+  'aon-footer': AonFooterProps;
 
-  "aon-control-card": AonControlCardProps;
-  "aon-faq-card": AonFaqCardProps;
-  "aon-subnav-card": HtmlElProps;
+  'aon-control-card': AonControlCardProps;
+  'aon-faq-card': AonFaqCardProps;
+  'aon-subnav-card': HtmlElProps;
 }
 
-declare module "react/jsx-runtime" {
+declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements extends AonStencilIntrinsicElements {}
   }

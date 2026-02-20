@@ -5,8 +5,8 @@
   - passes only the status icon to reuse the same visual language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from "react";
-import statusCheckUrl from "../../assets/images/status-check.svg";
+import React from 'react';
+import statusCheckUrl from '../../assets/images/status-check.svg';
 
 export default function Controls() {
   return (
@@ -17,8 +17,6 @@ export default function Controls() {
         data-mode="controls"
         show-tile={true}
         show-meta={false}
-        title-text=""
-        subtitle-text=""
         icon-src={statusCheckUrl}
       />
     </section>

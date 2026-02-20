@@ -22,7 +22,7 @@
       - .aonRevealWrap/.aonRevealInner (pull-down + bottom-first text)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, State, h } from "@stencil/core";
+import { Component, Prop, State, h } from '@stencil/core';
 
 // ---------- local types ----------
 
@@ -71,26 +71,26 @@ const CONTROLS_CONNECTION_QUERY = `
 `;
 
 @Component({
-  tag: "aon-control-card",
-  styleUrl: "control-card.css",
-  shadow: true,
+  tag: 'aon-control-card',
+  styleUrl: 'control-card.css',
+  shadow: true
 })
 export class ControlCard {
   // ---------- public api (attributes) ----------
 
-  @Prop({ attribute: "data-mode" }) dataMode: "controls" | "none" = "none";
+  @Prop() dataMode: 'controls' | 'none' = 'none';
 
-  @Prop({ attribute: "fetch-first" }) fetchFirst: number = 100;
+  @Prop() fetchFirst: number = 100;
 
-  @Prop({ attribute: "show-tile" }) showTile: boolean = false;
+  @Prop() showTile: boolean = false;
 
-  @Prop({ attribute: "title-text" }) titleText?: string;
+  @Prop() titleText?: string;
 
-  @Prop({ attribute: "show-meta" }) showMeta: boolean = false;
+  @Prop() showMeta: boolean = false;
 
-  @Prop({ attribute: "subtitle-text" }) subtitleText?: string;
+  @Prop() subtitleText?: string;
 
-  @Prop({ attribute: "icon-src" }) iconSrc?: string;
+  @Prop() iconSrc?: string;
 
   // ---------- internal state ----------
 
@@ -103,7 +103,7 @@ export class ControlCard {
   // ---------- lifecycle ----------
 
   async componentWillLoad() {
-    if (this.dataMode !== "controls") return;
+    if (this.dataMode !== 'controls') return;
 
     try {
       const { groups, totalCount } = await this.fetchAndGroupControls();
@@ -114,7 +114,7 @@ export class ControlCard {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
 
-      console.warn("[aon-control-card] controls load failed:", msg);
+      console.warn('[aon-control-card] controls load failed:', msg);
 
       this.groups = [];
 
@@ -132,16 +132,19 @@ export class ControlCard {
     return Math.floor(n);
   }
 
-  private async fetchAndGroupControls(): Promise<{ groups: CategoryGroup[]; totalCount: number }> {
+  private async fetchAndGroupControls(): Promise<{
+    groups: CategoryGroup[];
+    totalCount: number;
+  }> {
     const first = this.getFetchFirst();
 
-    const res = await fetch("/graphql", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         query: CONTROLS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null },
-      }),
+        variables: { first, after: null, category: null, search: null }
+      })
     });
 
     if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
@@ -149,29 +152,38 @@ export class ControlCard {
     const json = (await res.json()) as ControlsConnectionResponse;
 
     if (json.errors && json.errors.length) {
-      const msg = json.errors.map((e) => e.message ?? "unknown graphql error").join(" | ");
+      const msg = json.errors
+        .map(e => e.message ?? 'unknown graphql error')
+        .join(' | ');
 
       throw new Error(`GRAPHQL_ERROR: ${msg}`);
     }
 
     const nodes =
       json.data?.controlsConnection?.edges
-        ?.map((e) => e.node)
-        .filter((n): n is ControlNode => Boolean(n && n.id && n.title && n.category)) ?? [];
+        ?.map(e => e.node)
+        .filter((n): n is ControlNode =>
+          Boolean(n && n.id && n.title && n.category)
+        ) ?? [];
 
-    const totalCount = Number(json.data?.controlsConnection?.totalCount ?? nodes.length) || nodes.length;
+    const totalCount =
+      Number(json.data?.controlsConnection?.totalCount ?? nodes.length) ||
+      nodes.length;
 
-    const map = new Map<string, Array<{ id: string; title: string; description: string }>>();
+    const map = new Map<
+      string,
+      Array<{ id: string; title: string; description: string }>
+    >();
 
     for (const n of nodes) {
-      const cat = (n.category || "General").trim() || "General";
+      const cat = (n.category || 'General').trim() || 'General';
 
       const list = map.get(cat) ?? [];
 
       list.push({
         id: n.id,
-        title: (n.title || "").trim(),
-        description: (n.description || "").trim(),
+        title: (n.title || '').trim(),
+        description: (n.description || '').trim()
       });
 
       map.set(cat, list);
@@ -181,11 +193,14 @@ export class ControlCard {
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map(([title, items]) => ({
         title,
-        items: items.sort((a, b) => a.title.localeCompare(b.title)),
+        items: items.sort((a, b) => a.title.localeCompare(b.title))
       }));
 
     return { groups, totalCount };
   }
+
+  // TODO: Abstract above code into a service worker -- Hardcoded "/graphql" – consider config or base URL (e.g. from env or host) for different environments.
+  // TODO: No request timeout or AbortController – long-lived requests can't be cancelled if component unmounts.
 
   // ---------- ui helpers ----------
 
@@ -194,43 +209,55 @@ export class ControlCard {
   }
 
   private toggleExpanded(key: string) {
-    this.expandedByKey = { ...this.expandedByKey, [key]: !this.isExpanded(key) };
+    this.expandedByKey = {
+      ...this.expandedByKey,
+      [key]: !this.isExpanded(key)
+    };
   }
 
   private renderToggle(expanded: boolean) {
     return (
-      <span class={{ aonToggleIcon: true, isOpen: expanded }} aria-hidden="true">
-        <span class="aonToggleBarH" />
-        <span class="aonToggleBarV" />
+      <span
+        class={{ 'aon-toggle-icon': true, 'is-open': expanded }}
+        aria-hidden="true"
+      >
+        <span class="aon-toggle-bar-h" />
+        <span class="aon-toggle-bar-v" />
       </span>
     );
   }
 
   private renderStatusIcon() {
-    if (!this.iconSrc) return <span class="statusDot" aria-hidden="true" />;
+    if (!this.iconSrc) return <span class="status-dot" aria-hidden="true" />;
 
-    return <img class="statusIcon" src={this.iconSrc} alt="" aria-hidden="true" />;
+    return (
+      <img class="status-icon" src={this.iconSrc} alt="" aria-hidden="true" />
+    );
   }
+
+  // TODO: CSS class names are usually kebab-case instead of camelCase (e.g. status-dot, tile-header, card-header-left); consider renaming for consistency with common CSS conventions.
+  // TODO: Try adding loading="lazy" and decoding="async" on img for performance; ensure iconSrc is same-origin or use fetchpriority if above-the-fold.
+  /* TODO: class={{ toggleIcon: true, isOpen: expanded }} – in Stencil/JSX, prefer string concatenation or template literal for class to avoid subtle hydration/object reference issues: class={`toggleIcon ${expanded ? 'isOpen' : ''}`} */
 
   private renderTileHeader() {
     if (!this.showTile) return null;
 
-    const title = (this.titleText ?? "").trim();
+    const title = (this.titleText ?? '').trim();
 
-    const subtitle = (this.subtitleText ?? "").trim();
+    const subtitle = (this.subtitleText ?? '').trim();
 
     const categoriesCount = this.groups.length;
 
     const metaText = `${this.totalControls} controls ${categoriesCount} categories`;
 
     return (
-      <header class="tileHeader">
-        <div class="tileText">
-          {title.length > 0 && <h2 class="tileTitle">{title}</h2>}
+      <header class="tile-header">
+        <div class="tile-text">
+          {title.length > 0 && <h2 class="tile-title">{title}</h2>}
 
-          {this.showMeta && <div class="tileMeta">{metaText}</div>}
+          {this.showMeta && <div class="tile-meta">{metaText}</div>}
 
-          {subtitle.length > 0 && <div class="tileSubtitle">{subtitle}</div>}
+          {subtitle.length > 0 && <div class="tile-subtitle">{subtitle}</div>}
         </div>
       </header>
     );
@@ -244,41 +271,46 @@ export class ControlCard {
     return (
       <section class="card">
         <button
-          class="cardHeader"
+          class="card-header"
           type="button"
           aria-expanded={expanded}
           onClick={() => this.toggleExpanded(key)}
         >
-          <div class="cardHeaderLeft">
-            <h3 class="cardTitle">{group.title}</h3>
+          <div class="card-header-left">
+            <h3 class="card-title">{group.title}</h3>
           </div>
 
-          <div class="cardHeaderRight">{this.renderToggle(expanded)}</div>
+          <div class="card-header-right">{this.renderToggle(expanded)}</div>
         </button>
-
+        {/* TODO: role="presentation" removes semantics – "Control" and "Status"
+        are column headers; consider role="row" + role="columnheader" or a
+        proper table structure if screen readers should announce them as
+        headers. */}
         <div class="columns" role="presentation">
-          <div class="colLeft">Control</div>
+          <div class="col-left">Control</div>
 
-          <div class="colRight">Status</div>
+          <div class="col-right">Status</div>
         </div>
-
         <ul class="rows" role="list">
-          {group.items.map((c) => {
-            const hasDesc = (c.description ?? "").trim().length > 0;
+          {group.items.map(c => {
+            const hasDesc = (c.description ?? '').trim().length > 0;
 
             return (
               <li class="row" key={c.id}>
-                <div class="rowLeft">
-                  <div class="rowTitle">{c.title}</div>
+                <div class="row-left">
+                  <div class="row-title">{c.title}</div>
 
                   {hasDesc && (
-                    <div class={{ aonRevealWrap: true, isOpen: expanded }} aria-hidden={!expanded}>
-                      <div class="aonRevealInner">{c.description}</div>
+                    <div
+                      class={{ 'aon-reveal-wrap': true, 'is-open': expanded }}
+                      aria-hidden={!expanded}
+                    >
+                      <div class="aon-reveal-inner">{c.description}</div>
                     </div>
                   )}
                 </div>
 
-                <div class="rowRight">{this.renderStatusIcon()}</div>
+                <div class="row-right">{this.renderStatusIcon()}</div>
               </li>
             );
           })}
@@ -294,7 +326,9 @@ export class ControlCard {
       <div class="wrap">
         {this.renderTileHeader()}
 
-        <div class="grid">{this.groups.map((g) => this.renderCategoryCard(g))}</div>
+        <div class="grid">
+          {this.groups.map(g => this.renderCategoryCard(g))}
+        </div>
       </div>
     );
   }

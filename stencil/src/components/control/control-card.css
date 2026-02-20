@@ -11,221 +11,223 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* shared primitives must be imported inside shadow component css */
-@import "../styles/expandable.css";
+@import '../styles/expandable.css';
 
 :host {
-    display: block;
-    font-family: var(--font-default);
+  display: block;
+  font-family: var(--font-default);
 }
 
 .wrap {
-    display: grid;
-    gap: var(--default-local-spacing);
-    padding-inline: var(--default-local-spacing);
-    padding-block: var(--default-local-spacing);
+  display: grid;
+  gap: var(--default-local-spacing);
+  padding-inline: var(--default-local-spacing);
+  padding-block: var(--default-local-spacing);
 }
 
 @media (max-width: 575px) {
-    .wrap {
-        padding-inline: var(--mobile-local-spacing);
-        padding-block: var(--mobile-local-spacing);
-        gap: var(--mobile-local-spacing);
-    }
+  .wrap {
+    padding-inline: var(--mobile-local-spacing);
+    padding-block: var(--mobile-local-spacing);
+    gap: var(--mobile-local-spacing);
+  }
 }
 
 /* ---------- tile header (optional) ---------- */
 
-.tileHeader {
-    padding: 0;
-    margin: 0;
-    border: 0;
-    background: transparent;
+.tile-header {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
 }
 
-.tileText {
-    display: grid;
-    gap: 6px;
+.tile-text {
+  display: grid;
+  gap: 6px;
 }
 
-.tileTitle {
-    margin: 0;
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-xxlarge);
-    line-height: var(--line-height-xxlarge);
-    color: var(--color-navy-primary);
+.tile-title {
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xxlarge);
+  line-height: var(--line-height-xxlarge);
+  color: var(--color-navy-primary);
 }
 
-.tileMeta {
-    font-weight: var(--font-weight-regular);
-    font-size: var(--font-size-small);
-    line-height: var(--line-height-small);
-    color: var(--color-gray-02);
+.tile-meta {
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-gray-02);
 }
 
-.tileSubtitle {
-    font-weight: var(--font-weight-regular);
-    font-size: var(--font-size-medium);
-    line-height: var(--line-height-medium);
-    color: var(--color-gray-01);
+.tile-subtitle {
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  color: var(--color-gray-01);
 }
 
 /* ---------- grid: 2 cards per row -> 1 at tablet ---------- */
 
 .grid {
-    display: grid;
-    gap: var(--default-local-spacing);
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: grid;
+  gap: var(--default-local-spacing);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 @media (max-width: 991px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 575px) {
-    .grid {
-        gap: var(--mobile-local-spacing);
-    }
+  .grid {
+    gap: var(--mobile-local-spacing);
+  }
 }
 
 /* ---------- card ---------- */
 
 .card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-gray-05);
-    border-radius: 8px;
-    overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-gray-05);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 /* header is a single row: title left, toggle right */
-.cardHeader {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr var(--toggle-hit-col-width);
-    align-items: center;
-    padding: 16px var(--default-local-spacing);
-    background: transparent;
-    border: 0;
-    cursor: pointer;
-    text-align: left;
+.card-header {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr var(--toggle-hit-col-width);
+  align-items: center;
+  padding: 16px var(--default-local-spacing);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
 }
 
 @media (max-width: 575px) {
-    .cardHeader {
-        padding: 16px var(--mobile-local-spacing);
-    }
+  .card-header {
+    padding: 16px var(--mobile-local-spacing);
+  }
 }
 
-.cardHeader:focus {
-    outline: none;
+.card-header:focus {
+  outline: none;
 }
 
-.cardHeader:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-gray-06);
+.card-header:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-gray-06);
 }
 
-.cardTitle {
-    margin: 0;
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-large);
-    line-height: var(--line-height-large);
-    color: var(--color-navy-primary);
+.card-title {
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-large);
+  color: var(--color-navy-primary);
 }
 
-.cardHeaderRight {
-    display: grid;
-    place-items: center;
+.card-header-right {
+  display: grid;
+  place-items: center;
 }
 
 /* ---------- columns header ---------- */
 
 .columns {
-    display: grid;
-    grid-template-columns: 1fr var(--toggle-hit-col-width);
-    align-items: end;
-    padding: 0 var(--default-local-spacing) 12px var(--default-local-spacing);
+  display: grid;
+  grid-template-columns: 1fr var(--toggle-hit-col-width);
+  align-items: end;
+  padding: 0 var(--default-local-spacing) 12px var(--default-local-spacing);
 }
 
 @media (max-width: 575px) {
-    .columns {
-        padding: 0 var(--mobile-local-spacing) 12px var(--mobile-local-spacing);
-    }
+  .columns {
+    padding: 0 var(--mobile-local-spacing) 12px var(--mobile-local-spacing);
+  }
 }
 
 /* mockups show normal case + bold (not all caps) */
-.colLeft,
-.colRight {
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-small);
-    line-height: var(--line-height-small);
-    color: var(--color-navy-primary);
-    text-transform: none;
-    letter-spacing: normal;
+.col-left,
+.col-right {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  color: var(--color-navy-primary);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
-.colRight {
-    text-align: center;
+.col-right {
+  text-align: center;
 }
 
 /* ---------- rows ---------- */
 
 .rows {
-    list-style: none;
-    margin: 0;
-    padding: 0 var(--default-local-spacing) var(--default-local-spacing) var(--default-local-spacing);
-    display: grid;
-    gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--default-local-spacing) var(--default-local-spacing)
+    var(--default-local-spacing);
+  display: grid;
+  gap: 14px;
 }
 
 @media (max-width: 575px) {
-    .rows {
-        padding: 0 var(--mobile-local-spacing) var(--mobile-local-spacing) var(--mobile-local-spacing);
-        gap: 16px;
-    }
+  .rows {
+    padding: 0 var(--mobile-local-spacing) var(--mobile-local-spacing)
+      var(--mobile-local-spacing);
+    gap: 16px;
+  }
 }
 
 .row {
-    display: grid;
-    grid-template-columns: 1fr var(--toggle-hit-col-width);
-    align-items: start;
-    column-gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr var(--toggle-hit-col-width);
+  align-items: start;
+  column-gap: 12px;
 }
 
-.rowLeft {
-    display: grid;
-    gap: 6px;
+.row-left {
+  display: grid;
+  gap: 6px;
 }
 
-.rowTitle {
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-medium);
-    line-height: var(--line-height-medium);
-    color: var(--color-gray-01);
+.row-title {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-medium);
+  color: var(--color-gray-01);
 }
 
-.rowRight {
-    display: grid;
-    place-items: center;
-    padding-top: 1px;
+.row-right {
+  display: grid;
+  place-items: center;
+  padding-top: 1px;
 }
 
-.statusIcon {
-    width: 18px;
-    height: 18px;
-    display: block;
+.status-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
-.statusDot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: var(--color-success);
-    display: block;
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-success);
+  display: block;
 }
 
 /* controls descriptions should read as muted detail */
-.aonRevealInner {
-    color: var(--color-gray-02);
+.aon-reveal-inner {
+  color: var(--color-gray-02);
 }
