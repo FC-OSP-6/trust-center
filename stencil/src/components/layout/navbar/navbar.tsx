@@ -53,11 +53,6 @@ export class AonNavbar {
   }
 
   // Runs when component is removed from DOM - cleanup to prevent memory leaks
-  /**
-  [stencil]  [ ERROR ]  Replace "componentDidUnload()" with "disconnectedCallback()": src/components/layout/navbar/navbar.tsx:56:3
-[stencil]            The "componentDidUnload()" method was removed in Stencil 2. Please
-[stencil]            use the "disconnectedCallback()" method instead.
-  */
   disconnectedCallback() {
     if (typeof window !== 'undefined' && this.popstateHandler) {
       // Remove listener using same function reference that was added
