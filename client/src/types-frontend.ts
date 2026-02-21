@@ -1,76 +1,105 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  types only found in the frontend
+  TL;DR  -->  frontend-only types + react/stencil jsx typing
 
-  - declares ui-facing node shapes
-  - declares graphql connection shapes used by fetch wrappers
-  - declares jsx typing for stencil custom elements (react + ts)
+  - declares ui-facing node + connection shapes
+  - declares stencil custom element props for react tsx usage
+  - intentionally excludes asset module declarations (see assets.d.ts)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React from 'react';
 
+// ----------  graphql node types (ui-facing)  ----------
+
 export type Control = {
-  id: string;
-  title: string;
-  category: string;
-  status?: string;
-  description?: string;
+  id: string; // graphql id
+  controlKey?: string; // returned by graphql (optional for backwards compatibility)
+  title: string; // display label
+  category: string; // grouping key
+  status?: string; // optional ui-only field (if ever added client-side)
+  description?: string; // optional long text
+  sourceUrl?: string | null; // optional source link from graphql
+  updatedAt?: string; // iso timestamp (graphql)
 };
 
 export type Faq = {
-  id: string;
-  question: string;
-  answer: string;
+  id: string; // graphql id
+  faqKey?: string; // returned by graphql (optional for backwards compatibility)
+  question: string; // faq title/question
+  answer: string; // faq answer
+  category?: string; // graphql returns category (optional for backwards compatibility)
+  updatedAt?: string; // iso timestamp (graphql)
 };
 
+// ----------  generic connection types  ----------
+
 export type PageInfo = {
-  hasNextPage: boolean;
-  endCursor: string | null;
+  hasNextPage: boolean; // pagination flag
+  endCursor: string | null; // cursor for next page
 };
 
 export type Edge<T> = {
-  cursor: string;
-  node: T;
+  cursor: string; // edge cursor
+  node: T; // edge payload
 };
 
 export type Connection<T> = {
-  edges: Array<Edge<T>>;
-  pageInfo: PageInfo;
+  edges: Array<Edge<T>>; // paginated list
+  pageInfo: PageInfo; // pagination metadata
+  totalCount: number; // total matching rows (server resolver returns this)
 };
 
 export type ControlsConnection = Connection<Control>;
 export type FaqsConnection = Connection<Faq>;
+
+// ----------  reusable link-card item types (react composition)  ----------
+
+export type LinkCardItem = {
+  label: string; // row label shown in the card
+  href: string; // local pdf url or external url
+  iconSrc?: string; // optional icon url
+  iconAlt?: string; // optional icon alt text
+};
+
+export type LinkCardConfig = {
+  title: string; // aon-link-card title
+  items: LinkCardItem[]; // serialized into the items prop
+};
+
+// ----------  react intrinsic typing helpers  ----------
 
 type HtmlElProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLElement>,
   HTMLElement
 >;
 
+// ----------  stencil custom element prop typings ----------
+// NOTE:
+// - keep these aligned with the actual @Prop() names in stencil components
+// - kebab-case here because react passes attributes to custom elements
+
 type AonLinkCardProps = HtmlElProps & {
   'link-title'?: string;
-  items?: string;
+  items?: string; // JSON string consumed by stencil component
 };
 
-//TODO: This interface appears stale vs current usage (`link-title` + `items`); update typings to match actual web component API.
-
 type AonExpansionCardProps = HtmlElProps & {
-  /* mode switch */
   'data-mode'?: 'static' | 'controls' | string;
 
-  /* shared */
   'icon-src'?: string;
   'preview-limit'?: number | string;
 
-  /* static mode */
   'card-title'?: string;
   'bullet-points-json'?: string;
 
-  /* controls mode */
   'fetch-first'?: number | string;
   'category-limit'?: number | string;
   'show-tile'?: boolean;
   'tile-title'?: string;
   'show-meta'?: boolean;
   'tile-subtitle'?: string;
+
+  // optional client-fed data props (if your stencil refactor added them)
+  'controls-json'?: string;
 };
 
 type AonBlueCardProps = HtmlElProps & {
@@ -79,7 +108,6 @@ type AonBlueCardProps = HtmlElProps & {
   'blue-card-button-text'?: string;
   'blue-card-button-link'?: string;
 };
-// TODO: Prop names look outdated (`footer-*`) compared with current attributes (`blue-card-button-text` / `blue-card-button-link`); this weakens type safety.
 
 type AonFooterProps = HtmlElProps & {
   'logo-src'?: string;
@@ -96,6 +124,9 @@ type AonControlCardProps = HtmlElProps & {
   'show-meta'?: boolean;
   'subtitle-text'?: string;
   'icon-src'?: string;
+
+  // optional client-fed data props (if your stencil refactor added them)
+  'controls-json'?: string;
 };
 
 type AonFaqCardProps = HtmlElProps & {
@@ -104,6 +135,13 @@ type AonFaqCardProps = HtmlElProps & {
   'show-header'?: boolean;
   'question-text'?: string;
   'answer-text'?: string;
+  'show-tile'?: boolean;
+  'title-text'?: string;
+  'show-meta'?: boolean;
+  'subtitle-text'?: string;
+
+  // optional client-fed data props (if your stencil refactor added them)
+  'faqs-json'?: string;
 };
 
 interface AonStencilIntrinsicElements {
@@ -121,6 +159,7 @@ interface AonStencilIntrinsicElements {
   'aon-subnav-card': HtmlElProps;
 }
 
+// react 18 jsx runtime intrinsic element augmentation
 declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements extends AonStencilIntrinsicElements {}
