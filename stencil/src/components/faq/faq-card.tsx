@@ -1,67 +1,13 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  --> FAQ cards (stencil-owned data + behavior)
+  TL;DR  --> FAQ cards (prop-driven)
 
-  goals:
-  - keep react dumb  --> stencil fetches + groups + expands/collapses
-  - reuse the same +/- and reveal behavior as controls (via shared css primitives)
-  - show loading + error + empty states so ui never fails silently
-
-  modes:
-  - data-mode="faqs": fetches faqsConnection from /graphql, groups by category, renders page ui
-  - data-mode="single": renders one question/answer pair (backwards compatible)
-
-  note:
-  - per-item expansion state is internal to stencil
-  - graphql schema does NOT expose sourceUrl for Faq  --> do not query it
+  - no stencil fetch calls
+  - react passes faqs-json + loading/error props
+  - stencil owns grouping + expand/collapse + rendering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-//TODO: <header> with onClick is not keyboard-accessible – add tabIndex={0} and onKeyDown (e.g. Enter/Space to toggle) or make the entire toggle a single <button> that wraps question + icon.
-//TODO: REVIEW: Both header onClick and button onClick call handleToggle – button correctly uses stopPropagation, but double handler is easy to break; consider single toggle on the button and remove header onClick, or document that header is the click target.
-import { Component, Prop, State, h } from '@stencil/core';
-
-// ---------- local types ----------
-
-type FaqNode = {
-  id: string;
-  question: string;
-  answer: string;
-  category: string;
-  updatedAt: string;
-};
-
-type FaqsConnectionResponse = {
-  data?: {
-    faqsConnection?: {
-      totalCount?: number;
-      edges?: Array<{ node?: FaqNode }>;
-    };
-  };
-  errors?: Array<{ message?: string }>;
-};
-
-type CategoryGroup = {
-  title: string;
-  items: Array<{ id: string; question: string; answer: string }>;
-};
-
-// ---------- graphql doc ----------
-
-const FAQS_CONNECTION_QUERY = `
-  query FaqsConnection($first: Int!, $after: String, $category: String, $search: String) {
-    faqsConnection(first: $first, after: $after, category: $category, search: $search) {
-      totalCount
-      edges {
-        node {
-          id
-          question
-          answer
-          category
-          updatedAt
-        }
-      }
-    }
-  }
-`;
+import { Component, Prop, State, Watch, h } from '@stencil/core';
+import type { Faq, FaqGroup, FaqsConnection } from '../../../../types-shared';
 
 @Component({
   tag: 'aon-faq-card',
@@ -69,13 +15,10 @@ const FAQS_CONNECTION_QUERY = `
   shadow: true
 })
 export class FaqCard {
-  // ---------- public api ----------
+  /* ---------- public api ---------- */
 
   @Prop() dataMode: 'faqs' | 'single' | 'none' = 'none';
 
-  @Prop() fetchFirst: number = 25;
-
-  // optional tile header (matches controls strategy)
   @Prop() showTile: boolean = false;
 
   @Prop() titleText?: string;
@@ -84,134 +27,121 @@ export class FaqCard {
 
   @Prop() subtitleText?: string;
 
-  // optional icon  --> reserved for future use (safe default = unused)
   @Prop() iconSrc?: string;
 
-  // single-item mode (backwards compatible)
+  /* single-item mode */
   @Prop() question?: string;
 
   @Prop() answer?: string;
 
-  // ---------- internal state ----------
+  /* react -> stencil data pipe */
+  @Prop() faqsJson: string = '';
 
-  @State() groups: CategoryGroup[] = [];
+  @Prop() isLoading: boolean = false;
+
+  @Prop() errorText: string = '';
+
+  /* ---------- internal state ---------- */
+
+  @State() groups: FaqGroup[] = [];
 
   @State() totalFaqs: number = 0;
 
   @State() expandedById: Record<string, boolean> = {};
 
-  @State() isLoading: boolean = false;
+  @State() parseErrorText: string = '';
 
-  @State() errorText: string | null = null;
+  /* ---------- lifecycle ---------- */
 
-  // ---------- lifecycle ----------
+  componentWillLoad() {
+    this.bootstrapFromProps();
+  }
 
-  async componentWillLoad() {
+  /* ---------- watchers ---------- */
+
+  @Watch('faqsJson')
+  onFaqsJsonChange() {
     if (this.dataMode !== 'faqs') return;
+    this.bootstrapFromProps();
+  }
 
-    this.isLoading = true;
+  @Watch('dataMode')
+  onDataModeChange() {
+    this.bootstrapFromProps();
+  }
 
-    this.errorText = null;
+  /* ---------- parse + group ---------- */
+
+  private bootstrapFromProps() {
+    if (this.dataMode !== 'faqs') {
+      this.groups = [];
+      this.totalFaqs = 0;
+      this.parseErrorText = '';
+      return;
+    }
+
+    const raw = (this.faqsJson ?? '').trim();
+
+    if (!raw) {
+      this.groups = [];
+      this.totalFaqs = 0;
+      this.parseErrorText = '';
+      return;
+    }
 
     try {
-      const { groups, totalCount } = await this.fetchAndGroupFaqs();
+      const parsed = JSON.parse(raw) as FaqsConnection;
+
+      const edges = Array.isArray(parsed?.edges) ? parsed.edges : [];
+
+      const nodes = edges
+        .map(edge => edge?.node)
+        .filter((node): node is Faq =>
+          Boolean(node && node.id && node.question && node.category)
+        );
+
+      const map = new Map<
+        string,
+        Array<{ id: string; question: string; answer: string }>
+      >();
+
+      for (const node of nodes) {
+        const category = (node.category || 'General').trim() || 'General';
+
+        const list = map.get(category) ?? [];
+
+        list.push({
+          id: node.id,
+          question: (node.question || '').trim(),
+          answer: (node.answer || '').trim()
+        });
+
+        map.set(category, list);
+      }
+
+      const groups: FaqGroup[] = Array.from(map.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([title, items]) => ({
+          title,
+          items: items.sort((a, b) => a.question.localeCompare(b.question))
+        }));
 
       this.groups = groups;
-
-      this.totalFaqs = totalCount;
+      this.totalFaqs =
+        Number(parsed?.totalCount ?? nodes.length) || nodes.length;
+      this.parseErrorText = '';
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
 
-      console.warn('[aon-faq-card] faqs load failed:', msg);
-
-      this.errorText = msg;
+      console.warn('[aon-faq-card] faqs-json parse failed:', msg);
 
       this.groups = [];
-
       this.totalFaqs = 0;
-    } finally {
-      this.isLoading = false;
+      this.parseErrorText = `INVALID_FAQS_JSON: ${msg}`;
     }
   }
 
-  // ---------- data ----------
-
-  private getFetchFirst(): number {
-    const n = Number(this.fetchFirst);
-
-    if (!Number.isFinite(n) || n <= 0) return 25;
-
-    return Math.floor(n);
-  }
-
-  private async fetchAndGroupFaqs(): Promise<{
-    groups: CategoryGroup[];
-    totalCount: number;
-  }> {
-    const first = this.getFetchFirst();
-
-    const res = await fetch('/graphql', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        query: FAQS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null }
-      })
-    });
-
-    if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
-
-    const json = (await res.json()) as FaqsConnectionResponse;
-
-    if (json.errors && json.errors.length) {
-      const msg = json.errors
-        .map(e => e.message ?? 'unknown graphql error')
-        .join(' | ');
-
-      throw new Error(`GRAPHQL_ERROR: ${msg}`);
-    }
-
-    const nodes =
-      json.data?.faqsConnection?.edges
-        ?.map(e => e.node)
-        ?.filter((n): n is FaqNode =>
-          Boolean(n && n.id && n.question && n.category)
-        ) ?? [];
-
-    const totalCount =
-      Number(json.data?.faqsConnection?.totalCount ?? nodes.length) ||
-      nodes.length;
-
-    const map = new Map<
-      string,
-      Array<{ id: string; question: string; answer: string }>
-    >();
-
-    for (const n of nodes) {
-      const cat = (n.category || 'General').trim() || 'General';
-
-      const list = map.get(cat) ?? [];
-
-      list.push({
-        id: n.id,
-        question: (n.question || '').trim(),
-        answer: (n.answer || '').trim()
-      });
-
-      map.set(cat, list);
-    }
-
-    const groups: CategoryGroup[] = Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([title, items]) => ({
-        title,
-        items: items.sort((a, b) => a.question.localeCompare(b.question))
-      }));
-
-    return { groups, totalCount };
-  }
-
-  // ---------- ui helpers ----------
+  /* ---------- ui helpers ---------- */
 
   private isExpanded(id: string): boolean {
     return Boolean(this.expandedById[id]);
@@ -275,7 +205,6 @@ export class FaqCard {
           onClick={() => this.toggleExpanded(item.id)}
         >
           <div class="row-question">{item.question}</div>
-
           <div class="row-toggle">{this.renderToggle(expanded)}</div>
         </button>
 
@@ -291,7 +220,7 @@ export class FaqCard {
     );
   }
 
-  private renderCategoryCard(group: CategoryGroup) {
+  private renderCategoryCard(group: FaqGroup) {
     return (
       <section class="card" key={group.title}>
         <header class="card-header-static">
@@ -299,7 +228,7 @@ export class FaqCard {
         </header>
 
         <ul class="rows" role="list">
-          {group.items.map(it => this.renderFaqRow(it))}
+          {group.items.map(item => this.renderFaqRow(item))}
         </ul>
       </section>
     );
@@ -325,7 +254,6 @@ export class FaqCard {
               onClick={() => this.toggleExpanded('__single__')}
             >
               <div class="row-question">{q}</div>
-
               <div class="row-toggle">{this.renderToggle(expanded)}</div>
             </button>
 
@@ -343,11 +271,17 @@ export class FaqCard {
     );
   }
 
-  // ---------- render ----------
+  /* ---------- render ---------- */
 
   render() {
     if (this.dataMode === 'faqs') {
-      const hasError = Boolean(this.errorText);
+      const finalErrorText = (
+        this.errorText ||
+        this.parseErrorText ||
+        ''
+      ).trim();
+
+      const hasError = finalErrorText.length > 0;
 
       const hasGroups = this.groups.length > 0;
 
@@ -361,7 +295,7 @@ export class FaqCard {
 
           {!this.isLoading &&
             hasError &&
-            this.renderStateText(`error: ${this.errorText}`)}
+            this.renderStateText(`error: ${finalErrorText}`)}
 
           {isEmpty && this.renderStateText('no faqs found')}
 
