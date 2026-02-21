@@ -1,11 +1,13 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  contains global css styking for entire app
+  TL;DR  -->  contains global css styling for entire app
 
-      - spacing and 
+  - page-level layout + spacing primitives
+  - host-level layout wrappers for stencil components
+  - shadow-dom internals remain styled inside stencil component css
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 :root {
-  /* Global spacing (between components) */
+  /* global spacing (between components) */
   --space-global-xs: 20px;
   --space-global-sm: 24px;
   --space-global-md: 32px;
@@ -30,7 +32,7 @@ body {
   gap: var(--space-global-lg);
 }
 
-/* Grid only for link cards */
+/* legacy / other usage grid (keep in place if other sections still rely on it) */
 .resources-grid {
   width: 100%;
   max-width: 1200px;
@@ -40,21 +42,31 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-/* Responsive */
-@media (max-width: 991px) {
-  .resources-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* primary wrapper rendered by ResourceLinkCards() */
+.resource-link-cards {
+  width: 100%;
+  max-width: 1200px;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-global-md);
+
+  /* key fix: make both grid items stretch to the same row height */
+  align-items: stretch;
 }
 
-@media (max-width: 575px) {
-  .resources-grid {
-    grid-template-columns: 1fr;
-  }
+/* ensure stencil hosts stretch like true equal-height grid cards */
+.resource-link-cards > aon-link-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  align-self: stretch;
 }
 
-/* Blue card wrapper */
-.resources-callout {
+/* blue callout wrapper (shown below cards) */
+.resources-callout,
+.portal-callout {
   width: 100%;
   max-width: 1200px;
 }
@@ -97,18 +109,6 @@ body {
   gap: var(--space-global-md);
 }
 
-@media (max-width: 991px) {
-  .overview-expansion-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 575px) {
-  .overview-expansion-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* error text (not a debug panel; just a failure message) */
 .overview-error {
   margin: 0;
@@ -122,4 +122,41 @@ body {
     'Courier New', monospace;
   font-size: 12px;
   opacity: 0.9;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Tablet Overrrides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+@media (max-width: 991px) {
+  .resources-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resource-link-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-expansion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Mobile Overrrides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+@media (max-width: 575px) {
+  .resources-section,
+  .overview-section {
+    padding: var(--space-global-sm) var(--space-global-xs);
+  }
+
+  .overview-expansion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
 }
