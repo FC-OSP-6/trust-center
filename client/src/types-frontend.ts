@@ -119,7 +119,6 @@ type AonFooterProps = HtmlElProps & {
 
 type AonControlCardProps = HtmlElProps & {
   'data-mode'?: 'controls' | 'none' | string;
-  'fetch-first'?: number | string;
   'show-tile'?: boolean;
   'title-text'?: string;
   'show-meta'?: boolean;
@@ -133,7 +132,6 @@ type AonControlCardProps = HtmlElProps & {
 
 type AonFaqCardProps = HtmlElProps & {
   'data-mode'?: 'faqs' | 'single' | 'none' | string;
-  'fetch-first'?: number | string;
   'show-tile'?: boolean;
   'title-text'?: string;
   'show-meta'?: boolean;
