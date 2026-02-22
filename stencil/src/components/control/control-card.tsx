@@ -62,17 +62,33 @@ export class ControlCard {
   // ---------- lifecycle ----------
 
   componentWillLoad() {
-    this.syncControlsFromJson(this.controlsJson);
+    this.bootstrapFromProps();
   }
 
   // ---------- watchers ----------
 
   @Watch('controlsJson')
-  onControlsJsonChange(next: string) {
-    this.syncControlsFromJson(next);
+  onControlsJsonChange() {
+    this.bootstrapFromProps();
+  }
+
+  @Watch('dataMode')
+  onDataModeChange() {
+    this.bootstrapFromProps();
   }
 
   // ---------- data (react-fed json -> grouped stencil ui state) ----------
+
+  private bootstrapFromProps() {
+    if (this.dataMode !== 'controls') {
+      this.groups = [];
+      this.totalControls = 0;
+      this.parseErrorText = '';
+      return;
+    }
+
+    this.syncControlsFromJson(this.controlsJson);
+  }
 
   private syncControlsFromJson(raw: string) {
     const text = (raw ?? '').trim();
@@ -203,8 +219,6 @@ export class ControlCard {
     );
   }
 
-  // TODO: CSS class names are usually kebab-case instead of camelCase (e.g. status-dot, tile-header, card-header-left); consider renaming for consistency with common CSS conventions.
-
   private renderTileHeader() {
     if (!this.showTile) return null;
 
@@ -238,7 +252,12 @@ export class ControlCard {
     const expanded = this.isExpanded(key);
 
     return (
-      <section class="card" key={group.title}>
+      <section
+        class="card"
+        key={group.title}
+        role="table"
+        aria-label={`${group.title} controls`}
+      >
         <button
           class="card-header"
           type="button"
@@ -252,20 +271,23 @@ export class ControlCard {
           <div class="card-header-right">{this.renderToggle(expanded)}</div>
         </button>
 
-        {/* TODO: role="presentation" removes semantics for column labels; switch to row/columnheader roles or a true table structure if screen reader header announcements are required. */}
-        <div class="columns" role="presentation">
-          <div class="col-left">Control</div>
+        <div class="columns" role="row">
+          <div class="col-left" role="columnheader">
+            Control
+          </div>
 
-          <div class="col-right">Status</div>
+          <div class="col-right" role="columnheader">
+            Status
+          </div>
         </div>
 
-        <ul class="rows" role="list">
+        <ul class="rows" role="rowgroup">
           {group.items.map(c => {
             const hasDesc = (c.description ?? '').trim().length > 0;
 
             return (
-              <li class="row" key={c.id}>
-                <div class="row-left">
+              <li class="row" key={c.id} role="row">
+                <div class="row-left" role="cell">
                   <div class="row-title">{c.title}</div>
 
                   {hasDesc && (
@@ -278,7 +300,9 @@ export class ControlCard {
                   )}
                 </div>
 
-                <div class="row-right">{this.renderStatusIcon()}</div>
+                <div class="row-right" role="cell">
+                  {this.renderStatusIcon()}
+                </div>
               </li>
             );
           })}
