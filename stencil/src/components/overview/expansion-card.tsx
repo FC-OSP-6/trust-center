@@ -18,6 +18,13 @@ import type {
   ExpansionControlGroup
 } from '../../../../types-shared';
 
+// ---------- local helpers ----------
+
+type ParsedExpansionControlsResult = {
+  groupedCategories: ExpansionControlGroup[];
+  totalControls: number;
+};
+
 @Component({
   tag: 'aon-expansion-card',
   styleUrl: 'expansion-card.css',
@@ -26,74 +33,79 @@ import type {
 export class ExpansionCard {
   /* ---------- public api (shared) ---------- */
 
-  @Prop() dataMode: 'static' | 'controls' = 'static';
+  @Prop() dataMode: 'static' | 'controls' = 'static'; // switches component behavior + payload parsing path
 
-  @Prop() iconSrc?: string;
+  @Prop() iconSrc?: string; // optional icon shown next to each bullet/title row
 
-  @Prop() previewLimit: number = 3;
+  @Prop() previewLimit: number = 3; // max visible items before "view all" in each list
 
-  @Prop() isLoading: boolean = false;
+  @Prop() isLoading: boolean = false; // react-controlled loading state (controls mode)
 
-  @Prop() errorText: string = '';
+  @Prop() errorText: string = ''; // react-controlled error text (controls mode)
 
   /* ---------- static mode props ---------- */
 
-  @Prop() cardTitle: string = '';
+  @Prop() cardTitle: string = ''; // static card heading
 
-  @Prop() bulletPointsJson: string = '[]';
+  @Prop() bulletPointsJson: string = '[]'; // serialized string[] for static mode
 
   /* ---------- controls mode props ---------- */
 
-  @Prop() controlsJson: string = '';
+  @Prop() controlsJson: string = ''; // serialized ControlsConnection passed by react/api
 
-  @Prop() categoryLimit: number = 3;
+  @Prop() categoryLimit: number = 3; // max visible categories on overview before limiting
 
-  @Prop() showTile: boolean = false;
+  @Prop() showTile: boolean = false; // optional controls-mode tile header
 
-  @Prop() tileTitle: string = '';
+  @Prop() tileTitle: string = ''; // controls-mode tile title
 
-  @Prop() showMeta: boolean = false;
+  @Prop() showMeta: boolean = false; // controls-mode tile meta toggle
 
-  @Prop() tileSubtitle: string = '';
+  @Prop() tileSubtitle: string = ''; // controls-mode tile subtitle/helper copy
 
   /* ---------- internal state (static mode) ---------- */
 
-  @State() isExpanded: boolean = false;
+  @State() isExpanded: boolean = false; // static-mode card expand/collapse
 
-  @State() bulletPoints: string[] = [];
+  @State() bulletPoints: string[] = []; // parsed static-mode bullet items
 
   /* ---------- internal state (controls mode) ---------- */
 
-  @State() groupedCategories: ExpansionControlGroup[] = [];
+  @State() groupedCategories: ExpansionControlGroup[] = []; // grouped + sorted controls for overview rendering
 
-  @State() totalControls: number = 0;
+  @State() totalControls: number = 0; // controls count for tile meta text
 
-  @State() expandedByCategory: Record<string, boolean> = {};
+  @State() expandedByCategory: Record<string, boolean> = {}; // per-category view-all state in controls mode
 
-  @State() parseErrorText: string = '';
+  @State() parseErrorText: string = ''; // local parse error for malformed controls-json
 
   /* ---------- lifecycle ---------- */
 
   componentWillLoad() {
-    this.bootstrap();
+    this.bootstrap(); // initialize whichever mode is currently active
   }
 
   /* ---------- watchers ---------- */
 
   @Watch('bulletPointsJson')
   onBulletPointsJsonChange(next: string) {
+    // only parse static payload when in static mode
     if (this.dataMode !== 'static') return;
+
     this.syncBulletPoints(next);
   }
 
   @Watch('controlsJson')
   onControlsJsonChange() {
+    // only parse controls payload when in controls mode
     if (this.dataMode !== 'controls') return;
+
     this.syncControlsFromJson(this.controlsJson);
   }
 
   @Watch('dataMode')
   onDataModeChange() {
+    // mode changes can require resets + a different parse path
     this.bootstrap();
   }
 
@@ -101,9 +113,15 @@ export class ExpansionCard {
 
   private bootstrap() {
     if (this.dataMode === 'controls') {
+      // clear static-only parsed state noise when switching modes
+      this.bulletPoints = [];
+
       this.syncControlsFromJson(this.controlsJson);
       return;
     }
+
+    // static mode should not carry stale controls parse errors/counts into future renders
+    this.resetControlsParsedState();
 
     this.syncBulletPoints(this.bulletPointsJson);
   }
@@ -111,12 +129,12 @@ export class ExpansionCard {
   /* ---------- shared numeric helpers ---------- */
 
   private toSafeInt(value: unknown, fallback: number): number {
-    const n = Number(value);
+    const n = Number(value); // tolerate string numeric attrs passed through custom elements
 
-    if (!Number.isFinite(n)) return fallback;
-    if (n <= 0) return fallback;
+    if (!Number.isFinite(n)) return fallback; // non-numeric/NaN -> fallback
+    if (n <= 0) return fallback; // disallow zero/negative limits
 
-    return Math.floor(n);
+    return Math.floor(n); // ensure integral list limits
   }
 
   private getPreviewLimit(): number {
@@ -130,52 +148,52 @@ export class ExpansionCard {
   /* ---------- static mode parsing ---------- */
 
   private syncBulletPoints(raw: string) {
+    // parse and normalize incoming static bullet list json
     this.bulletPoints = this.parseBulletPoints(raw);
   }
 
   private parseBulletPoints(raw: string): string[] {
-    if (!raw) return [];
+    if (!raw) return []; // empty payload -> empty list
 
     try {
-      const parsed = JSON.parse(raw) as unknown;
+      const parsed = JSON.parse(raw) as unknown; // caller passes stringified array
 
-      if (!Array.isArray(parsed)) return [];
+      if (!Array.isArray(parsed)) return []; // non-array payload -> empty fallback
 
       return parsed
-        .filter(v => typeof v === 'string')
-        .map(v => v.trim())
-        .filter(v => v.length > 0);
+        .filter(v => typeof v === 'string') // keep only strings
+        .map(v => v.trim()) // normalize whitespace
+        .filter(v => v.length > 0); // drop empty strings
     } catch {
-      return [];
+      return []; // static mode treats bad json as empty list (no user-facing parse error needed)
     }
   }
 
-  /* ---------- controls mode parsing + grouping ---------- */
+  /* ---------- controls mode reset + parsing ---------- */
+
+  private resetControlsParsedState() {
+    // clears only controls-mode derived data
+    this.groupedCategories = [];
+    this.totalControls = 0;
+    this.parseErrorText = '';
+  }
 
   private syncControlsFromJson(raw: string) {
-    const text = (raw ?? '').trim();
+    const text = (raw ?? '').trim(); // normalize null/undefined/whitespace payloads
 
+    // empty payload is a valid "no data yet / no results" state
     if (!text) {
-      this.groupedCategories = [];
-      this.totalControls = 0;
-      this.parseErrorText = '';
+      this.resetControlsParsedState();
       return;
     }
 
     try {
-      const parsed = JSON.parse(text) as ControlsConnection;
+      const parsed = this.parseControlsConnection(text);
 
-      const edges = Array.isArray(parsed?.edges) ? parsed.edges : [];
+      this.groupedCategories = parsed.groupedCategories;
 
-      const nodes = edges
-        .map(edge => edge?.node)
-        .filter((node): node is Control =>
-          Boolean(node && node.id && node.title && node.category)
-        );
+      this.totalControls = parsed.totalControls;
 
-      this.groupedCategories = this.groupByCategory(nodes);
-      this.totalControls =
-        Number(parsed?.totalCount ?? nodes.length) || nodes.length;
       this.parseErrorText = '';
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -188,14 +206,33 @@ export class ExpansionCard {
     }
   }
 
+  private parseControlsConnection(text: string): ParsedExpansionControlsResult {
+    const parsed = JSON.parse(text) as ControlsConnection; // serialized graphql connection from react/api
+
+    const edges = Array.isArray(parsed?.edges) ? parsed.edges : []; // tolerate malformed/missing edges
+
+    const nodes = edges
+      .map(edge => edge?.node) // unwrap edges -> nodes
+      .filter((node): node is Control =>
+        Boolean(node && node.id && node.title && node.category)
+      ); // keep only fields needed by this overview ui
+
+    const groupedCategories = this.groupByCategory(nodes); // derive grouped display structure
+
+    const totalControls =
+      Number(parsed?.totalCount ?? nodes.length) || nodes.length; // prefer server totalCount, fallback to parsed nodes
+
+    return { groupedCategories, totalControls };
+  }
+
   private groupByCategory(nodes: Control[]): ExpansionControlGroup[] {
-    const map = new Map<string, string[]>();
+    const map = new Map<string, string[]>(); // category -> control titles
 
     nodes.forEach(node => {
-      const category = (node.category || 'General').trim() || 'General';
-      const title = (node.title || '').trim();
+      const category = (node.category || 'General').trim() || 'General'; // safe category fallback
+      const title = (node.title || '').trim(); // normalize display title
 
-      if (!title) return;
+      if (!title) return; // skip empty rows
 
       const next = map.get(category) ?? [];
 
@@ -209,26 +246,37 @@ export class ExpansionCard {
     map.forEach((titles, category) => {
       groups.push({
         category,
-        titles: [...titles].sort((a, b) => a.localeCompare(b))
+        titles: [...titles].sort((a, b) => a.localeCompare(b)) // stable alphabetical order in each category
       });
     });
 
-    groups.sort((a, b) => a.category.localeCompare(b.category));
+    groups.sort((a, b) => a.category.localeCompare(b.category)); // stable alphabetical category order
 
     return groups;
+  }
+
+  private getControlsDisplayErrorText(): string {
+    // api/network error from react wins over local parse error
+    const externalError = (this.errorText ?? '').trim();
+
+    if (externalError.length > 0) return externalError;
+
+    return (this.parseErrorText ?? '').trim();
   }
 
   /* ---------- ui helpers ---------- */
 
   private toggleExpanded = () => {
+    // static-mode expand/collapse toggle
     this.isExpanded = !this.isExpanded;
   };
 
   private isCategoryExpanded(category: string): boolean {
-    return Boolean(this.expandedByCategory[category]);
+    return Boolean(this.expandedByCategory[category]); // missing keys default to collapsed
   }
 
   private toggleCategoryExpanded = (category: string) => {
+    // immutable update so stencil sees a new object reference
     this.expandedByCategory = {
       ...this.expandedByCategory,
       [category]: !this.isCategoryExpanded(category)
@@ -238,11 +286,18 @@ export class ExpansionCard {
   /* ---------- shared row render ---------- */
 
   private renderBulletRow(text: string) {
+    // shared row renderer used in both static mode and controls mode
     return (
       <li class="item" key={text}>
         {this.iconSrc ? (
           <span class="icon-wrap" aria-hidden="true">
-            <img class="icon-img" src={this.iconSrc} alt="" />
+            <img
+              class="icon-img"
+              src={this.iconSrc}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
           </span>
         ) : (
           <span class="icon-dot" aria-hidden="true" />
@@ -256,17 +311,17 @@ export class ExpansionCard {
   /* ---------- static mode render ---------- */
 
   private renderStaticCard() {
-    const title = this.cardTitle || '';
-    const items = this.bulletPoints;
-    const limit = this.getPreviewLimit();
+    const title = this.cardTitle || ''; // static header text
+    const items = this.bulletPoints; // parsed static items
+    const limit = this.getPreviewLimit(); // safe numeric preview limit
 
-    const hasOverflow = items.length > limit;
-    const visibleItems = this.isExpanded ? items : items.slice(0, limit);
-    const hiddenCount = items.length - visibleItems.length;
+    const hasOverflow = items.length > limit; // whether to show view-all button
+    const visibleItems = this.isExpanded ? items : items.slice(0, limit); // current visible subset
+    const hiddenCount = items.length - visibleItems.length; // used for "+N more" row
 
     const buttonText = this.isExpanded ? 'View Less' : 'View All';
 
-    if (!title && items.length === 0) return null;
+    if (!title && items.length === 0) return null; // avoid empty wrapper markup
 
     return (
       <div class="card">
@@ -301,15 +356,19 @@ export class ExpansionCard {
   /* ---------- controls mode render ---------- */
 
   private renderControlsTile() {
-    if (!this.showTile) return null;
+    if (!this.showTile) return null; // caller opted out of tile header
 
-    const categoriesCount = this.groupedCategories.length;
-    const subtitle = (this.tileSubtitle || '').trim();
+    const categoriesCount = this.groupedCategories.length; // derived group count
+    const subtitle = (this.tileSubtitle || '').trim(); // normalize optional subtitle
+    const title = (this.tileTitle || 'Selected Controls').trim(); // default label for overview section
+
+    // avoid rendering an empty tile wrapper
+    if (!title && !subtitle && !this.showMeta) return null;
 
     return (
       <div class="tile">
         <div class="tile-heading-row">
-          <h3 class="tile-title">{this.tileTitle || 'Selected Controls'}</h3>
+          {title && <h3 class="tile-title">{title}</h3>}
 
           {this.showMeta && (
             <div class="tile-meta">
@@ -325,42 +384,57 @@ export class ExpansionCard {
   }
 
   private renderControlsCards() {
-    const limitCategories = this.getCategoryLimit();
-    const limitItems = this.getPreviewLimit();
+    const limitCategories = this.getCategoryLimit(); // safe category limit
+    const limitItems = this.getPreviewLimit(); // safe per-category title limit
 
-    const visibleCategories = this.groupedCategories.slice(0, limitCategories);
+    const visibleCategories = this.groupedCategories.slice(0, limitCategories); // overview only shows first N categories by design
 
-    const finalErrorText = (this.errorText || this.parseErrorText || '').trim();
+    const finalErrorText = this.getControlsDisplayErrorText(); // react error or local parse error
 
-    if (this.isLoading) {
-      return <div class="notice">Loading selected controls…</div>;
-    }
+    const hasError = finalErrorText.length > 0;
 
-    if (finalErrorText) {
+    const hasVisibleCategories = visibleCategories.length > 0;
+
+    // error state wins so users immediately see failures
+    if (hasError) {
       return (
-        <div class="notice is-error">
+        <div class="notice is-error" role="alert" aria-live="assertive">
           Failed to load controls.
           <div class="notice-detail">{finalErrorText}</div>
         </div>
       );
     }
 
-    if (!visibleCategories.length) {
-      return <div class="notice">No controls available.</div>;
+    // show loading only when nothing renderable exists yet
+    if (this.isLoading && !hasVisibleCategories) {
+      return (
+        <div class="notice" role="status" aria-live="polite">
+          Loading selected controls…
+        </div>
+      );
+    }
+
+    // empty state after loading completes (or empty payload)
+    if (!hasVisibleCategories) {
+      return (
+        <div class="notice" role="status" aria-live="polite">
+          No controls available.
+        </div>
+      );
     }
 
     return (
       <div class="group-wrap">
         {visibleCategories.map(group => {
-          const isOpen = this.isCategoryExpanded(group.category);
+          const isOpen = this.isCategoryExpanded(group.category); // category-local view-all state
 
-          const hasOverflow = group.titles.length > limitItems;
+          const hasOverflow = group.titles.length > limitItems; // whether this category needs view-all toggle
 
           const visibleTitles = isOpen
             ? group.titles
-            : group.titles.slice(0, limitItems);
+            : group.titles.slice(0, limitItems); // current visible rows
 
-          const hiddenCount = group.titles.length - visibleTitles.length;
+          const hiddenCount = group.titles.length - visibleTitles.length; // shown in summary row when collapsed
 
           const buttonText = isOpen ? 'View Less' : 'View All';
 
