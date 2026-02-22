@@ -1,66 +1,119 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  In-page section jump navigation card
 
-  - Stateless presentational component; all routing and layout owned by the React host.
-  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
-    cannot pierce the shadow boundary without CSS custom properties.
-  - All link targets and the card title are configurable via props with default values;
-    fragment hrefs assume matching id attributes exist on the host page.
-
-  - Lives in: stencil/components/subnav-card/
-  - Depends on: subnav-card.css (component-scoped styles), tokens.css (via CSS custom properties)
-  - Exports: <aon-subnav-card> — consumed by the React Controls page to provide
-    jump navigation across the five security control category sections.
+  - stencil renders only; react supplies title + subnav items json
+  - removes hardcoded category labels/hrefs to prevent drift from api data
+  - supports any number of categories/pages (controls, faqs, future sections)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// TODO: Determine optimal placement on controls page
+import { Component, Prop, State, Watch, h } from '@stencil/core';
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators and JSX factory for defining the Web Component
-// `h` is the JSX factory function used during compilation
+// ---------- local types (json payload shape from react) ----------
+
+type SubnavItem = {
+  label: string; // visible link text
+  href: string; // fragment target (or full href)
+};
 
 @Component({
-  tag: 'aon-subnav-card', // registers the custom element <aon-subnav-card>
-  styleUrl: './subnav-card.css', // component-local stylesheet
-  shadow: true // Enables Shadow DOM for DOM and style encapsulation
+  tag: 'aon-subnav-card',
+  styleUrl: './subnav-card.css',
+  shadow: true
 })
 export class AonSubnavCard {
-  // Component props: card title and section link targets for page navigation
-  @Prop() subnavCardTitle: string = 'Categories';
-  // TODO: Category links and labels are hardcoded – if categories come from API (e.g. controls page), this will drift; consider a single prop e.g. categories: Array<{ label, href }> or data-mode that fetches and renders.
-  @Prop() infrastructureSecurityHref: string = '#infrastructure-security';
-  @Prop() organizationalSecurityHref: string = '#organizational-security';
-  @Prop() productSecurityHref: string = '#product-security';
-  @Prop() internalSecurityProceduresHref: string =
-    '#internal-security-procedures';
-  @Prop() dataAndPrivacyHref: string = '#data-and-privacy';
+  // ---------- public api ----------
+
+  @Prop() subnavCardTitle: string = 'Categories'; // heading text
+  @Prop() itemsJson: string = '[]'; // react passes serialized subnav item list
+  @Prop() emptyText: string = ''; // optional empty-state text (omit to hide)
+
+  // ---------- internal parsed state ----------
+
+  @State() items: SubnavItem[] = [];
+
+  // ---------- lifecycle ----------
+
+  componentWillLoad() {
+    this.syncItemsFromJson(this.itemsJson);
+  }
+
+  // ---------- watchers ----------
+
+  @Watch('itemsJson')
+  onItemsJsonChange(next: string) {
+    this.syncItemsFromJson(next);
+  }
+
+  // ---------- parsing ----------
+
+  private syncItemsFromJson(raw: string) {
+    const text = (raw ?? '').trim();
+
+    if (!text) {
+      this.items = [];
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(text) as unknown;
+
+      if (!Array.isArray(parsed)) {
+        this.items = [];
+        return;
+      }
+
+      this.items = parsed
+        .filter((item): item is SubnavItem => {
+          if (!item || typeof item !== 'object') return false;
+
+          const candidate = item as Partial<SubnavItem>;
+
+          return (
+            typeof candidate.label === 'string' &&
+            candidate.label.trim().length > 0 &&
+            typeof candidate.href === 'string' &&
+            candidate.href.trim().length > 0
+          );
+        })
+        .map(item => ({
+          label: item.label.trim(),
+          href: item.href.trim()
+        }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+
+      console.warn('[aon-subnav-card] items-json parse failed:', msg);
+
+      this.items = [];
+    }
+  }
+
+  // ---------- render ----------
 
   render() {
+    const title = (this.subnavCardTitle ?? '').trim() || 'Categories';
+    const emptyText = (this.emptyText ?? '').trim();
+
+    // hide card entirely when no items and no explicit empty message was provided
+    if (this.items.length === 0 && !emptyText) {
+      return null;
+    }
+
     return (
       <div class="subnav-card">
-        <div class="subnav-card-title">{this.subnavCardTitle}</div>
-        <ul class="subnav-card-links">
-          <li>
-            <a href={this.infrastructureSecurityHref}>
-              Infrastructure Security
-            </a>
-          </li>
-          <li>
-            <a href={this.organizationalSecurityHref}>
-              Organizational Security
-            </a>
-          </li>
-          <li>
-            <a href={this.productSecurityHref}>Product Security</a>
-          </li>
-          <li>
-            <a href={this.internalSecurityProceduresHref}>
-              Internal Security Procedures
-            </a>
-          </li>
-          <li>
-            <a href={this.dataAndPrivacyHref}>Data and Privacy</a>
-          </li>
-        </ul>
+        <div class="subnav-card-title">{title}</div>
+
+        {this.items.length > 0 ? (
+          <ul class="subnav-card-links">
+            {this.items.map(item => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="subnav-card-empty">{emptyText}</div>
+        )}
       </div>
     );
   }

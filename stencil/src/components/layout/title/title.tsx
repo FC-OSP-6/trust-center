@@ -1,49 +1,72 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  Trust Center page title and support section
 
-  - Stateless presentational component; all layout and positioning owned by the React host.
-  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
-    cannot pierce the shadow boundary without CSS custom properties.
-  - All props ship with hardcoded defaults, making the component functional without host
-    configuration; tradeoff is that defaults must be kept in sync with actual business content.
-
-  - Lives in: stencil/components/title/
-  - Depends on: title.css (component-scoped styles), tokens.css (via CSS custom properties)
-  - Exports: <aon-title> — consumed by the React host as the intro/hero section
-    at the top of the Trust Center page, above the navbar.
+  - stencil is presentational only; react passes all business text/content
+  - no hardcoded support copy or email defaults in stencil
+  - optional support email subject prop keeps mailto formatting centralized here
+  - conditional rendering avoids empty wrappers when props are omitted
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+import { Component, Prop, h } from '@stencil/core';
 
-//TODO: supportEmail and supportEmailLink duplicate the same default – derive one from the other or accept a single prop to avoid drift.
-
-// Defines the <aon-title> Web Component
 @Component({
-  tag: 'aon-title', // registers the custom element <aon-title>
+  tag: 'aon-title',
   styleUrl: './title.css',
-  shadow: true // enables Shadow DOM for DOM and style encapsulation
+  shadow: true
 })
 export class AonTitle {
-  @Prop() trustCenterName: string = 'Trust Center';
-  @Prop() supportMessage =
-    'Resources to address common cyber security questions from clients.';
-  @Prop() supportEmail: string = 'cyber.security.support@email.com';
+  // ---------- public api ----------
+
+  @Prop() trustCenterName: string = ''; // react should pass page title text
+  @Prop() supportMessage: string = ''; // react should pass descriptive copy
+  @Prop() supportEmail: string = ''; // react should pass support mailbox
+  @Prop() supportEmailSubject: string = 'Trust-Center-Support'; // optional mailto subject
+
+  // ---------- helpers ----------
+
+  private getMailToHref(): string {
+    const email = (this.supportEmail ?? '').trim();
+
+    if (!email) return '';
+
+    const subject = encodeURIComponent(
+      (this.supportEmailSubject ?? '').trim() || 'Trust-Center-Support'
+    );
+
+    return `mailto:${email}?subject=${subject}`;
+  }
+
+  // ---------- render ----------
 
   render() {
-    const { trustCenterName, supportMessage, supportEmail } = this; // Destructure component props for cleaner JSX usage
-    const mailTo = `mailto:${supportEmail}?subject=Trust-Center-Support`;
+    const title = (this.trustCenterName ?? '').trim();
+    const message = (this.supportMessage ?? '').trim();
+    const email = (this.supportEmail ?? '').trim();
+    const mailTo = this.getMailToHref();
+
+    if (!title && !message && !email) {
+      return null;
+    }
+
     return (
       <div class="title-section">
-        <div class="name">
-          <h1>{trustCenterName}</h1>
-        </div>
-        <div class="support-message">
-          <p>{supportMessage}</p>
-        </div>
-        <div class="support-email">
-          <a href={mailTo}>{supportEmail}</a>
-        </div>
+        {title && (
+          <div class="name">
+            <h1>{title}</h1>
+          </div>
+        )}
+
+        {message && (
+          <div class="support-message">
+            <p>{message}</p>
+          </div>
+        )}
+
+        {email && mailTo && (
+          <div class="support-email">
+            <a href={mailTo}>{email}</a>
+          </div>
+        )}
       </div>
     );
   }
