@@ -1,17 +1,23 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  overview page section (react thin + stencil ui logic)
+  TL;DR  -->  overview page section
 
   - react fetches controls through client/src/api.ts
   - api cache + in-flight dedupe prevents duplicate refetching
   - react passes data + status into stencil expansion component
-  - resources + portal callout render through thin wrappers around stencil components
+  - resources + portal callout render through prop-driven wrappers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React, { useEffect, useMemo, useState } from 'react'; // react hooks for fetch lifecycle + memoized json props
-import type { ControlsConnection } from '../../../../types-shared'; // shared connection type used by frontend
-import { fetchControlsConnectionAll } from '../../api'; // compatibility alias preserved in api.ts
-import { PortalCallout, ResourceCards } from '../shared'; // thin react wrappers around stencil components
-import statusCheckUrl from '../../assets/images/status-check.svg'; // icon passed into expansion-card
+import React, { useEffect, useMemo, useState } from 'react';
+import type { ControlsConnection } from '../../../../types-shared';
+import { fetchControlsConnectionAll } from '../../api';
+import {
+  PortalCallout,
+  ResourceCards,
+  docRows,
+  extRows,
+  portalCard
+} from '../shared';
+import statusCheckUrl from '../../assets/images/status-check.svg';
 
 export default function Overview() {
   // ----------  local fetch state  ----------
@@ -19,13 +25,15 @@ export default function Overview() {
   const [controlsConn, setControlsConn] = useState<ControlsConnection | null>(
     null
   ); // fetched controls connection
+
   const [isLoading, setIsLoading] = useState<boolean>(true); // loading flag for stencil component
+
   const [errorText, setErrorText] = useState<string>(''); // normalized error text for stencil component
 
   // ----------  load once (api layer handles cache + dedupe)  ----------
 
   useEffect(() => {
-    let isActive = true; // prevents state updates after unmount
+    let isLive = true; // prevents state updates after unmount
 
     async function load() {
       setIsLoading(true); // start loading state
@@ -33,22 +41,22 @@ export default function Overview() {
 
       try {
         const data = await fetchControlsConnectionAll({
-          first: 50, // resolver cap-safe  --> api also clamps to 50
-          ttlMs: 60_000 // longer ttl for overview page stability during navigation
+          first: 50, // resolver cap-safe
+          ttlMs: 60_000 // longer ttl for route hops
         });
 
-        if (!isActive) return; // skip state updates after unmount
+        if (!isLive) return; // skip state updates after unmount
 
         setControlsConn(data); // store fetched controls connection
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err); // normalize unknown thrown values
+        const msg = err instanceof Error ? err.message : String(err); // normalize thrown value
 
-        if (!isActive) return; // skip state updates after unmount
+        if (!isLive) return; // skip state updates after unmount
 
         setControlsConn(null); // clear stale data on failure
-        setErrorText(msg); // surface readable error message
+        setErrorText(msg); // surface readable error
       } finally {
-        if (!isActive) return; // skip state updates after unmount
+        if (!isLive) return; // skip state updates after unmount
 
         setIsLoading(false); // end loading state
       }
@@ -57,15 +65,15 @@ export default function Overview() {
     void load(); // fire and intentionally ignore promise
 
     return () => {
-      isActive = false; // mark effect inactive on unmount
+      isLive = false; // mark effect inactive on unmount
     };
-  }, []); // run once on mount
+  }, []);
 
   // ----------  memoized json handoff (stencil parses string prop)  ----------
 
   const controlsJson = useMemo(() => {
-    if (!controlsConn) return ''; // empty string means "no data" for stencil parsing
-    return JSON.stringify(controlsConn); // stable serialized payload until data changes
+    if (!controlsConn) return ''; // empty string means no data yet
+    return JSON.stringify(controlsConn); // serialized payload for stencil prop
   }, [controlsConn]);
 
   // ----------  render  ----------
@@ -73,12 +81,22 @@ export default function Overview() {
   return (
     <section className="overview-section">
       {/* resources section (stencil-rendered via thin react wrapper) */}
-      <ResourceCards />
+      <ResourceCards
+        docTitle="Documents"
+        extTitle="External Links"
+        docRows={docRows}
+        extRows={extRows}
+      />
 
       {/* portal callout (stencil-rendered via thin react wrapper) */}
-      <PortalCallout buttonText="Visit" />
+      <PortalCallout
+        title={portalCard.title}
+        text={portalCard.text}
+        btnText={portalCard.btnText}
+        btnLink={portalCard.btnLink}
+      />
 
-      {/* selected controls section (react passes data/state, stencil renders UI behavior) */}
+      {/* selected controls section (react passes data/state, stencil renders ui behavior) */}
       <div className="overview-selected-controls">
         <aon-expansion-card
           data-mode="controls"

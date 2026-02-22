@@ -1,38 +1,87 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  thin react bridge for shared resource ui (stencil owns rendering)
+  TL;DR  -->  thin react bridge + react-owned trust center content
 
-  - keeps react "dumb" by only preparing static data + json strings
-  - delegates resource card rendering to <aon-link-card>
-  - delegates portal callout rendering to <aon-blue-card>
-  - preserves compatibility exports: ResourceCards + ResourceLinkCards + PortalCallout
-  - omits optional link-card extras for wireframe parity (subtitle/chip/cta/description)
+  - react owns business copy, urls, and static resource lists
+  - stencil owns rendering behavior and visual presentation
+  - wrappers only map props and serialize json for stencil
+  - no backwards-compat aliases or hidden defaults
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from 'react'; // react jsx runtime for thin wrapper components
-import PDF from '../assets/images/pdf-svgrepo-com.svg'; // bundled icon url for pdf items
-import External from '../assets/images/external-link-svgrepo-com.svg'; // bundled icon url for external items
+import React, { useMemo } from 'react'; // react jsx runtime + memo for stable json props
+import PDF from '../assets/images/pdf-svgrepo-com.svg'; // bundled icon url for pdf rows
+import External from '../assets/images/external-link-svgrepo-com.svg'; // bundled icon url for external rows
 import ClientPrivacySummaryPDF from '../assets/PDFs/Aon Client Privacy Summary - Mock.pdf'; // bundled mock pdf
 import PenetrationTestsPDF from '../assets/PDFs/CyQuPenetrationTestReports.pdf'; // bundled mock pdf
 import PrivacyPolicyPDF from '../assets/PDFs/CyQuPrivacyPolicy.pdf'; // bundled mock pdf
 import CyberSecurityRiskManagement from '../assets/PDFs/Aon Cyber Security and Risk Management Overview - Mock.pdf'; // bundled mock pdf
 
-// ----------  shared resource item shape passed into stencil as json  ----------
+// ----------  local ui types  ----------
 
-type ResourceLinkItem = {
-  label: string; // display title for the row / link
-  href: string; // bundled asset url or external url
-  iconSrc?: string; // icon url passed to stencil so stencil can render image inside shadow dom
-  iconAlt?: string; // optional alt text for decorative / non-decorative icon use
+export type LinkRow = {
+  label: string; // visible row label
+  href: string; // local pdf url or external url
+  iconSrc?: string; // optional icon url
+  iconAlt?: string; // optional icon alt text
+};
 
-  // optional richer fields supported by stencil (intentionally omitted in this page's payload)
-  kind?: 'pdf' | 'external'; // optional kind (would render chip if provided)
-  description?: string; // optional supporting text shown below the label
-  ctaLabel?: string; // optional trailing cta label
-}; // json-safe shape consumed by aon-link-card
+type ResourceProps = {
+  docTitle: string; // first card title
+  extTitle: string; // second card title
+  docRows: LinkRow[]; // document list
+  extRows: LinkRow[]; // external list
+};
 
-// ----------  static data (react owns urls, stencil owns presentation)  ----------
+type PortalProps = {
+  title: string; // blue card title
+  text: string; // blue card description
+  btnText: string; // button label
+  btnLink: string; // button href
+};
 
-const DOCUMENT_RESOURCES: ResourceLinkItem[] = [
+// ----------  react-owned shared content  ----------
+
+export const navRows = [
+  {
+    label: 'OVERVIEW',
+    href: '/trust-center/overview',
+    match: 'exact' as const
+  },
+  {
+    label: 'CONTROLS',
+    href: '/trust-center/controls',
+    match: 'prefix' as const
+  },
+  {
+    label: 'RESOURCES',
+    href: '/trust-center/resources',
+    match: 'prefix' as const
+  },
+  { label: 'FAQ', href: '/trust-center/faqs', match: 'prefix' as const }
+]; // navbar rows passed into <aon-navbar>
+
+export const titleCard = {
+  name: 'Trust Center',
+  text: 'Resources to address common cyber security questions from clients.',
+  email: 'cyber.security.support@email.com',
+  mailSubj: 'Trust-Center-Support'
+}; // title props passed into <aon-title>
+
+export const footCard = {
+  copy: 'Copyright 2026 AON PLC',
+  privacyHref: '/privacy-policy',
+  privacyLabel: 'Privacy Policy',
+  termsHref: '/terms-and-conditions',
+  termsLabel: 'Terms and Conditions'
+}; // footer props passed into <aon-footer>
+
+export const portalCard = {
+  title: 'Aon Trust Portal',
+  text: 'Visit the main portal for shared trust, risk, and security materials intended for partners and customers.',
+  btnText: 'Visit',
+  btnLink: 'https://www.aon.com/'
+}; // blue card props passed into <aon-blue-card>
+
+export const docRows: LinkRow[] = [
   {
     label: 'Aon Client Privacy Summary (Mock)',
     href: ClientPrivacySummaryPDF,
@@ -57,9 +106,9 @@ const DOCUMENT_RESOURCES: ResourceLinkItem[] = [
     iconSrc: PDF,
     iconAlt: ''
   }
-]; // bundled docs stay in client because vite resolves these imports here
+]; // documents card rows
 
-const EXTERNAL_RESOURCES: ResourceLinkItem[] = [
+export const extRows: LinkRow[] = [
   {
     label: 'Aon Corporate Website',
     href: 'https://www.aon.com/',
@@ -78,53 +127,40 @@ const EXTERNAL_RESOURCES: ResourceLinkItem[] = [
     iconSrc: External,
     iconAlt: ''
   }
-]; // external links kept as plain json-friendly objects
+]; // external links card rows
 
-// ----------  pre-serialized json (avoids repeat stringify during renders)  ----------
+// ----------  thin wrapper components  ----------
 
-const DOCUMENT_RESOURCES_JSON = JSON.stringify(DOCUMENT_RESOURCES); // parsed inside stencil component
-const EXTERNAL_RESOURCES_JSON = JSON.stringify(EXTERNAL_RESOURCES); // parsed inside stencil component
+export function ResourceCards({
+  docTitle,
+  extTitle,
+  docRows,
+  extRows
+}: ResourceProps) {
+  // memoize json so custom-element attrs stay stable unless rows change
+  const docJson = useMemo(() => JSON.stringify(docRows ?? []), [docRows]);
 
-// ----------  optional wrapper props  ----------
+  // memoize json so custom-element attrs stay stable unless rows change
+  const extJson = useMemo(() => JSON.stringify(extRows ?? []), [extRows]);
 
-type PortalCalloutProps = {
-  buttonText?: string; // compatibility with older callers passing buttonText
-  buttonLink?: string; // optional override for portal destination
-  title?: string; // optional override for displayed title
-  description?: string; // optional override for displayed description
-}; // thin prop surface so callers can customize without owning layout
-
-// ----------  shared exports (thin react wrappers around stencil)  ----------
-
-export function ResourceLinkCards() {
   return (
     <div className="resource-link-cards">
-      <aon-link-card link-title="Documents" items={DOCUMENT_RESOURCES_JSON} />
+      <aon-link-card link-title={docTitle} items={docJson} />
 
-      <aon-link-card
-        link-title="External Links"
-        items={EXTERNAL_RESOURCES_JSON}
-      />
+      <aon-link-card link-title={extTitle} items={extJson} />
     </div>
   );
-} // primary resource section wrapper (react bridge only)
+}
 
-export const ResourceCards = ResourceLinkCards; // compatibility alias for older imports
-
-export function PortalCallout({
-  buttonText = 'Visit Portal',
-  buttonLink = 'https://www.aon.com/',
-  title = 'Aon Trust Portal',
-  description = 'Visit the main portal for shared trust, risk, and security materials intended for partners and customers.'
-}: PortalCalloutProps) {
+export function PortalCallout({ title, text, btnText, btnLink }: PortalProps) {
   return (
     <div className="portal-callout">
       <aon-blue-card
         blue-card-title={title}
-        blue-card-description={description}
-        blue-card-button-text={buttonText}
-        blue-card-button-link={buttonLink}
+        blue-card-description={text}
+        blue-card-button-text={btnText}
+        blue-card-button-link={btnLink}
       />
     </div>
   );
-} // compatibility wrapper so callers do not need to know stencil prop names
+}

@@ -27,37 +27,27 @@ export class FaqCard {
   /* ---------- public api ---------- */
 
   @Prop() dataMode: 'faqs' | 'single' | 'none' = 'none'; // grouped faqs, one faq, or hidden
-
   @Prop() showTile: boolean = false; // optional tile header for grouped faq mode
-
   @Prop() titleText?: string; // tile title
-
   @Prop() showMeta: boolean = false; // tile meta toggle (faq/category counts)
-
   @Prop() subtitleText?: string; // tile subtitle
-
   @Prop() iconSrc?: string; // reserved for api parity / future visual variants (unused currently)
 
   /* single-item mode */
   @Prop() question?: string; // single faq question text
-
   @Prop() answer?: string; // single faq answer text
 
   /* react -> stencil data pipe */
   @Prop() faqsJson: string = ''; // serialized FaqsConnection from react/api layer
-
   @Prop() isLoading: boolean = false; // react-controlled loading flag
-
   @Prop() errorText: string = ''; // react-controlled error text (api/network layer)
+  @Prop() sectionIdPrefix: string = 'faq-category'; // react can pass a fragment id prefix so <aon-subnav-card> links land on faq groups
 
   /* ---------- internal state ---------- */
 
   @State() groups: FaqGroup[] = []; // grouped + sorted faq categories for faqs mode
-
   @State() totalFaqs: number = 0; // count used for tile meta text
-
   @State() expandedById: Record<string, boolean> = {}; // per-row expand/collapse state (plus single mode key)
-
   @State() parseErrorText: string = ''; // local parse error when faqs-json is malformed
 
   /* ---------- lifecycle ---------- */
@@ -93,6 +83,24 @@ export class FaqCard {
   }
 
   /* ---------- parse + group ---------- */
+
+  private toSlug(value: string): string {
+    return (value ?? '')
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private getCategorySectionId(categoryTitle: string): string {
+    const prefix = (this.sectionIdPrefix ?? '').trim();
+    const slug = this.toSlug(categoryTitle);
+
+    if (!prefix) return slug;
+
+    return slug ? `${prefix}-${slug}` : prefix;
+  }
 
   private bootstrapFromProps() {
     // grouped faqs mode parses json payload from react
@@ -300,7 +308,11 @@ export class FaqCard {
 
   private renderCategoryCard(group: FaqGroup) {
     return (
-      <section class="card" key={group.title}>
+      <section
+        class="card"
+        key={group.title}
+        id={this.getCategorySectionId(group.title)} // subnav anchors land here
+      >
         <header class="card-header-static">
           <h3 class="card-title">{group.title}</h3>
         </header>

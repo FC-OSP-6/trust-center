@@ -30,31 +30,21 @@ export class ControlCard {
   // ---------- public api (attributes) ----------
 
   @Prop() dataMode: 'controls' | 'none' = 'none'; // explicit mode gate so callers can disable rendering
-
   @Prop() showTile: boolean = false; // optional title/meta header above the grid
-
   @Prop() titleText?: string; // tile title text
-
   @Prop() showMeta: boolean = false; // tile meta toggle (counts)
-
   @Prop() subtitleText?: string; // tile subtitle / helper copy
-
   @Prop() iconSrc?: string; // optional status icon image for right column
-
   @Prop() controlsJson: string = ''; // react -> stencil serialized ControlsConnection
-
   @Prop() isLoading: boolean = false; // react-controlled loading state
-
   @Prop() errorText: string = ''; // react-controlled error state (api/network layer)
+  @Prop() sectionIdPrefix: string = 'controls-category'; // fragment id prefix used by api-driven subnav links
 
   // ---------- internal state ----------
 
   @State() groups: ControlGroup[] = []; // grouped + sorted data derived from controls-json
-
   @State() totalControls: number = 0; // derived count used in tile meta
-
   @State() expandedByKey: Record<string, boolean> = {}; // per-category open/closed ui state
-
   @State() parseErrorText: string = ''; // local parse/shape validation error (json -> ui state)
 
   // ---------- lifecycle ----------
@@ -87,6 +77,27 @@ export class ControlCard {
     this.groups = [];
     this.totalControls = 0;
     this.parseErrorText = '';
+  }
+
+  // ---------- id helpers ----------
+
+  private toSlug(value: string): string {
+    return (value ?? '')
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private getCategorySectionId(categoryTitle: string): string {
+    const prefix = (this.sectionIdPrefix ?? '').trim();
+    const slug = this.toSlug(categoryTitle);
+
+    // fall back to slug-only if no prefix was passed
+    if (!prefix) return slug;
+
+    return slug ? `${prefix}-${slug}` : prefix;
   }
 
   // ---------- data (react-fed json -> grouped stencil ui state) ----------
@@ -271,6 +282,7 @@ export class ControlCard {
       <section
         class="card"
         key={group.title}
+        id={this.getCategorySectionId(group.title)} // subnav anchors land here
         role="table"
         aria-label={`${group.title} controls`}
       >

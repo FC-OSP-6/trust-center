@@ -74,12 +74,11 @@ type HtmlElProps = React.DetailedHTMLProps<
 >;
 
 // ----------  stencil custom element prop typings  ----------
-// NOTE: keep these aligned with current stencil @Prop() names.
-// NOTE: use kebab-case here because react passes attributes to custom elements.
+// use kebab-case here because react passes attributes to custom elements
 
 type AonLinkCardProps = HtmlElProps & {
   'link-title'?: string;
-  items?: string; // JSON string consumed by stencil component
+  items?: string; // json string consumed by stencil component
 };
 
 type AonExpansionCardProps = HtmlElProps & {
@@ -110,11 +109,30 @@ type AonBlueCardProps = HtmlElProps & {
   'blue-card-button-link'?: string;
 };
 
+type AonTitleProps = HtmlElProps & {
+  'trust-center-name'?: string;
+  'support-message'?: string;
+  'support-email'?: string;
+  'support-email-subject'?: string;
+};
+
+type AonNavbarProps = HtmlElProps & {
+  'items-json'?: string; // react passes serialized navbar items
+  'active-path'?: string; // react passes current pathname
+  'nav-aria-label'?: string; // optional aria label
+};
+
 type AonFooterProps = HtmlElProps & {
   'logo-src'?: string;
-  'footer-tagline'?: string;
-  'footer-link-label'?: string;
-  'footer-link-href'?: string;
+  'logo-alt'?: string;
+
+  copyright?: string;
+
+  'privacy-policy-href'?: string;
+  'privacy-policy-label'?: string;
+
+  'terms-href'?: string;
+  'terms-label'?: string;
 };
 
 type AonControlCardProps = HtmlElProps & {
@@ -128,6 +146,8 @@ type AonControlCardProps = HtmlElProps & {
   'controls-json'?: string; // react -> stencil controls payload
   'is-loading'?: boolean; // react -> stencil loading state
   'error-text'?: string; // react -> stencil error state
+
+  'section-id-prefix'?: string; // api-driven subnav anchor target prefix
 };
 
 type AonFaqCardProps = HtmlElProps & {
@@ -138,12 +158,20 @@ type AonFaqCardProps = HtmlElProps & {
   'subtitle-text'?: string;
   'icon-src'?: string;
 
-  question?: string; // single mode prop (maps to @Prop() question)
-  answer?: string; // single mode prop (maps to @Prop() answer)
+  question?: string; // single mode prop
+  answer?: string; // single mode prop
 
   'faqs-json'?: string; // react -> stencil faqs payload
   'is-loading'?: boolean; // react -> stencil loading state
   'error-text'?: string; // react -> stencil error state
+
+  'section-id-prefix'?: string; // api-driven subnav anchor target prefix
+};
+
+type AonSubnavCardProps = HtmlElProps & {
+  'subnav-card-title'?: string;
+  'items-json'?: string; // react passes serialized subnav items
+  'empty-text'?: string; // optional empty state text
 };
 
 interface AonStencilIntrinsicElements {
@@ -152,13 +180,13 @@ interface AonStencilIntrinsicElements {
   'aon-blue-card': AonBlueCardProps;
 
   'aon-header': HtmlElProps;
-  'aon-title': HtmlElProps;
-  'aon-navbar': HtmlElProps;
+  'aon-title': AonTitleProps;
+  'aon-navbar': AonNavbarProps;
   'aon-footer': AonFooterProps;
 
   'aon-control-card': AonControlCardProps;
   'aon-faq-card': AonFaqCardProps;
-  'aon-subnav-card': HtmlElProps;
+  'aon-subnav-card': AonSubnavCardProps;
 }
 
 // react 18 jsx runtime intrinsic element augmentation

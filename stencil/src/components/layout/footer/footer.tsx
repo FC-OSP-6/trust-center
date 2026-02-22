@@ -6,7 +6,7 @@
   - conditional rendering avoids broken anchors/images when props are absent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, h } from '@stencil/core';
+import { Component, Prop, h, Fragment } from '@stencil/core';
 
 @Component({
   tag: 'aon-footer',
@@ -69,10 +69,10 @@ export class AonFooter {
 
           <div class="footer-right">
             {copyright && (
-              <>
+              <Fragment>
                 <span class="copyright-symbol">©</span>
                 <span class="footer-copyright">{copyright}</span>
-              </>
+              </Fragment>
             )}
           </div>
         </div>
