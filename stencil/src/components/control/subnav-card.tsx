@@ -2,17 +2,31 @@
   TL;DR  -->  In-page section jump navigation card
 
   - stencil renders only; react supplies title + subnav items json
-  - removes hardcoded category labels/hrefs to prevent drift from api data
+  - emits a composed custom event for hash-item clicks so react can scroll shadow-dom targets
+  - keeps normal anchor behavior for non-hash links
   - supports any number of categories/pages (controls, faqs, future sections)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, State, Watch, h } from '@stencil/core';
+import {
+  Component,
+  Prop,
+  State,
+  Watch,
+  Event as StencilEvent,
+  EventEmitter,
+  h
+} from '@stencil/core';
 
 // ---------- local types (json payload shape from react) ----------
 
 type SubnavItem = {
   label: string; // visible link text
   href: string; // fragment target (or full href)
+};
+
+type SubnavJumpDetail = {
+  href: string; // original href clicked by user
+  id: string; // parsed fragment id without "#"
 };
 
 @Component({
@@ -26,6 +40,15 @@ export class AonSubnavCard {
   @Prop() subnavCardTitle: string = 'Categories'; // heading text
   @Prop() itemsJson: string = '[]'; // react passes serialized subnav item list
   @Prop() emptyText: string = ''; // optional empty-state text (omit to hide)
+
+  // ---------- public events ----------
+
+  @StencilEvent({
+    eventName: 'aonSubnavJump',
+    bubbles: true,
+    composed: true
+  })
+  subnavJump!: EventEmitter<SubnavJumpDetail>; // react listens and performs shadow-dom scroll
 
   // ---------- internal parsed state ----------
 
@@ -88,6 +111,36 @@ export class AonSubnavCard {
     }
   }
 
+  // ---------- click helpers ----------
+
+  private getHashId(href: string): string {
+    const text = (href ?? '').trim();
+
+    if (!text.startsWith('#')) return '';
+
+    return text.slice(1).trim();
+  } // hash-only links are handled through the custom event so react can jump inside sibling shadow roots
+
+  private onItemClick(ev: MouseEvent, item: SubnavItem) {
+    // ignore modified clicks so browser keeps native behavior (new tab, etc.)
+    if (ev.defaultPrevented) return;
+    if (ev.button !== 0) return;
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+
+    const href = (item.href ?? '').trim();
+    const id = this.getHashId(href);
+
+    // only intercept in-page hash links (leave full links alone)
+    if (!id) return;
+
+    ev.preventDefault(); // browser hash jump cannot see ids inside another component shadow root
+
+    this.subnavJump.emit({
+      href,
+      id
+    }); // react page scrolls the target card shadow-root section
+  }
+
   // ---------- render ----------
 
   render() {
@@ -106,8 +159,10 @@ export class AonSubnavCard {
         {this.items.length > 0 ? (
           <ul class="subnav-card-links">
             {this.items.map(item => (
-              <li>
-                <a href={item.href}>{item.label}</a>
+              <li key={item.href}>
+                <a href={item.href} onClick={ev => this.onItemClick(ev, item)}>
+                  {item.label}
+                </a>
               </li>
             ))}
           </ul>

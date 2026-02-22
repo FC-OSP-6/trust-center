@@ -3,6 +3,7 @@
 
   - react fetches controls using shared api.ts
   - react derives category subnav from fetched api data
+  - react bridges subnav clicks to shadow-dom category sections (jump-to-card)
   - stencil renders subnav + grouped controls from passed props
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -10,52 +11,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import type { ControlsConnection } from '../../../../types-shared';
 import { fetchControlsConnectionAll } from '../../api';
 import statusCheckUrl from '../../assets/images/status-check.svg';
-
-// ----------  local subnav types  ----------
-
-type NavRow = {
-  label: string; // visible subnav label
-  href: string; // fragment href that targets stencil category sections
-};
-
-// ----------  local subnav helpers  ----------
-
-function slugText(text: string): string {
-  return (text ?? '')
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, ' and ')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-} // keep slug logic aligned with stencil card id generation
-
-function makeNav(conn: ControlsConnection | null, idHead: string): NavRow[] {
-  if (!conn?.edges?.length) return [];
-
-  const seen = new Set<string>(); // preserve first-seen api order
-  const rows: NavRow[] = [];
-
-  for (const edge of conn.edges) {
-    const rawName = edge?.node?.category || 'General'; // fallback for missing data
-    const name = rawName.trim();
-
-    if (!name) continue; // skip blank category names
-    if (seen.has(name)) continue; // dedupe repeated category names
-
-    const slug = slugText(name);
-
-    if (!slug) continue; // skip non-sluggable names
-
-    seen.add(name);
-
-    rows.push({
-      label: name,
-      href: `#${idHead}-${slug}`
-    });
-  }
-
-  return rows;
-}
+import { makeCategoryNav, useSubnavJump } from '../shared';
 
 export default function Controls() {
   const [controlsConn, setControlsConn] = useState<ControlsConnection | null>(
@@ -65,6 +21,8 @@ export default function Controls() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [errorText, setErrorText] = useState<string>('');
+
+  const { subnavRef, cardRef, jumpHash } = useSubnavJump(); // shared event + shadow jump bridge
 
   useEffect(() => {
     let isLive = true; // stop state writes after unmount
@@ -103,13 +61,29 @@ export default function Controls() {
     };
   }, []);
 
+  // ----------  honor deep links after stencil card renders categories  ----------
+
+  useEffect(() => {
+    if (isLoading) return; // wait for data-backed card render
+    if (errorText) return; // no jump target when load failed
+    if (!controlsConn?.edges?.length) return; // no categories to jump to
+
+    const timerId = window.setTimeout(() => {
+      jumpHash(); // tries url hash target inside aon-control-card shadow root
+    }, 0); // next tick lets custom element consume latest props before lookup
+
+    return () => {
+      window.clearTimeout(timerId); // cleanup if effect re-runs quickly
+    };
+  }, [isLoading, errorText, controlsConn, jumpHash]);
+
   const controlsJson = useMemo(() => {
     if (!controlsConn) return '';
     return JSON.stringify(controlsConn);
   }, [controlsConn]); // stencil parses string prop
 
   const navJson = useMemo(() => {
-    const rows = makeNav(controlsConn, 'controls-category');
+    const rows = makeCategoryNav(controlsConn, 'controls-category');
     return JSON.stringify(rows);
   }, [controlsConn]); // subnav is derived from the same api payload
 
@@ -122,12 +96,18 @@ export default function Controls() {
   return (
     <section>
       <aon-subnav-card
+        ref={node => {
+          subnavRef.current = node as HTMLElement | null;
+        }} // native listener attaches to custom element host
         subnav-card-title="Categories"
         items-json={navJson}
         empty-text={emptyText}
       />
 
       <aon-control-card
+        ref={node => {
+          cardRef.current = node as HTMLElement | null;
+        }} // jump helper searches this host's shadow root for category ids
         data-mode="controls"
         show-tile={true}
         show-meta={false}
