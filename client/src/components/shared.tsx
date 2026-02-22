@@ -5,6 +5,7 @@
   - stencil owns rendering behavior and visual presentation
   - wrappers only map props and serialize json for stencil
   - shared helpers keep controls/faqs subnav + jump behavior DRY
+  - link-card payload shaping + static json stringification are centralized for DRY/perf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'; // react jsx runtime + shared hooks for stable json + event bridge
@@ -22,6 +23,19 @@ export type LinkRow = {
   href: string; // local pdf url or external url
   iconSrc?: string; // optional icon url
   iconAlt?: string; // optional icon alt text
+  description?: string; // optional supporting text for richer link rows
+  kind?: 'pdf' | 'external' | string; // optional chip source for richer link rows
+  ctaLabel?: string; // optional trailing cta label for richer link rows
+};
+
+export type LinkCardItem = {
+  label: string; // normalized label expected by <aon-link-card>
+  href: string; // normalized href expected by <aon-link-card>
+  iconSrc?: string; // optional icon url
+  iconAlt?: string; // optional icon alt text
+  description?: string; // optional supporting text
+  kind?: 'pdf' | 'external' | string; // optional chip kind
+  ctaLabel?: string; // optional trailing cta label
 };
 
 type ResourceProps = {
@@ -61,6 +75,54 @@ type SubnavJumpDetail = {
   href?: string; // original href emitted by stencil subnav card
   id?: string; // parsed target id emitted by stencil subnav card
 };
+
+// ----------  link-card payload helpers (shared resource wrappers)  ----------
+
+function trimText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''; // normalizes untrusted values to trimmed strings
+}
+
+export function toLinkCardItems(
+  rows: LinkRow[] | null | undefined
+): LinkCardItem[] {
+  if (!Array.isArray(rows) || rows.length === 0) return []; // guard non-array callers and empty lists
+
+  const items: LinkCardItem[] = []; // build normalized payload rows for stencil
+
+  for (const row of rows) {
+    const label = trimText(row?.label); // normalize visible label
+    const href = trimText(row?.href); // normalize destination url
+
+    if (!label || !href) continue; // skip invalid rows quietly so stencil receives clean payload
+
+    const iconSrc = trimText(row?.iconSrc); // normalize optional icon src
+    const iconAlt = trimText(row?.iconAlt); // normalize optional icon alt
+    const description = trimText(row?.description); // normalize optional supporting text
+    const kind = trimText(row?.kind); // normalize optional chip kind
+    const ctaLabel = trimText(row?.ctaLabel); // normalize optional cta label
+
+    const item: LinkCardItem = {
+      label,
+      href
+    }; // start with required fields only
+
+    if (iconSrc) item.iconSrc = iconSrc; // only pass optional fields when populated
+    if (iconAlt) item.iconAlt = iconAlt; // omit empty alt string unless intentionally provided upstream
+    if (description) item.description = description; // keep payload lean when description is absent
+    if (kind) item.kind = kind; // keep payload lean when kind is absent
+    if (ctaLabel) item.ctaLabel = ctaLabel; // keep payload lean when cta is absent
+
+    items.push(item); // preserve author-defined row order
+  }
+
+  return items;
+}
+
+export function stringifyLinkCardItems(
+  rows: LinkRow[] | null | undefined
+): string {
+  return JSON.stringify(toLinkCardItems(rows)); // shared serialization path keeps wrapper behavior consistent
+}
 
 // ----------  shared subnav helpers (controls/faqs reuse)  ----------
 
@@ -301,19 +363,27 @@ export const extRows: LinkRow[] = [
   }
 ]; // external links card rows
 
+export const docRowsJson = stringifyLinkCardItems(docRows); // one-time serialization for shared static document rows
+
+export const extRowsJson = stringifyLinkCardItems(extRows); // one-time serialization for shared static external rows
+
 // ----------  thin wrapper components  ----------
 
 export function ResourceCards({
   docTitle,
   extTitle,
-  docRows,
-  extRows
+  docRows: documentRows,
+  extRows: externalRows
 }: ResourceProps) {
-  // memoize json so custom-element attrs stay stable unless rows change
-  const docJson = useMemo(() => JSON.stringify(docRows ?? []), [docRows]);
+  const docJson = useMemo(() => {
+    if (documentRows === docRows) return docRowsJson; // reuse module-level serialized json for static shared rows
+    return stringifyLinkCardItems(documentRows); // fallback for callers that pass custom row arrays
+  }, [documentRows]);
 
-  // memoize json so custom-element attrs stay stable unless rows change
-  const extJson = useMemo(() => JSON.stringify(extRows ?? []), [extRows]);
+  const extJson = useMemo(() => {
+    if (externalRows === extRows) return extRowsJson; // reuse module-level serialized json for static shared rows
+    return stringifyLinkCardItems(externalRows); // fallback for callers that pass custom row arrays
+  }, [externalRows]);
 
   return (
     <div className="resource-link-cards">
