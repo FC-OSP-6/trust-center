@@ -173,4 +173,13 @@
   --chip-radius-pill: 999px;
   --chip-padding-y: 2px;
   --chip-padding-x: 8px;
+
+  /* == Subnav Card Tokens == */
+  /* used by aon-subnav-card to mimic link-card row feel (no icons) */
+  --subnav-row-gap: 4px;
+  --subnav-row-radius: 8px;
+  --subnav-row-pad-y: 10px;
+  --subnav-row-pad-x: 12px;
+  --subnav-row-bg-hover: var(--color-gray-08);
+  --subnav-row-bg-active: var(--color-gray-07);
 }

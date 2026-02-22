@@ -45,7 +45,7 @@ export class FaqCard {
 
   /* ---------- internal state ---------- */
 
-  @State() groups: FaqGroup[] = []; // grouped + sorted faq categories for faqs mode
+  @State() groups: FaqGroup[] = []; // grouped faq categories for faqs mode
   @State() totalFaqs: number = 0; // count used for tile meta text
   @State() expandedById: Record<string, boolean> = {}; // per-row expand/collapse state (plus single mode key)
   @State() parseErrorText: string = ''; // local parse error when faqs-json is malformed
@@ -164,12 +164,12 @@ export class FaqCard {
   }
 
   private groupByCategory(nodes: Faq[]): FaqGroup[] {
-    const map = new Map<string, FaqRowItem[]>(); // category -> faq rows
+    const map = new Map<string, FaqRowItem[]>(); // category -> faq rows (preserves first-seen order)
 
     for (const node of nodes) {
       const category = (node.category || 'General').trim() || 'General'; // safe fallback category
 
-      const question = (node.question || '').trim(); // normalize strings before sorting/rendering
+      const question = (node.question || '').trim(); // normalize strings before rendering
 
       const answer = (node.answer || '').trim();
 
@@ -186,12 +186,12 @@ export class FaqCard {
       map.set(category, list);
     }
 
-    const groups: FaqGroup[] = Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0])) // stable alphabetical category order
-      .map(([title, items]) => ({
+    const groups: FaqGroup[] = Array.from(map.entries()).map(
+      ([title, items]) => ({
         title,
-        items: [...items].sort((a, b) => a.question.localeCompare(b.question)) // stable alphabetical question order
-      }));
+        items // preserve source order so subnav matches page order
+      })
+    );
 
     return groups;
   }

@@ -42,7 +42,7 @@ export class ControlCard {
 
   // ---------- internal state ----------
 
-  @State() groups: ControlGroup[] = []; // grouped + sorted data derived from controls-json
+  @State() groups: ControlGroup[] = []; // grouped data derived from controls-json
   @State() totalControls: number = 0; // derived count used in tile meta
   @State() expandedByKey: Record<string, boolean> = {}; // per-category open/closed ui state
   @State() parseErrorText: string = ''; // local parse/shape validation error (json -> ui state)
@@ -163,7 +163,7 @@ export class ControlCard {
   }
 
   private groupByCategory(nodes: Control[]): ControlGroup[] {
-    const map = new Map<string, ControlGroup['items']>(); // category -> row items
+    const map = new Map<string, ControlGroup['items']>(); // category -> row items (preserves first-seen order)
 
     for (const node of nodes) {
       const title = (node.title || '').trim(); // normalize display title
@@ -183,12 +183,12 @@ export class ControlCard {
       map.set(category, list);
     }
 
-    const groups: ControlGroup[] = Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0])) // stable alphabetical categories
-      .map(([title, items]) => ({
+    const groups: ControlGroup[] = Array.from(map.entries()).map(
+      ([title, items]) => ({
         title,
-        items: [...items].sort((a, b) => a.title.localeCompare(b.title)) // stable alphabetical controls
-      }));
+        items // preserve source order so subnav matches page order
+      })
+    );
 
     return groups;
   }

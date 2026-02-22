@@ -6,6 +6,7 @@
   - wrappers only map props and serialize json for stencil
   - shared helpers keep controls/faqs subnav + jump behavior DRY
   - link-card payload shaping + static json stringification are centralized for DRY/perf
+  - shared rail + ai placeholder wrappers keep controls/faqs layout consistent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'; // react jsx runtime + shared hooks for stable json + event bridge
@@ -16,7 +17,7 @@ import PenetrationTestsPDF from '../assets/PDFs/CyQuPenetrationTestReports.pdf';
 import PrivacyPolicyPDF from '../assets/PDFs/CyQuPrivacyPolicy.pdf'; // bundled mock pdf
 import CyberSecurityRiskManagement from '../assets/PDFs/Aon Cyber Security and Risk Management Overview - Mock.pdf'; // bundled mock pdf
 
-// ----------  local ui types  ----------
+// ---------- local ui types ----------
 
 export type LinkRow = {
   label: string; // visible row label
@@ -52,7 +53,14 @@ type PortalProps = {
   btnLink: string; // button href
 };
 
-// ----------  shared subnav + jump types (controls/faqs reuse)  ----------
+type RailProps = {
+  subRef: React.MutableRefObject<HTMLElement | null>; // host ref for aon-subnav-card event listener
+  navTitle: string; // subnav title text
+  navJson: string; // serialized nav rows
+  emptyText: string; // subnav empty/loading text
+};
+
+// ---------- shared subnav + jump types (controls/faqs reuse) ----------
 
 export type SubnavRow = {
   label: string; // visible subnav label
@@ -76,7 +84,7 @@ type SubnavJumpDetail = {
   id?: string; // parsed target id emitted by stencil subnav card
 };
 
-// ----------  link-card payload helpers (shared resource wrappers)  ----------
+// ---------- link-card payload helpers (shared resource wrappers) ----------
 
 function trimText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''; // normalizes untrusted values to trimmed strings
@@ -124,7 +132,7 @@ export function stringifyLinkCardItems(
   return JSON.stringify(toLinkCardItems(rows)); // shared serialization path keeps wrapper behavior consistent
 }
 
-// ----------  shared subnav helpers (controls/faqs reuse)  ----------
+// ---------- shared subnav helpers (controls/faqs reuse) ----------
 
 export function slugText(text: string): string {
   return (text ?? '')
@@ -141,7 +149,7 @@ export function makeCategoryNav(
 ): SubnavRow[] {
   if (!conn?.edges?.length) return [];
 
-  const seen = new Set<string>(); // preserve first-seen api order
+  const seen = new Set<string>(); // preserve first-seen source order
   const rows: SubnavRow[] = [];
 
   for (const edge of conn.edges) {
@@ -272,7 +280,59 @@ export function useSubnavJump() {
   };
 }
 
-// ----------  react-owned shared content  ----------
+// ---------- shared rail placeholder copy (controls/faqs reuse) ----------
+
+export const aiCard = {
+  title: 'CyCu Assistant',
+  text: 'Ask a question about controls, FAQs, or resources. A future AI assistant will jump you to the best section and entry, or route you to the right area if there is no direct match.'
+}; // shared placeholder copy for controls/faqs rail
+
+export function AiStub() {
+  return (
+    <section className="ai-slot" aria-label={aiCard.title}>
+      <div className="ai-head">
+        <h3 className="ai-title">{aiCard.title}</h3>
+
+        <p className="ai-text">{aiCard.text}</p>
+      </div>
+
+      <div className="ai-body" aria-hidden="true">
+        <div className="ai-chip">chat placeholder</div>
+
+        <div className="ai-line" />
+        <div className="ai-line short" />
+        <div className="ai-line" />
+
+        <div className="ai-note">
+          future stencil component lives here
+          <br />
+          react will provide api + connection props
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function InfoRail({ subRef, navTitle, navJson, emptyText }: RailProps) {
+  return (
+    <aside className="info-rail" aria-label={`${navTitle} and assistant`}>
+      <div className="info-stick">
+        <aon-subnav-card
+          ref={node => {
+            subRef.current = node as HTMLElement | null;
+          }} // native listener attaches to custom element host
+          subnav-card-title={navTitle}
+          items-json={navJson}
+          empty-text={emptyText}
+        />
+
+        <AiStub />
+      </div>
+    </aside>
+  );
+}
+
+// ---------- react-owned shared content ----------
 
 export const navRows = [
   {
@@ -367,7 +427,7 @@ export const docRowsJson = stringifyLinkCardItems(docRows); // one-time serializ
 
 export const extRowsJson = stringifyLinkCardItems(extRows); // one-time serialization for shared static external rows
 
-// ----------  thin wrapper components  ----------
+// ---------- thin wrapper components ----------
 
 export function ResourceCards({
   docTitle,

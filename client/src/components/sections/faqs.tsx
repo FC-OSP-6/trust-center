@@ -4,13 +4,14 @@
   - react fetches faqs using shared api.ts
   - react derives category subnav from fetched api data
   - react bridges subnav clicks to shadow-dom category sections (jump-to-card)
-  - stencil renders subnav + grouped faqs from passed props
+  - react owns page layout (main column + sticky rail)
+  - stencil owns subnav rendering + faq card rendering behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import type { FaqsConnection } from '../../../../types-shared';
 import { fetchFaqsConnectionAll } from '../../api';
-import { makeCategoryNav, useSubnavJump } from '../shared';
+import { InfoRail, makeCategoryNav, useSubnavJump } from '../shared';
 
 export default function Faqs() {
   const [faqsConn, setFaqsConn] = useState<FaqsConnection | null>(null);
@@ -58,7 +59,7 @@ export default function Faqs() {
     };
   }, []);
 
-  // ----------  honor deep links after stencil card renders categories  ----------
+  // ---------- honor deep links after stencil card renders categories ----------
 
   useEffect(() => {
     if (isLoading) return; // wait for data-backed card render
@@ -82,7 +83,7 @@ export default function Faqs() {
   const navJson = useMemo(() => {
     const rows = makeCategoryNav(faqsConn, 'faq-category');
     return JSON.stringify(rows);
-  }, [faqsConn]); // subnav is derived from the same api payload
+  }, [faqsConn]); // subnav is derived from same payload as rendered cards
 
   const emptyText = useMemo(() => {
     if (isLoading) return 'Loading categories...';
@@ -91,28 +92,28 @@ export default function Faqs() {
   }, [isLoading, errorText]); // avoid empty card after load unless explicitly needed
 
   return (
-    <section>
-      <aon-subnav-card
-        ref={node => {
-          subnavRef.current = node as HTMLElement | null;
-        }} // native listener attaches to custom element host
-        subnav-card-title="FAQ Categories"
-        items-json={navJson}
-        empty-text={emptyText}
+    <section className="info-grid">
+      <InfoRail
+        subRef={subnavRef}
+        navTitle="FAQ Categories"
+        navJson={navJson}
+        emptyText={emptyText}
       />
 
-      <aon-faq-card
-        ref={node => {
-          cardRef.current = node as HTMLElement | null;
-        }} // jump helper searches this host's shadow root for category ids
-        data-mode="faqs"
-        show-tile={true}
-        show-meta={false}
-        faqs-json={faqsJson}
-        is-loading={isLoading}
-        error-text={errorText}
-        section-id-prefix="faq-category"
-      />
+      <div className="info-main">
+        <aon-faq-card
+          ref={node => {
+            cardRef.current = node as HTMLElement | null;
+          }} // jump helper searches this host shadow root for category ids
+          data-mode="faqs"
+          show-tile={true}
+          show-meta={false}
+          faqs-json={faqsJson}
+          is-loading={isLoading}
+          error-text={errorText}
+          section-id-prefix="faq-category"
+        />
+      </div>
     </section>
   );
 }
