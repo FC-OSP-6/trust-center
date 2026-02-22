@@ -1,25 +1,25 @@
-/* ================================
-  tl;dr  -->  The first file that runs in the browser
-  1. This file mounts the app onto the page
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  browser entry point
+
+  - registers stencil custom elements once
+  - mounts react app into #root
+  - imports client styles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React, { StrictMode } from 'react';
-import type {} from './types-frontend'; // ensures jsx intrinsic element types are always loaded
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import '../../stencil/dist/trust-center/trust-center.css';
+import '../../stencil/dist/components/components.css'; // TEMP: broken path / generated-file race
 import './styles.css';
-
 import App from './app';
-import { defineCustomElements } from '../../stencil/loader/index.es2017.js';
+import { defineCustomElements } from '../../stencil/loader';
 
-// Register Stencil Web Components once
 defineCustomElements(window);
 
-// TODO: If this ever runs in SSR/tests, guard with `typeof window !== "undefined"` before calling defineCustomElements.
-// TODO: Non-null assertion can hide runtime boot issues; prefer an explicit null check with a clear thrown error.
+const container = document.getElementById('root');
 
-const container = document.getElementById('root')!;
+if (!container) throw new Error('root container (#root) was not found');
+
 const root = createRoot(container);
 
 root.render(

@@ -10,7 +10,7 @@
 
 import type { ControlsConnection, FaqsConnection } from './types-frontend';
 
-// ----------  graphql transport types  ----------
+// ----------  GraphQL transport types  ----------
 
 type GraphqlFetchArgs<TVars> = {
   query: string; // graphql document string

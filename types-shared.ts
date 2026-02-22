@@ -4,6 +4,7 @@
   - centralizes connection/page types used by client + server-facing adapters
   - reduces schema drift between frontend api helpers and backend graphql shape
   - keeps ui-only jsx/web-component typing out of shared contracts
+  - includes lightweight grouped ui shapes used by stencil renderers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 export type PageInfo = {
@@ -44,3 +45,32 @@ export type Faq = {
 
 export type ControlsConnection = Connection<Control>; // typed alias for controls pages
 export type FaqsConnection = Connection<Faq>; // typed alias for faq pages
+
+// ----------  grouped UI helper types (used by stencil components)  ----------
+
+export type ControlGroupItem = {
+  id: string; // stable id for row key + toggles
+  title: string; // control title shown in grouped list
+  description: string; // normalized description string (may be empty)
+};
+
+export type ControlGroup = {
+  title: string; // category title rendered as group/card title
+  items: ControlGroupItem[]; // controls belonging to this category
+};
+
+export type FaqGroupItem = {
+  id: string; // stable id for row key + expand state
+  question: string; // faq question shown in row header
+  answer: string; // faq answer revealed on expand
+};
+
+export type FaqGroup = {
+  title: string; // category title rendered as group/card title
+  items: FaqGroupItem[]; // faqs belonging to this category
+};
+
+export type ExpansionControlGroup = {
+  category: string; // category heading rendered in overview expansion cards
+  titles: string[]; // sorted control titles shown under the category
+};

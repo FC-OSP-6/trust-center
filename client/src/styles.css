@@ -51,17 +51,16 @@ body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-global-md);
 
-  /* key fix: make both grid items stretch to the same row height */
+  /* stretch both cards so they visually match height even when entry counts differ */
   align-items: stretch;
 }
 
-/* ensure stencil hosts stretch like true equal-height grid cards */
+/* ensure stencil hosts stretch like grid items */
 .resource-link-cards > aon-link-card {
   display: block;
   width: 100%;
   min-width: 0;
   height: 100%;
-  align-self: stretch;
 }
 
 /* blue callout wrapper (shown below cards) */
@@ -149,7 +148,8 @@ body {
 @media (max-width: 575px) {
   .resources-section,
   .overview-section {
-    padding: var(--space-global-sm) var(--space-global-xs);
+    padding: var(--space-global-md) var(--space-global-xs);
+    gap: var(--space-global-md);
   }
 
   .overview-expansion-grid {

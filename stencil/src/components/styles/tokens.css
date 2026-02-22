@@ -138,4 +138,39 @@
   --toggle-bar-length: 14px;
   --toggle-bar-thickness: 2px;
   --toggle-bar-radius: 999px;
+
+  /* == Shared Card Tokens == */
+  /* reusable card primitives for shadow-dom content containers */
+  --card-border-width: 1px;
+  --card-border-color-subtle: var(--color-gray-05);
+  --card-radius-md: 12px;
+  --card-padding-md: 16px;
+  --card-header-gap-sm: 4px;
+  --card-content-gap-md: 12px;
+
+  /* subtle elevation for cards */
+  --card-shadow-subtle: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+  /* == Shared Focus Tokens == */
+  /* reusable keyboard focus ring values */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* == Link-List Card Tokens == */
+  /* shared measurements for compact link-list cards */
+  --link-list-stack-gap: 2px;
+  --link-row-gap: 12px;
+  --link-row-padding-y: 8px;
+  --link-row-padding-x: 0px;
+  --link-row-radius: 4px;
+
+  --link-icon-size: 18px;
+
+  --link-title-underline-thickness: 1px;
+  --link-title-underline-offset: 2px;
+
+  /* optional chip sizing */
+  --chip-radius-pill: 999px;
+  --chip-padding-y: 2px;
+  --chip-padding-x: 8px;
 }

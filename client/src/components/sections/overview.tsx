@@ -1,110 +1,85 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  --> overview page section (react stays dumb)
+  TL;DR  -->  overview page section (react thin + stencil ui logic)
 
-  layout intent (per mockups):
-  1) link cards  --> client facing documents + external links
-  2) "Aon Trust Portal" blue card  --> between resources + selected controls
-  3) selected controls  --> stencil fetches + groups from graphql (db-first, json fallback happens server-side)
+  - react fetches controls through client/src/api.ts
+  - api cache + in-flight dedupe prevents duplicate refetching
+  - react passes data + status into stencil expansion component
+  - resources + portal callout render through thin wrappers around stencil components
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React from 'react';
-
-/* icon assets  --> used by link cards */
-import PDF from '../../assets/images/pdf-svgrepo-com.svg';
-import External from '../../assets/images/external-link-svgrepo-com.svg';
-
-/* pdf assets  --> bundled static files */
-import ClientPrivacySummaryPDF from '../../assets/PDFs/Aon Client Privacy Summary - Mock.pdf';
-import PenetrationTestsPDF from '../../assets/PDFs/CyQuPenetrationTestReports.pdf';
-import PrivacyPolicyPDF from '../../assets/PDFs/CyQuPrivacyPolicy.pdf';
-import CyberSecurityRiskManagement from '../../assets/PDFs/Aon Cyber Security and Risk Management Overview - Mock.pdf';
-
-/* bullet icon for selected controls  --> passed into stencil expansion list */
-import statusCheckUrl from '../../assets/images/status-check.svg';
+import React, { useEffect, useMemo, useState } from 'react'; // react hooks for fetch lifecycle + memoized json props
+import type { ControlsConnection } from '../../../../types-shared'; // shared connection type used by frontend
+import { fetchControlsConnectionAll } from '../../api'; // compatibility alias preserved in api.ts
+import { PortalCallout, ResourceCards } from '../shared'; // thin react wrappers around stencil components
+import statusCheckUrl from '../../assets/images/status-check.svg'; // icon passed into expansion-card
 
 export default function Overview() {
+  // ----------  local fetch state  ----------
+
+  const [controlsConn, setControlsConn] = useState<ControlsConnection | null>(
+    null
+  ); // fetched controls connection
+  const [isLoading, setIsLoading] = useState<boolean>(true); // loading flag for stencil component
+  const [errorText, setErrorText] = useState<string>(''); // normalized error text for stencil component
+
+  // ----------  load once (api layer handles cache + dedupe)  ----------
+
+  useEffect(() => {
+    let isActive = true; // prevents state updates after unmount
+
+    async function load() {
+      setIsLoading(true); // start loading state
+      setErrorText(''); // clear previous error before new request
+
+      try {
+        const data = await fetchControlsConnectionAll({
+          first: 50, // resolver cap-safe  --> api also clamps to 50
+          ttlMs: 60_000 // longer ttl for overview page stability during navigation
+        });
+
+        if (!isActive) return; // skip state updates after unmount
+
+        setControlsConn(data); // store fetched controls connection
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err); // normalize unknown thrown values
+
+        if (!isActive) return; // skip state updates after unmount
+
+        setControlsConn(null); // clear stale data on failure
+        setErrorText(msg); // surface readable error message
+      } finally {
+        if (!isActive) return; // skip state updates after unmount
+
+        setIsLoading(false); // end loading state
+      }
+    }
+
+    void load(); // fire and intentionally ignore promise
+
+    return () => {
+      isActive = false; // mark effect inactive on unmount
+    };
+  }, []); // run once on mount
+
+  // ----------  memoized json handoff (stencil parses string prop)  ----------
+
+  const controlsJson = useMemo(() => {
+    if (!controlsConn) return ''; // empty string means "no data" for stencil parsing
+    return JSON.stringify(controlsConn); // stable serialized payload until data changes
+  }, [controlsConn]);
+
+  // ----------  render  ----------
+
   return (
-    /* section container  --> uses global layout primitives in client/src/styles.css */
     <section className="overview-section">
-      {/* ---------------- resources (link cards) ---------------- */}
-      <div className="resources-grid">
-        {/* link card  --> client facing documents */}
-        {/* TODO: Multiple empty placeholder cards create duplication/noise; consider rendering from typed data arrays and mapping for DRY composition. */}
-        <aon-link-card
-          link-title="Client Facing Documents"
-          items={JSON.stringify([
-            {
-              label: 'CyQu Privacy Policy',
-              href: PrivacyPolicyPDF,
-              iconSrc: PDF,
-              iconAlt: 'PDF file'
-            },
-            {
-              label: 'CyQu Penetration Test Reports',
-              href: PenetrationTestsPDF,
-              iconSrc: PDF,
-              iconAlt: 'PDF file'
-            },
-            {
-              label: 'Aon: Client Privacy Summary',
-              href: ClientPrivacySummaryPDF,
-              iconSrc: PDF,
-              iconAlt: 'PDF file'
-            },
-            {
-              label: 'Aon: Cyber Security and Risk Management Overview',
-              href: CyberSecurityRiskManagement,
-              iconSrc: PDF,
-              iconAlt: 'PDF file'
-            }
-          ])}
-        />
+      {/* resources section (stencil-rendered via thin react wrapper) */}
+      <ResourceCards />
 
-        {/* link card  --> external links */}
-        <aon-link-card
-          link-title="External Links"
-          items={JSON.stringify([
-            {
-              label: 'Aon: Ensuring Ongoing Operations',
-              href: 'https://www.aon.com/en/capabilities/risk-management/business-continuity-management',
-              iconSrc: External,
-              iconAlt: 'External link'
-            },
-            {
-              label: 'Aon Secure',
-              href: 'https://www.aon.com/en/capabilities/cyber-resilience',
-              iconSrc: External,
-              iconAlt: 'External link'
-            },
-            {
-              label: 'Aon’s Policies and Standards',
-              href: 'https://www.aon.com/en/about/leadership-and-governance/code-of-business-conduct',
-              iconSrc: External,
-              iconAlt: 'External link'
-            },
-            {
-              label: 'Aon: Security - Submit Request',
-              href: 'https://www.aon.com/en/about/leadership-and-governance/report-an-emergency',
-              iconSrc: External,
-              iconAlt: 'External link'
-            }
-          ])}
-        />
-      </div>
+      {/* portal callout (stencil-rendered via thin react wrapper) */}
+      <PortalCallout buttonText="Visit" />
 
-      {/* ---------------- aon trust portal (blue card) ---------------- */}
-      <div className="resources-callout">
-        <aon-blue-card
-          blue-card-title="Aon Trust Portal"
-          blue-card-description="Direct access to widely consumed Aon enterprise controls and artifacts."
-          blue-card-button-text="Visit"
-          blue-card-button-link="https://aonmt.tbs.aon.com/login?returnUrl=%2Fhome"
-        />
-      </div>
-
-      {/* ---------------- selected controls (db-driven via graphql) ---------------- */}
+      {/* selected controls section (react passes data/state, stencil renders UI behavior) */}
       <div className="overview-selected-controls">
-        {/* stencil owns: fetch + grouping + per-card view all + +n more */}
         <aon-expansion-card
           data-mode="controls"
           show-tile={true}
@@ -113,8 +88,10 @@ export default function Overview() {
           tile-subtitle=""
           preview-limit={3}
           category-limit={3}
-          fetch-first={50}
           icon-src={statusCheckUrl}
+          controls-json={controlsJson}
+          is-loading={isLoading}
+          error-text={errorText}
         />
       </div>
     </section>

@@ -1,62 +1,104 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- TL;DR  -->  Component-scoped layout and visual styles
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  shadow-dom styles for <aon-blue-card>
 
-  - Provides all visual styling for <aon-blue-card>.
-  - Defines layout using flexbox for horizontal alignment of content and CTA.
-  - Uses design-system CSS variables for color, typography, and spacing consistency.
-  - Scoped via Shadow DOM (trade-off: style isolation, no global overrides).
-  - Includes responsive typography adjustment for small tablet breakpoints.
+  - styles a reusable blue/teal callout card with cta
+  - uses tokens with safe fallbacks
+  - keeps a11y-visible focus states for keyboard users
+  - supports responsive stacking on narrower widths
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* ----------  host  ---------- */
 
 :host {
-  display: block;
-  width: 100%;
-  font-family: var(--font-default);
-  font-size: var(--font-size-xsmall);
+  display: block; /* participate as a block-level element */
+  width: 100%; /* fill container width */
+  font-family: var(--font-default); /* inherit app font via token */
+  font-size: var(--font-size-xsmall); /* base font size fallback */
 }
+
+/* ----------  card layout  ---------- */
 
 .blue-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--color-gray-05);
-  border-radius: 8px;
-  padding: 20px;
-  background-color: var(--color-gray-06);
-  margin: 20px;
+  display: flex; /* content + cta side-by-side */
+  justify-content: space-between; /* push cta to the right */
+  align-items: center; /* vertically center rows on wider screens */
+  gap: 16px; /* space between text and cta */
+  border: 1px solid var(--color-gray-05); /* subtle card border */
+  border-radius: 8px; /* rounded corners */
+  padding: 20px; /* internal spacing */
+  background-color: var(--color-gray-06); /* muted callout surface */
+  margin: 20px 0; /* vertical spacing without forcing side margins */
 }
 
+/* ----------  text content  ---------- */
+
 .blue-card-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid; /* stack title + description */
+  gap: 4px; /* compact spacing */
+  min-width: 0; /* allow wrapping in flex layout */
 }
 
 .blue-card-title {
-  margin: 0;
+  margin: 0; /* reset heading default margin */
+  color: var(--color-navy-primary); /* heading color */
+  font-weight: var(--font-weight-bold); /* emphasized heading */
+  font-size: var(--font-size-large); /* tokenized size */
+  line-height: var(--line-height-large); /* tokenized line height */
 }
 
 .blue-card-description {
-  margin: 0;
-  color: var(--color-gray-01);
+  margin: 0; /* reset paragraph margin */
+  color: var(--color-gray-01); /* muted body text */
+  font-weight: var(--font-weight-regular); /* normal body weight */
+  font-size: var(--font-size-medium); /* tokenized size */
+  line-height: var(--line-height-medium); /* tokenized line height */
 }
+
+/* ----------  cta anchor styled as button  ---------- */
 
 .blue-card-button {
-  width: 130px;
-  padding: 12px;
-  font-weight: var(--font-weight-regular);
-  font-size: var(--font-size-medium);
-  line-height: var(--line-height-medium);
-  background-color: var(--color-teal-dark-secondary);
-  border-radius: 4px;
-  color: var(--color-gray-06);
+  flex: 0 0 auto; /* keep button width stable */
+  min-width: 130px; /* preserve visual button width */
+  display: inline-flex; /* allow centering like a button */
+  align-items: center; /* vertical center label */
+  justify-content: center; /* horizontal center label */
+  padding: 12px 14px; /* button padding */
+  border-radius: 4px; /* rounded button corners */
+  border: 1px solid transparent; /* border for focus/hover transitions */
+  background-color: var(--color-teal-dark-secondary); /* primary cta color */
+  color: var(--color-gray-06); /* cta text color */
+  text-decoration: none; /* remove underline */
+  font-weight: var(--font-weight-regular); /* readable emphasis */
+  font-size: var(--font-size-medium); /* tokenized size */
+  line-height: var(--line-height-medium); /* tokenized line height */
+  cursor: pointer; /* interactive affordance */
 }
 
-/* Adjust button typography for small tablet breakpoint */
-@media (min-width: 576px) and (max-width: 767px) {
+.blue-card-button:hover {
+  background-color: var(--color-teal-dark-hover); /* hover state */
+  text-decoration: none; /* keep button look on hover */
+}
+
+.blue-card-button:focus-visible {
+  outline: 2px solid var(--color-teal-dark-secondary); /* keyboard focus ring */
+  outline-offset: 2px; /* separate outline from button edge */
+}
+
+.blue-card-button--disabled {
+  opacity: 0.6; /* visually indicate disabled state */
+  cursor: not-allowed; /* disabled affordance */
+}
+
+/* ----------  responsive  ---------- */
+
+@media (max-width: 767px) {
+  .blue-card {
+    flex-direction: column; /* stack text and cta vertically on smaller screens */
+    align-items: stretch; /* full-width stacked layout */
+  }
+
   .blue-card-button {
-    font-size: 15px;
-    line-height: var(--line-height-medium);
+    width: 100%; /* full-width cta on smaller screens */
+    min-width: 0; /* remove min width constraint when stacked */
   }
 }
