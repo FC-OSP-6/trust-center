@@ -98,8 +98,10 @@ type AonExpansionCardProps = HtmlElProps & {
   'show-meta'?: boolean;
   'tile-subtitle'?: string;
 
-  // optional client-fed data props (if your stencil refactor added them)
+  // optional client-fed data props (overview controls mode is prop-driven)
   'controls-json'?: string;
+  'is-loading'?: boolean;
+  'error-text'?: string;
 };
 
 type AonBlueCardProps = HtmlElProps & {
@@ -125,8 +127,10 @@ type AonControlCardProps = HtmlElProps & {
   'subtitle-text'?: string;
   'icon-src'?: string;
 
-  // optional client-fed data props (if your stencil refactor added them)
+  // optional client-fed data props (react owns fetch)
   'controls-json'?: string;
+  'is-loading'?: boolean;
+  'error-text'?: string;
 };
 
 type AonFaqCardProps = HtmlElProps & {
