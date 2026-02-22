@@ -3,6 +3,7 @@
 
   - declares ui-facing node + connection shapes
   - declares stencil custom element props for react tsx usage
+  - keeps custom element prop names aligned with current stencil @Prop() APIs
   - intentionally excludes asset module declarations (see assets.d.ts)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -72,10 +73,9 @@ type HtmlElProps = React.DetailedHTMLProps<
   HTMLElement
 >;
 
-// ----------  stencil custom element prop typings ----------
-// NOTE:
-// - keep these aligned with the actual @Prop() names in stencil components
-// - kebab-case here because react passes attributes to custom elements
+// ----------  stencil custom element prop typings  ----------
+// NOTE: keep these aligned with current stencil @Prop() names.
+// NOTE: use kebab-case here because react passes attributes to custom elements.
 
 type AonLinkCardProps = HtmlElProps & {
   'link-title'?: string;
@@ -88,20 +88,19 @@ type AonExpansionCardProps = HtmlElProps & {
   'icon-src'?: string;
   'preview-limit'?: number | string;
 
+  'is-loading'?: boolean;
+  'error-text'?: string;
+
   'card-title'?: string;
   'bullet-points-json'?: string;
 
-  'fetch-first'?: number | string;
   'category-limit'?: number | string;
   'show-tile'?: boolean;
   'tile-title'?: string;
   'show-meta'?: boolean;
   'tile-subtitle'?: string;
 
-  // optional client-fed data props (overview controls mode is prop-driven)
-  'controls-json'?: string;
-  'is-loading'?: boolean;
-  'error-text'?: string;
+  'controls-json'?: string; // react -> stencil controls payload
 };
 
 type AonBlueCardProps = HtmlElProps & {
@@ -127,25 +126,26 @@ type AonControlCardProps = HtmlElProps & {
   'subtitle-text'?: string;
   'icon-src'?: string;
 
-  // optional client-fed data props (react owns fetch)
-  'controls-json'?: string;
-  'is-loading'?: boolean;
-  'error-text'?: string;
+  'controls-json'?: string; // react -> stencil controls payload
+  'is-loading'?: boolean; // react -> stencil loading state
+  'error-text'?: string; // react -> stencil error state
 };
 
 type AonFaqCardProps = HtmlElProps & {
   'data-mode'?: 'faqs' | 'single' | 'none' | string;
   'fetch-first'?: number | string;
-  'show-header'?: boolean;
-  'question-text'?: string;
-  'answer-text'?: string;
   'show-tile'?: boolean;
   'title-text'?: string;
   'show-meta'?: boolean;
   'subtitle-text'?: string;
+  'icon-src'?: string;
 
-  // optional client-fed data props (if your stencil refactor added them)
-  'faqs-json'?: string;
+  question?: string; // single mode prop (maps to @Prop() question)
+  answer?: string; // single mode prop (maps to @Prop() answer)
+
+  'faqs-json'?: string; // react -> stencil faqs payload
+  'is-loading'?: boolean; // react -> stencil loading state
+  'error-text'?: string; // react -> stencil error state
 };
 
 interface AonStencilIntrinsicElements {
