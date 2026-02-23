@@ -55,6 +55,16 @@ export class LruCacheAdapter implements Cache {
     this.lru.delete(key);
   }
 
+  // removes every key that starts with the given prefix — coarse but simple
+  // this.lru.keys() returns all currently stored (non-expired) keys as an iterator
+  // we collect them first before deleting to avoid modifying the map while iterating
+  invalidatePrefix(prefix: string): void {
+    const toDelete = [...this.lru.keys()].filter(key => key.startsWith(prefix)); // collect matches
+    for (const key of toDelete) {
+      this.lru.delete(key); // delete each matching key individually
+    }
+  }
+
   // the main workhorse method services will use
   async getOrSet(
     key: string,

@@ -17,6 +17,11 @@ export interface Cache {
   // immediately remove a key — used when data changes and the cached version is stale
   del(key: string): void;
 
+  // remove ALL keys that start with a given prefix — used after a mutation changes an entity
+  // optional (?) because not every adapter needs to support it (e.g. Redis stub skips it)
+  // example: invalidatePrefix('controls:') wipes every controls list page from the cache at once
+  invalidatePrefix?(prefix: string): void;
+
   // the smart combo: check cache first, only call fn() if there's a miss
   // fn is an async function that fetches the real data (e.g. a DB query)
   // returns a Promise because fn() is async and we may need to await it
