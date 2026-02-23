@@ -1,40 +1,50 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  context
+  TL;DR  -->  GraphQL dependency container
 
+  - Defines the GraphQLContext contract
+  - Injects shared process-level dependencies (db, cache)
+  - Creates per-request dependencies (requestId, memo, auth)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { YogaInitialContext } from 'graphql-yoga'; // context type for per-request context builder
-import { randomUUID } from 'node:crypto'; // avoid uuid dependency  -->  randomized unique id generator
-import { query } from '../db/index';
+import type { YogaInitialContext } from 'graphql-yoga';
+import { randomUUID } from 'node:crypto';
+
+import { query } from '../db';
 import { cache } from '../cache';
+import type { Cache } from '../cache';
 
-const dbAdapter = { query };
+// ----------  Process-scoped dependencies (created once per server process) ----------
 
-// request context shape  -->  shared across all resolvers per request
+const dbAdapter = { query }; // thin DB wrapper (replaceable later)
+
+// ----------  GraphQL context shape (available to all resolvers) ----------
+
 export type GraphQLContext = {
-  requestId: string; // created per request
-  memo: Map<string, Promise<unknown>>; // created per request
-  cache: Map<string, unknown>; // imported singleton
-  db: { query: typeof query }; // thin adapter around existing query
+  requestId: string; // unique per request
+  memo: Map<string, Promise<unknown>>; // request-scoped dedupe
+  cache: Cache; // shared cache instance
+  db: { query: typeof query }; // injected DB access
   auth: {
-    // placeholder
     userEmail?: string | null;
     roles: string[];
     isAdmin: boolean;
   };
 };
 
-// createGraphQLContext(initialContext) {
-//     return()
-// requestId: randomUUID(),
-// memo: new Map(),
-// auth: {
-//     userEmail: "fakeemail@email.com",
-//     roles: ['user'],
-//     isAdmin:
-// }
-// }
+// ----------  Context factory (runs once per request) ----------
 
 export function createGraphQLContext(
   initialContext: YogaInitialContext
-): GraphQLContext;
+): GraphQLContext {
+  return {
+    requestId: randomUUID(),
+    memo: new Map<string, Promise<unknown>>(),
+    cache,
+    db: dbAdapter,
+    auth: {
+      userEmail: null,
+      roles: [],
+      isAdmin: false
+    }
+  };
+}
