@@ -12,6 +12,8 @@ import { randomUUID } from 'node:crypto'; // avoid uuid dependency  -->  randomi
 import { typeDefs } from './schema'; // sdl contract  -->  source of truth for types + queries
 import { resolvers } from './resolvers'; // resolver map  -->  executable behavior for schema fields
 
+import { createGraphQLContext } from './context.ts';
+
 // ----------  request context shape  ----------
 
 // auth placeholder
@@ -19,13 +21,6 @@ export type AuthContext = {
   userEmail: null; // user identifier
   isAuthenticated: false; // auth flag
   isAdmin: false; // admin flag
-};
-
-// request context shape  -->  shared across all resolvers per request
-export type GraphQLContext = {
-  db: null; // db placeholder (Day 2)
-  auth: AuthContext; // auth placeholder (Day 4)
-  requestId: string; // request trace id  -->  used in logs and debugging
 };
 
 // ----------  handler factory  ----------
