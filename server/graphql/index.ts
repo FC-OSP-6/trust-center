@@ -6,22 +6,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { createYoga, createSchema } from 'graphql-yoga'; // init functions for graphql factory using yoga
-import type { YogaInitialContext } from 'graphql-yoga'; // context type for per-request context builder
-import { randomUUID } from 'node:crypto'; // avoid uuid dependency  -->  randomized unique id generator
 
 import { typeDefs } from './schema'; // sdl contract  -->  source of truth for types + queries
 import { resolvers } from './resolvers'; // resolver map  -->  executable behavior for schema fields
 
 import { createGraphQLContext } from './context.ts';
-
-// ----------  request context shape  ----------
-
-// auth placeholder
-export type AuthContext = {
-  userEmail: null; // user identifier
-  isAuthenticated: false; // auth flag
-  isAdmin: false; // admin flag
-};
 
 // ----------  handler factory  ----------
 
@@ -31,27 +20,6 @@ export function createGraphQLHandler() {
   return createYoga<GraphQLContext>({
     schema, // executable schema  -->  required for GET GraphiQL + POST execution
     graphqlEndpoint: '/graphql', // endpoint path  -->  keeps behavior explicit
-    graphiql: process.env.NODE_ENV !== 'production', // dev-only ide  -->  helps debugging during MVP
-
-    // per-request context builder  -->  runs once per request
-    context: (initialContext: YogaInitialContext): GraphQLContext => {
-      const requestId = randomUUID(); // unique id per request for tracing
-
-      // trace log  -->  proves context exists
-      console.log(
-        `[gql]  ${requestId}  ${initialContext.request.method}  ${initialContext.request.url}`
-      );
-
-      // context sanity  -->  confirms required keys exist + admin is false by default
-      console.log(
-        `[gql ctx]  requestId=${requestId}  keys=db,auth,requestId  isAdmin=false`
-      );
-
-      return {
-        db: null, // no db side effects
-        auth: { userEmail: null, isAuthenticated: false, isAdmin: false }, // default auth state
-        requestId // make uuid available to resolvers
-      };
-    }
+    graphiql: process.env.NODE_ENV !== 'production' // dev-only ide  -->  helps debugging during MVP
   });
 }
