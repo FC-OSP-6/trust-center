@@ -15,10 +15,17 @@ import type { Cache } from './cache'; // import the interface this class must sa
 // null is handled separately — our get() returns null to signal "cache miss", not as a stored value
 type CacheVal = string | number | boolean | object;
 
+/**
+ * LruCacheAdapter implements the Cache interface using an in-memory LRU strategy.
+ * It includes "Cache Stampede" protection to prevent redundant concurrent fetches.
+ */
 export class LruCacheAdapter implements Cache {
   // private means nothing outside this class can touch lru directly
   // LRUCache<string, CacheVal> means: keys are strings, values are any JSON-safe type
   private lru: LRUCache<string, CacheVal>;
+
+  // Tracks in-flight promises to prevent multiple concurrent fetches for the same key
+  private inFlight = new Map<string, Promise<unknown>>();
 
   // constructor runs once when you do: new LruCacheAdapter(500)
   // maxItems comes from the CACHE_MAX_ITEMS env var (set in index.ts)
@@ -48,6 +55,16 @@ export class LruCacheAdapter implements Cache {
     this.lru.delete(key);
   }
 
+  // removes every key that starts with the given prefix — coarse but simple
+  // this.lru.keys() returns all currently stored (non-expired) keys as an iterator
+  // we collect them first before deleting to avoid modifying the map while iterating
+  invalidatePrefix(prefix: string): void {
+    const toDelete = [...this.lru.keys()].filter(key => key.startsWith(prefix)); // collect matches
+    for (const key of toDelete) {
+      this.lru.delete(key); // delete each matching key individually
+    }
+  }
+
   // the main workhorse method services will use
   async getOrSet(
     key: string,
@@ -57,8 +74,21 @@ export class LruCacheAdapter implements Cache {
     const cached = this.get(key); // check the notepad first
     if (cached !== null) return cached; // cache hit — skip the DB entirely
 
-    const value = await fn(); // cache miss — call fn() to fetch from DB (await = wait for it)
-    this.set(key, value, ttlSeconds); // store the result so the next call is a hit
-    return value; // return the freshly fetched value to the caller
+    // Check if there's already a fetch happening for this key (Stampede Protection)
+    const existingPromise = this.inFlight.get(key);
+    if (existingPromise) return existingPromise;
+
+    // Cache miss — create a promise to fetch the data
+    const promise = fn()
+      .then(value => {
+        this.set(key, value, ttlSeconds); // store the result
+        return value;
+      })
+      .finally(() => {
+        this.inFlight.delete(key); // clean up tracking regardless of success/fail
+      });
+
+    this.inFlight.set(key, promise);
+    return promise;
   }
 }

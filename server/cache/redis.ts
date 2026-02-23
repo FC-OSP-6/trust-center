@@ -5,7 +5,7 @@
   - every method intentionally throws — nothing is wired to a real Redis connection
   - swap this in via index.ts when CACHE_ADAPTER=redis in a future production setup
   - no redis npm package needed until this stub is replaced with a real implementation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~ */
 
 import type { Cache } from './cache'; // must implement this interface to be a valid adapter
 
@@ -22,6 +22,10 @@ export class RedisAdapter implements Cache {
   }
 
   del(_key: string): void {
+    throw new Error('RedisAdapter: not implemented');
+  }
+
+  invalidatePrefix(_prefix: string): void {
     throw new Error('RedisAdapter: not implemented');
   }
 
