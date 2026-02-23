@@ -8,8 +8,7 @@
   - preserves debug resolvers for early boot verification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { GraphQLContext } from './index'; // shared per-request context shape
-import { query } from '../db/index'; // shared pg query wrapper (singleton pool)
+import type { GraphQLContext } from './context'; // shared per-request context shape
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
 import path from 'node:path'; // resolve data folder paths
@@ -349,12 +348,15 @@ function buildAfterBoundary(
 
 // ----------  db fetchers (controls + faqs)  ----------
 
-async function fetchControlsPage(args: {
-  first: number;
-  after?: string;
-  category?: string;
-  search?: string;
-}): Promise<{
+async function fetchControlsPage(
+  args: {
+    first: number;
+    after?: string;
+    category?: string;
+    search?: string;
+  },
+  ctx: GraphQLContext
+): Promise<{
   rows: DbControlRow[];
   hasNextPage: boolean;
   endCursor: string | null;
@@ -378,7 +380,7 @@ async function fetchControlsPage(args: {
   `;
 
   try {
-    const countRes = await query(countSql, params); // run count query
+    const countRes = await ctx.db.query(countSql, params); // run count query
     const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize result
 
     const pageSql = `
@@ -400,7 +402,7 @@ async function fetchControlsPage(args: {
 
     const limitParam = firstClamped + 1; // fetch one extra row
     const pageParams = [...params, ...afterBoundary.params, limitParam]; // compose params in order
-    const pageRes = await query(pageSql, pageParams); // run page query
+    const pageRes = await ctx.db.query(pageSql, pageParams); // run page query
 
     const fetched = (pageRes.rows ?? []) as DbControlRow[]; // cast rows to shape
     const hasNextPage = fetched.length > firstClamped; // compute pagination flag
@@ -451,12 +453,15 @@ async function fetchControlsPage(args: {
   }
 }
 
-async function fetchFaqsPage(args: {
-  first: number;
-  after?: string;
-  category?: string;
-  search?: string;
-}): Promise<{
+async function fetchFaqsPage(
+  args: {
+    first: number;
+    after?: string;
+    category?: string;
+    search?: string;
+  },
+  ctx: GraphQLContext
+): Promise<{
   rows: DbFaqRow[];
   hasNextPage: boolean;
   endCursor: string | null;
@@ -480,7 +485,7 @@ async function fetchFaqsPage(args: {
   `;
 
   try {
-    const countRes = await query(countSql, params); // run count query
+    const countRes = await ctx.db.query(countSql, params); // run count query
     const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize result
 
     const pageSql = `
@@ -501,7 +506,7 @@ async function fetchFaqsPage(args: {
 
     const limitParam = firstClamped + 1; // fetch one extra row
     const pageParams = [...params, ...afterBoundary.params, limitParam]; // compose params in order
-    const pageRes = await query(pageSql, pageParams); // run page query
+    const pageRes = await ctx.db.query(pageSql, pageParams); // run page query
 
     const fetched = (pageRes.rows ?? []) as DbFaqRow[]; // cast rows to shape
     const hasNextPage = fetched.length > firstClamped; // compute pagination flag
@@ -607,7 +612,7 @@ export const resolvers = {
       if (args.after && !isValidCursor(args.after))
         throw new Error('CURSOR_ERROR: invalid after cursor');
 
-      const page = await fetchControlsPage(args); // db-first, mock fallback when db is unavailable
+      const page = await fetchControlsPage(args, ctx); // db-first, mock fallback when db is unavailable
 
       logDataSource({
         requestId: ctx.requestId,
@@ -642,7 +647,7 @@ export const resolvers = {
       if (args.after && !isValidCursor(args.after))
         throw new Error('CURSOR_ERROR: invalid after cursor');
 
-      const page = await fetchFaqsPage(args); // db-first, mock fallback when db is unavailable
+      const page = await fetchFaqsPage(args, ctx); // db-first, mock fallback when db is unavailable
 
       logDataSource({
         requestId: ctx.requestId,
