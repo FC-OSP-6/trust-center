@@ -1,18 +1,18 @@
 # TLDR --> contains all files to be ignored when pushed
 
-#Environment variables
-#ignores all .env files
+# Environment variables
+# ignores all .env files
 .env*
 # …except the example file
 !.env.example
 
-#Dependencies
+# Dependencies
 node_modules/ 
 
-#stencil generated files
-#Stencil cache / build artifacts
+# stencil generated files
+# Stencil cache / build artifacts
 .stencil/
-#generated output (correct to ignore for an app repo)
+# generated output (correct to ignore for an app repo)
 stencil/dist/
 stencil/src/components.d.ts
 stencil/loader/

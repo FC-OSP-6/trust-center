@@ -31,7 +31,7 @@
     "module": "esnext",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "types": ["@stencil/core"]
+    "types": ["@stencil/core", "jest", "jest-stencil-runner"]
   },
   "include": ["src"]
 }

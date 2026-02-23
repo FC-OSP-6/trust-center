@@ -1,37 +1,44 @@
-/* ================================
-  tl;dr  -->  The first file that runs in the browser
-  1. This file mounts the app onto the page
-================================ */
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  browser entry point
+
+  - registers stencil custom elements once (browser-only guard for SSR/tests)
+  - mounts react app into #root (browser-only)
+  - imports client styles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React, { StrictMode } from 'react';
-import type {} from './types-frontend'; // ensures jsx intrinsic element types are always loaded
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import '../../stencil/dist/trust-center/trust-center.css';
+import '../../stencil/dist/components/components.css';
 import './styles.css';
-
 import App from './app';
-import { defineCustomElements } from '../../stencil/loader/index.es2017.js';
+import { defineCustomElements } from '../../stencil/loader';
 
-// Register Stencil Web Components once
-defineCustomElements(window);
+// ---------- browser-only bootstrap ----------
 
-// TODO: If this ever runs in SSR/tests, guard with `typeof window !== "undefined"` before calling defineCustomElements.
-// TODO: Non-null assertion can hide runtime boot issues; prefer an explicit null check with a clear thrown error.
+const canUseBrowserDom =
+  typeof window !== 'undefined' && typeof document !== 'undefined'; // guards browser globals for SSR/tests/build tooling
 
-const container = document.getElementById('root')!;
-const root = createRoot(container);
+if (canUseBrowserDom) {
+  defineCustomElements(window); // registers stencil web components only when window exists
 
-root.render(
-  <StrictMode>
-    <BrowserRouter
-      basename="/trust-center"
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
-      <App />
-    </BrowserRouter>
-  </StrictMode>
-);
+  const container = document.getElementById('root'); // grabs react mount target from index.html
+
+  if (!container) throw new Error('root container (#root) was not found'); // keeps debugging error explicit in browser mode
+
+  const root = createRoot(container); // creates react root after container existence is confirmed
+
+  root.render(
+    <StrictMode>
+      <BrowserRouter
+        basename="/trust-center"
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true
+        }}
+      >
+        <App />
+      </BrowserRouter>
+    </StrictMode>
+  );
+}

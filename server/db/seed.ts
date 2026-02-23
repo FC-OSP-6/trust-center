@@ -11,7 +11,7 @@ import fs from 'node:fs/promises'; // read seed json files from disk
 import path from 'node:path'; // build absolute paths for data folder
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 
-import { ensureDbSchema, closeDbPool, getDbPool } from './index.ts'; // schema runner + pool lifecycle
+import { ensureDbSchema, closeDbPool, getDbPool } from './index'; // schema runner + pool lifecycle
 
 // ----------  normalization helpers  ----------
 
