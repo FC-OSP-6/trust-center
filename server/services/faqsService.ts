@@ -1,18 +1,19 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  faqs service (single place for read logic)
+  TL;DR --> faqs service (single place for read logic)
 
   - builds sql for faqsConnection (filters + cursor boundary + deterministic order)
   - keeps pagination behavior identical to previous resolver implementation
   - supports seed json fallback when db is unavailable (mvp resilience)
+  - dedupes duplicate reads within one graphql request using request-scoped memoization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-import { query } from '../db/index'; // shared pg query wrapper (singleton pool)
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
 import path from 'node:path'; // resolve data folder paths
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
-
+import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
+import { buildFaqsKey } from '../cache'; // deterministic key builder reused for memo/cache consistency
+import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import {
   buildAfterBoundary,
   buildCategorySearchWhere,
@@ -23,7 +24,7 @@ import {
   clampFirst
 } from './pagination';
 
-// ----------  args + row shapes  ----------
+// ---------- args + row shapes ----------
 
 export type FaqsConnectionArgs = {
   first: number; // requested page size
@@ -49,22 +50,19 @@ export type FaqsPage = {
   source: 'db' | 'mock';
 };
 
-// ----------  fallback detection  ----------
+// ---------- fallback detection ----------
 
 function shouldFallbackToMock(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message : String(error);
+  const msg = error instanceof Error ? error.message : String(error); // normalize error message for matching
 
-  // env not set (your db layer throws ENV_ERROR: ...)
-  if (msg.includes('ENV_ERROR:')) return true;
+  if (msg.includes('ENV_ERROR:')) return true; // env not set (your db layer throws ENV_ERROR: ...)
+  if (msg.toLowerCase().includes('connect')) return true; // common connection issues (mvp-safe broad match)
+  if (msg.toLowerCase().includes('does not exist')) return true; // missing table/schema during setup/demo
 
-  // common connection/table issues (keep broad for mvp)
-  if (msg.toLowerCase().includes('connect')) return true;
-  if (msg.toLowerCase().includes('does not exist')) return true;
-
-  return false;
+  return false; // let non-connectivity/query bugs surface normally
 }
 
-// ----------  seed fallback helpers (db unavailable)  ----------
+// ---------- seed fallback helpers (db unavailable) ----------
 
 type SeedFaqJson = {
   faqs: Array<{
@@ -76,122 +74,119 @@ type SeedFaqJson = {
 };
 
 function getDataDir(): string {
-  // resolve server/db/data relative to THIS file --> matches seed.ts behavior
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  return path.resolve(here, '../db/data');
+  const here = path.dirname(fileURLToPath(import.meta.url)); // resolve current services directory in ESM
+  return path.resolve(here, '../db/data'); // match seed.ts data directory convention
 }
 
 function stableId(prefix: string, key: string): string {
-  // stable id in seed mode --> deterministic, not a real uuid, but good enough for MVP lists
-  const hash = createHash('sha256').update(`${prefix}:${key}`).digest('hex');
-  return `${prefix}_${hash.slice(0, 24)}`; // short, stable id string
+  const hash = createHash('sha256').update(`${prefix}:${key}`).digest('hex'); // deterministic hash for seed rows
+  return `${prefix}_${hash.slice(0, 24)}`; // short stable id string (not a real uuid, okay for seed mode)
 }
 
-let cachedSeedFaqs: DbFaqRow[] | null = null; // seed cache --> avoids re-reading json on every call
+let cachedSeedFaqs: DbFaqRow[] | null = null; // memoized in-process seed rows to avoid file reads per call
 
 async function loadSeedFaqs(): Promise<DbFaqRow[]> {
-  if (cachedSeedFaqs) return cachedSeedFaqs;
+  if (cachedSeedFaqs) return cachedSeedFaqs; // reuse parsed seed rows within the process
 
-  const dataDir = getDataDir();
-  const faqsPath = path.join(dataDir, 'faqs.json');
-
-  const raw = await fs.readFile(faqsPath, 'utf8');
-  const parsed = JSON.parse(raw) as SeedFaqJson;
-
+  const dataDir = getDataDir(); // resolve seed data directory
+  const faqsPath = path.join(dataDir, 'faqs.json'); // seed file path
+  const raw = await fs.readFile(faqsPath, 'utf8'); // read seed file
+  const parsed = JSON.parse(raw) as SeedFaqJson; // parse json payload
   const nowIso = new Date().toISOString(); // placeholder timestamp in seed mode
+
   const rows: DbFaqRow[] = (parsed.faqs ?? []).map(f => ({
-    id: stableId('faq', String(f.faq_key ?? 'missing_key')),
-    faq_key: String(f.faq_key ?? ''),
-    question: String(f.question ?? ''),
-    answer: String(f.answer ?? ''),
-    category: String(f.category ?? 'General'),
-    updated_at: nowIso
+    id: stableId('faq', String(f.faq_key ?? 'missing_key')), // deterministic seed id
+    faq_key: String(f.faq_key ?? ''), // normalize to string
+    question: String(f.question ?? ''), // normalize to string
+    answer: String(f.answer ?? ''), // normalize to string
+    category: String(f.category ?? 'General'), // default grouping for incomplete seed rows
+    updated_at: nowIso // synthetic timestamp for stable connection behavior in seed mode
   }));
 
-  // deterministic ordering --> mimics updated_at desc, id desc with stable keys
   rows.sort((a, b) => {
-    const k = b.faq_key.localeCompare(a.faq_key);
-    if (k !== 0) return k;
-    return b.id.localeCompare(a.id);
+    const k = b.faq_key.localeCompare(a.faq_key); // deterministic tie order for seed rows
+    if (k !== 0) return k; // primary seed-mode ordering
+    return b.id.localeCompare(a.id); // stable tie-breaker
   });
 
-  cachedSeedFaqs = rows;
-  return rows;
+  cachedSeedFaqs = rows; // cache parsed rows for reuse across requests
+  return rows; // return parsed + normalized seed rows
 }
 
-// ----------  main read path  ----------
+// ---------- main read path ----------
 
-export async function getFaqsPage(args: FaqsConnectionArgs): Promise<FaqsPage> {
-  const firstClamped = clampFirst(args.first); // enforce safe page size
+export async function getFaqsPage(
+  args: FaqsConnectionArgs,
+  ctx: GraphQLContext
+): Promise<FaqsPage> {
+  const memoKey = `faqsService:getFaqsPage:${buildFaqsKey(args)}`; // deterministic per-request dedupe key
 
-  const whereArgs = {
-    ...(args.category !== undefined ? { category: args.category } : {}),
-    ...(args.search !== undefined ? { search: args.search } : {})
-  }; // omit undefined props for exactOptionalPropertyTypes
+  return memoizePromise(ctx.memo, memoKey, async () => {
+    const firstClamped = clampFirst(args.first); // enforce safe page size
 
-  const { whereSql, params } = buildCategorySearchWhere(whereArgs); // build filters
-  const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary
-
-  const countSql = `
-    select count(*)::int as count
-    from public.faqs
-    ${whereSql}
-  `;
-
-  try {
-    const countRes = await query(countSql, params); // run count query
-    const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize result
-
-    const pageSql = `
-      select
-        id,
-        faq_key,
-        question,
-        answer,
-        category,
-        updated_at
-      from public.faqs
-      ${whereSql}
-      ${whereSql ? '' : 'where true'}
-      ${afterBoundary.sql}
-      order by updated_at desc, id desc
-      limit $${params.length + afterBoundary.params.length + 1}
-    `;
-
-    const limitParam = firstClamped + 1; // fetch one extra row
-    const pageParams = [...params, ...afterBoundary.params, limitParam]; // compose params in order
-    const pageRes = await query(pageSql, pageParams); // run page query
-
-    const fetched = (pageRes.rows ?? []) as DbFaqRow[]; // cast rows to shape
-    const hasNextPage = fetched.length > firstClamped; // compute pagination flag
-    const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // drop extra row
-
-    const last = rows.length ? rows[rows.length - 1] : null; // pick last row for endCursor
-    const endCursor = last
-      ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
-      : null;
-
-    return { rows, hasNextPage, endCursor, totalCount, source: 'db' };
-  } catch (error) {
-    // only fallback when error indicates db is unavailable or not configured
-    if (!shouldFallbackToMock(error)) throw error;
-
-    const msg = error instanceof Error ? error.message : String(error);
-    console.warn('[gql] faqsConnection fallback to seed json:', msg);
-
-    const seedRows = await loadSeedFaqs();
-
-    const filtered = filterRowsByCategorySearch(seedRows, args, {
-      getCategory: r => r.category,
-      getSearchText: r => `${r.question} ${r.answer} ${r.category}`
-    });
-
-    const pageArgs = {
-      first: args.first,
-      ...(args.after !== undefined ? { after: args.after } : {})
+    const whereArgs = {
+      ...(args.category !== undefined ? { category: args.category } : {}),
+      ...(args.search !== undefined ? { search: args.search } : {})
     }; // omit undefined props for exactOptionalPropertyTypes
 
-    const page = pageFromRows(filtered, pageArgs);
-    return { ...page, source: 'mock' };
-  }
+    const { whereSql, params } = buildCategorySearchWhere(whereArgs); // build shared filter predicates
+    const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary predicate
+
+    const countSql = `
+      select count(*)::int as count
+      from public.faqs
+      ${whereSql}
+    `; // total count for connection metadata (post-filter, pre-page)
+
+    try {
+      const countRes = await ctx.db.query(countSql, params); // count query goes through injected db adapter
+      const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize count result defensively
+
+      const pageSql = `
+        select id, faq_key, question, answer, category, updated_at
+        from public.faqs
+        ${whereSql}
+        ${whereSql ? '' : 'where true'}
+        ${afterBoundary.sql}
+        order by updated_at desc, id desc
+        limit $${params.length + afterBoundary.params.length + 1}
+      `; // deterministic desc ordering with cursor boundary + overfetch by 1
+
+      const limitParam = firstClamped + 1; // overfetch one row to compute hasNextPage
+      const pageParams = [...params, ...afterBoundary.params, limitParam]; // preserve parameter ordering
+
+      const pageRes = await ctx.db.query(pageSql, pageParams); // paged query through injected db adapter
+      const fetched = (pageRes.rows ?? []) as DbFaqRow[]; // cast row shape from query result
+
+      const hasNextPage = fetched.length > firstClamped; // extra row means more data exists
+      const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // trim extra row for response
+      const last = rows.length ? rows[rows.length - 1] : null; // last visible row determines endCursor
+
+      const endCursor = last
+        ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
+        : null; // null when page is empty
+
+      return { rows, hasNextPage, endCursor, totalCount, source: 'db' }; // db-backed page result
+    } catch (error) {
+      if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should not be masked
+
+      const msg = error instanceof Error ? error.message : String(error); // normalize error for logging
+      console.warn('[gql] faqsConnection fallback to seed json:', msg); // explicit fallback log for demos
+
+      const seedRows = await loadSeedFaqs(); // parse/cached seed rows
+      const filtered = filterRowsByCategorySearch(seedRows, args, {
+        getCategory: r => r.category, // category source for shared filter helper
+        getSearchText: r => `${r.question} ${r.answer} ${r.category}` // simple seed-mode search text
+      });
+
+      const pageArgs = {
+        first: args.first,
+        ...(args.after !== undefined ? { after: args.after } : {})
+      }; // omit undefined props for exactOptionalPropertyTypes
+
+      const page = pageFromRows(filtered, pageArgs); // shared in-memory paging helper
+
+      return { ...page, source: 'mock' }; // preserve resolver contract while signaling fallback source
+    }
+  });
 }
