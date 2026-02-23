@@ -5,6 +5,7 @@
   - keeps pagination behavior identical to previous resolver implementation
   - supports seed json fallback when db is unavailable (mvp resilience)
   - dedupes duplicate reads within one graphql request using request-scoped memoization
+  - adds shared read cache (LRU TTL) for db-backed results across requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
@@ -12,7 +13,8 @@ import path from 'node:path'; // resolve data folder paths
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
-import { buildFaqsKey } from '../cache'; // deterministic key builder reused for memo/cache consistency
+import { buildFaqsKey } from '../cache'; // deterministic memo key builder (raw args for readability)
+import { buildFaqsReadCacheKey } from '../cache/keys'; // normalized cache key builder (includes auth scope)
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import {
   buildAfterBoundary,
@@ -49,6 +51,29 @@ export type FaqsPage = {
   totalCount: number;
   source: 'db' | 'mock';
 };
+
+// ---------- cache config + debug helpers ----------
+
+const FAQS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl for repeated UI reads while keeping data reasonably fresh
+
+function isDebugPerfEnabled(): boolean {
+  const raw = String(process.env.DEBUG_PERF ?? '').toLowerCase(); // env flags are strings
+  return raw === 'true' || raw === '1' || raw === 'yes' || raw === 'on'; // tolerate common truthy values
+}
+
+function logReadCache(
+  event: 'hit' | 'miss',
+  key: string,
+  ttlSeconds: number
+): void {
+  if (!isDebugPerfEnabled()) return; // keep logs quiet unless explicitly enabled
+  console.log(`[cache] ${event} key=${key} ttl=${ttlSeconds}s`); // single-line terminal log for quick perf checks
+}
+
+function getAuthScopeForReadCache(ctx: GraphQLContext): string {
+  if (ctx.auth.isAdmin) return 'admin'; // placeholder until real auth scopes land
+  return 'public'; // current prototype reads behave as public
+}
 
 // ---------- fallback detection ----------
 
@@ -113,6 +138,80 @@ async function loadSeedFaqs(): Promise<DbFaqRow[]> {
   return rows; // return parsed + normalized seed rows
 }
 
+// ---------- db read path (cacheable) ----------
+
+async function getFaqsPageFromDb(
+  args: FaqsConnectionArgs,
+  ctx: GraphQLContext
+): Promise<FaqsPage> {
+  const firstClamped = clampFirst(args.first); // enforce safe page size
+
+  const whereArgs = {
+    ...(args.category !== undefined ? { category: args.category } : {}),
+    ...(args.search !== undefined ? { search: args.search } : {})
+  }; // omit undefined props for exactOptionalPropertyTypes
+
+  const { whereSql, params } = buildCategorySearchWhere(whereArgs); // build shared filter predicates
+  const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary predicate
+
+  const countSql = `
+    select count(*)::int as count
+    from public.faqs
+    ${whereSql}
+  `; // total count for connection metadata (post-filter, pre-page)
+
+  const countRes = await ctx.db.query(countSql, params); // count query goes through injected db adapter
+  const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize count result defensively
+
+  const pageSql = `
+    select id, faq_key, question, answer, category, updated_at
+    from public.faqs
+    ${whereSql}
+    ${whereSql ? '' : 'where true'}
+    ${afterBoundary.sql}
+    order by updated_at desc, id desc
+    limit $${params.length + afterBoundary.params.length + 1}
+  `; // deterministic desc ordering with cursor boundary + overfetch by 1
+
+  const limitParam = firstClamped + 1; // overfetch one row to compute hasNextPage
+  const pageParams = [...params, ...afterBoundary.params, limitParam]; // preserve parameter ordering
+  const pageRes = await ctx.db.query(pageSql, pageParams); // paged query through injected db adapter
+  const fetched = (pageRes.rows ?? []) as DbFaqRow[]; // cast row shape from query result
+
+  const hasNextPage = fetched.length > firstClamped; // extra row means more data exists
+  const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // trim extra row for response
+  const last = rows.length ? rows[rows.length - 1] : null; // last visible row determines endCursor
+  const endCursor = last
+    ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
+    : null; // null when page is empty
+
+  return { rows, hasNextPage, endCursor, totalCount, source: 'db' }; // db-backed page result
+}
+
+async function getFaqsPageDbCached(
+  args: FaqsConnectionArgs,
+  ctx: GraphQLContext
+): Promise<FaqsPage> {
+  const cacheKey = buildFaqsReadCacheKey(args, {
+    authScope: getAuthScopeForReadCache(ctx)
+  }); // normalized cross-request cache key with placeholder auth scope
+
+  const cached = ctx.cache.get(cacheKey); // probe once for debug visibility before getOrSet
+  logReadCache(
+    cached === null ? 'miss' : 'hit',
+    cacheKey,
+    FAQS_READ_CACHE_TTL_SECONDS
+  ); // optional cache hit/miss logs
+
+  const page = await ctx.cache.getOrSet(
+    cacheKey,
+    FAQS_READ_CACHE_TTL_SECONDS,
+    async () => getFaqsPageFromDb(args, ctx) // cache DB-backed result only (fallback is handled outside)
+  );
+
+  return page as FaqsPage; // cache interface is generic/unknown-friendly, so cast to service return type
+}
+
 // ---------- main read path ----------
 
 export async function getFaqsPage(
@@ -122,51 +221,8 @@ export async function getFaqsPage(
   const memoKey = `faqsService:getFaqsPage:${buildFaqsKey(args)}`; // deterministic per-request dedupe key
 
   return memoizePromise(ctx.memo, memoKey, async () => {
-    const firstClamped = clampFirst(args.first); // enforce safe page size
-
-    const whereArgs = {
-      ...(args.category !== undefined ? { category: args.category } : {}),
-      ...(args.search !== undefined ? { search: args.search } : {})
-    }; // omit undefined props for exactOptionalPropertyTypes
-
-    const { whereSql, params } = buildCategorySearchWhere(whereArgs); // build shared filter predicates
-    const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary predicate
-
-    const countSql = `
-      select count(*)::int as count
-      from public.faqs
-      ${whereSql}
-    `; // total count for connection metadata (post-filter, pre-page)
-
     try {
-      const countRes = await ctx.db.query(countSql, params); // count query goes through injected db adapter
-      const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize count result defensively
-
-      const pageSql = `
-        select id, faq_key, question, answer, category, updated_at
-        from public.faqs
-        ${whereSql}
-        ${whereSql ? '' : 'where true'}
-        ${afterBoundary.sql}
-        order by updated_at desc, id desc
-        limit $${params.length + afterBoundary.params.length + 1}
-      `; // deterministic desc ordering with cursor boundary + overfetch by 1
-
-      const limitParam = firstClamped + 1; // overfetch one row to compute hasNextPage
-      const pageParams = [...params, ...afterBoundary.params, limitParam]; // preserve parameter ordering
-
-      const pageRes = await ctx.db.query(pageSql, pageParams); // paged query through injected db adapter
-      const fetched = (pageRes.rows ?? []) as DbFaqRow[]; // cast row shape from query result
-
-      const hasNextPage = fetched.length > firstClamped; // extra row means more data exists
-      const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // trim extra row for response
-      const last = rows.length ? rows[rows.length - 1] : null; // last visible row determines endCursor
-
-      const endCursor = last
-        ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
-        : null; // null when page is empty
-
-      return { rows, hasNextPage, endCursor, totalCount, source: 'db' }; // db-backed page result
+      return await getFaqsPageDbCached(args, ctx); // shared read cache sits inside request memo for best of both
     } catch (error) {
       if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should not be masked
 
@@ -185,7 +241,6 @@ export async function getFaqsPage(
       }; // omit undefined props for exactOptionalPropertyTypes
 
       const page = pageFromRows(filtered, pageArgs); // shared in-memory paging helper
-
       return { ...page, source: 'mock' }; // preserve resolver contract while signaling fallback source
     }
   });
