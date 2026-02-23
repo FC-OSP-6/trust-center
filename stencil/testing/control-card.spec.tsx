@@ -76,7 +76,7 @@ describe('aon-control-card', () => {
   it('renders empty grid when data-mode is "none"', async () => {
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="none"></aon-control-card>`,
+      html: `<aon-control-card data-mode="none"></aon-control-card>`
     });
 
     const component = page.rootInstance;
@@ -85,15 +85,14 @@ describe('aon-control-card', () => {
     // Component loaded
     expect(element).toBeTruthy();
     expect(component).toBeInstanceOf(ControlCard);
-    
+
     // No groups should be loaded
     expect(component.groups).toEqual([]);
-    
+
     // Grid should be empty
     const grid = element.shadowRoot.querySelector('.grid');
     expect(grid).toBeTruthy();
     expect(grid.children.length).toBe(0);
-    
     // No tile header
     expect(element.shadowRoot.querySelector('.tileHeader')).toBeNull();
   });
@@ -108,7 +107,7 @@ describe('aon-control-card', () => {
 
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     const component = page.rootInstance;
@@ -126,18 +125,15 @@ describe('aon-control-card', () => {
 
     // Check groups were created correctly
     expect(component.groups).toHaveLength(2); // Security and Operations
-    
     // Security group should have 3 controls
     const securityGroup = component.groups.find(g => g.title === 'Security');
     expect(securityGroup).toBeTruthy();
     expect(securityGroup.items).toHaveLength(3);
     expect(securityGroup.items[0].title).toBe('Access Control Policy');
-    
     // Operations group should have 2 controls
     const opsGroup = component.groups.find(g => g.title === 'Operations');
     expect(opsGroup).toBeTruthy();
     expect(opsGroup.items).toHaveLength(2);
-    
     // Total count should be set
     expect(component.totalControls).toBe(5);
   });
@@ -168,26 +164,24 @@ describe('aon-control-card', () => {
           show-meta="true"
           icon-src="/icon.svg"
         ></aon-control-card>
-      `,
+      `
     });
 
     await page.waitForChanges();
 
     const element = page.root;
     const header = element.shadowRoot.querySelector('.tileHeader');
-    
+
     expect(header).toBeTruthy();
-    
+
     // Check title
     const title = element.shadowRoot.querySelector('.tileTitle');
     expect(title).toBeTruthy();
     expect(title.textContent).toBe('Security Controls');
-    
     // Check meta (10 controls, 0 categories because edges empty)
     const meta = element.shadowRoot.querySelector('.tileMeta');
     expect(meta).toBeTruthy();
     expect(meta.textContent).toContain('10 controls');
-    
     // Check subtitle
     const subtitle = element.shadowRoot.querySelector('.tileSubtitle');
     expect(subtitle).toBeTruthy();
@@ -203,36 +197,37 @@ describe('aon-control-card', () => {
 
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     await page.waitForChanges();
 
     const element = page.root;
     const cards = element.shadowRoot.querySelectorAll('.card');
-    
+
     // Should have 2 cards (Security and Operations)
     expect(cards.length).toBe(2);
-    
+
     // Check first card header
     const firstCard = cards[0];
     const cardHeader = firstCard.querySelector('.cardHeader');
     const cardTitle = firstCard.querySelector('.cardTitle');
     expect(cardTitle.textContent).toBe('Security');
-    
     // Check columns
     const columns = firstCard.querySelector('.columns');
     expect(columns).toBeTruthy();
     expect(columns.querySelector('.colLeft').textContent).toBe('Control');
     expect(columns.querySelector('.colRight').textContent).toBe('Status');
-    
+
     // Check rows
     const rows = firstCard.querySelectorAll('.row');
     expect(rows.length).toBe(3); // 3 security controls
-    
+
     // Check first row content
     const firstRow = rows[0];
-    expect(firstRow.querySelector('.rowTitle').textContent).toBe('Access Control Policy');
+    expect(firstRow.querySelector('.rowTitle').textContent).toBe(
+      'Access Control Policy'
+    );
   });
 
   // Test 5: Expand/collapse functionality
@@ -244,42 +239,42 @@ describe('aon-control-card', () => {
 
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     await page.waitForChanges();
 
     const element = page.root;
     const component = page.rootInstance;
-    
+
     // Initially collapsed (expandedByKey should be empty)
     expect(component.expandedByKey).toEqual({});
-    
+
     // Find first card header button
     const firstCard = element.shadowRoot.querySelector('.card');
     const headerButton = firstCard.querySelector('.cardHeader');
-    
+
     // Click to expand
     headerButton.click();
     await page.waitForChanges();
-    
+
     // Should be expanded
     expect(component.expandedByKey['Security']).toBe(true);
     expect(headerButton.getAttribute('aria-expanded')).toBe('true');
-    
+
     // Check toggle icon classes
     const toggleIcon = firstCard.querySelector('.aonToggleIcon');
     expect(toggleIcon.classList.contains('isOpen')).toBe(true);
-    
+
     // Descriptions should be visible now
     const revealWraps = firstCard.querySelectorAll('.aonRevealWrap');
     expect(revealWraps.length).toBe(3);
     expect(revealWraps[0].classList.contains('isOpen')).toBe(true);
-    
+
     // Click again to collapse
     headerButton.click();
     await page.waitForChanges();
-    
+
     expect(component.expandedByKey['Security']).toBe(false);
     expect(toggleIcon.classList.contains('isOpen')).toBe(false);
   });
@@ -299,54 +294,58 @@ describe('aon-control-card', () => {
           data-mode="controls"
           icon-src="/custom-status.svg"
         ></aon-control-card>
-      `,
+      `
     });
 
     await pageWithIcon.waitForChanges();
 
     const elementWithIcon = pageWithIcon.root;
     const statusIcon = elementWithIcon.shadowRoot.querySelector('.statusIcon');
-    
+
     expect(statusIcon).toBeTruthy();
     expect(statusIcon.getAttribute('src')).toBe('/custom-status.svg');
-    
+
     // Test without icon (should show dot)
     const pageWithoutIcon = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     await pageWithoutIcon.waitForChanges();
 
     const elementWithoutIcon = pageWithoutIcon.root;
     const statusDot = elementWithoutIcon.shadowRoot.querySelector('.statusDot');
-    
+
     expect(statusDot).toBeTruthy();
-    expect(elementWithoutIcon.shadowRoot.querySelector('.statusIcon')).toBeNull();
+    expect(
+      elementWithoutIcon.shadowRoot.querySelector('.statusIcon')
+    ).toBeNull();
   });
 
   // Test 7: Error handling
   it('handles fetch errors gracefully', async () => {
     // Mock failed fetch
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error('Network error')
+    );
 
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     await page.waitForChanges();
 
     const component = page.rootInstance;
-    
+
     // Groups should be empty (fallback)
     expect(component.groups).toEqual([]);
     expect(component.totalControls).toBe(0);
-    
+
     // Component should still render without crashing
     const element = page.root;
     expect(element.shadowRoot.querySelector('.grid')).toBeTruthy();
-    
+
     // Console.warn should have been called
     expect(console.warn).toHaveBeenCalled();
   });
@@ -363,13 +362,12 @@ describe('aon-control-card', () => {
 
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     await page.waitForChanges();
 
     const component = page.rootInstance;
-    
     // Should handle error gracefully
     expect(component.groups).toEqual([]);
     expect(component.totalControls).toBe(0);
@@ -384,7 +382,7 @@ describe('aon-control-card', () => {
 
     await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls" fetch-first="50"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls" fetch-first="50"></aon-control-card>`
     });
 
     // Check that fetch was called with correct first value
@@ -404,17 +402,17 @@ describe('aon-control-card', () => {
 
     const page = await newSpecPage({
       components: [ControlCard],
-      html: `<aon-control-card data-mode="controls"></aon-control-card>`,
+      html: `<aon-control-card data-mode="controls"></aon-control-card>`
     });
 
     await page.waitForChanges();
 
     const component = page.rootInstance;
-    
+
     // Groups should be sorted: Operations, Security (alphabetical)
     expect(component.groups[0].title).toBe('Operations');
     expect(component.groups[1].title).toBe('Security');
-    
+
     // Security controls should be sorted alphabetically
     const securityGroup = component.groups[1];
     expect(securityGroup.items[0].title).toBe('Access Control Policy');

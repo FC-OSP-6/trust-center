@@ -1,53 +1,70 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  Reusable blue call-to-action card component
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  reusable blue call-to-action web component
 
-  - Defines <aon-blue-card>, a presentational Stencil Web Component.
-  - Renders a title, description, and external CTA link via props.
-  - Uses Shadow DOM for style and DOM encapsulation (trade-off: isolated styles, but no global CSS inheritance).
-  - Contains no internal state, events, or business logic.
-  - Exports AonBlueCard class; consumed as <aon-blue-card> in host frameworks (e.g., React layer).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  - renders title + description + cta link in a single presentational component
+  - uses an anchor for navigation (fixes invalid nested interactive pattern)
+  - keeps zero business logic and no internal state
+  - exposes props so react can stay thin and pass content only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, h } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
+import { Component, Prop, h } from '@stencil/core'; // stencil decorators + jsx factory
 
 @Component({
-  tag: 'aon-blue-card', // Registers the custom element <aon-blue-card>
-  styleUrls: ['./blue-cards.css'],
-  shadow: true // enables Shadow DOM for DOM and style encapsulation
+  tag: 'aon-blue-card', // custom element tag
+  styleUrl: './blue-cards.css', // component-scoped styles
+  shadow: true // style + dom encapsulation
 })
 export class AonBlueCard {
-  // Web Component definition and render logic for <aon-blue-card>
+  @Prop() blueCardTitle: string = ''; // heading text
+  @Prop() blueCardDescription: string = ''; // body text
+  @Prop() blueCardButtonText: string = 'Visit'; // cta label
+  @Prop() blueCardButtonLink: string = ''; // cta destination
 
-  @Prop() blueCardTitle: string;
-  @Prop() blueCardDescription: string;
-  @Prop() blueCardButtonText: string;
-  @Prop() blueCardButtonLink: string;
+  // ----------  render helpers  ----------
+
+  private getSafeHref(): string {
+    const href = (this.blueCardButtonLink ?? '').trim(); // normalize empty values
+
+    if (!href) return '#'; // fallback keeps markup stable when no link is provided
+
+    return href; // use provided url as-is
+  } // simple normalization helper keeps render cleaner
+
+  // ----------  render  ----------
 
   render() {
-    const {
-      blueCardTitle,
-      blueCardDescription,
-      blueCardButtonText,
-      blueCardButtonLink
-    } = this; // Destructure component props for cleaner JSX usage
+    const href = this.getSafeHref(); // normalized destination url
+    const isDisabled = href === '#'; // disable-style state when link missing
+
     return (
-      <div class="blue-card">
+      <section
+        class="blue-card"
+        aria-label={this.blueCardTitle || 'Portal Callout'}
+      >
         <div class="blue-card-text">
-          <h5 class="blue-card-title">{blueCardTitle}</h5>
-          <p class="blue-card-description">{blueCardDescription}</p>
+          {this.blueCardTitle && (
+            <h5 class="blue-card-title">{this.blueCardTitle}</h5>
+          )}
+
+          {this.blueCardDescription && (
+            <p class="blue-card-description">{this.blueCardDescription}</p>
+          )}
         </div>
 
-        <button class="blue-card-button">
-          <a
-            href={blueCardButtonLink}
-            target="_blank"
-            class="blue-card-button-link"
-          >
-            {blueCardButtonText}
-          </a>
-        </button>
-      </div>
+        <a
+          class={{
+            'blue-card-button': true, // base cta button styling
+            'blue-card-button--disabled': isDisabled // visual disabled state when href missing
+          }}
+          href={href}
+          target={isDisabled ? undefined : '_blank'}
+          rel={isDisabled ? undefined : 'noopener noreferrer'}
+          aria-disabled={isDisabled ? 'true' : undefined}
+          onClick={isDisabled ? e => e.preventDefault() : undefined}
+        >
+          {this.blueCardButtonText || 'Visit'}
+        </a>
+      </section>
     );
   }
 }

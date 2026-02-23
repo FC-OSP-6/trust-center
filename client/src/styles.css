@@ -1,15 +1,25 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  contains global css styking for entire app
+  TL;DR  -->  contains global css styling for entire app
 
-      - spacing and 
+  - page-level layout + spacing primitives
+  - host-level layout wrappers for stencil components
+  - shadow-dom internals remain styled inside stencil component css
+  - controls/faqs page uses react-owned 2/3 + 1/3 layout with sticky rail
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 :root {
-  /* Global spacing (between components) */
+  /* global spacing (between components) */
+  --space-global-2xs: 16px;
   --space-global-xs: 20px;
   --space-global-sm: 24px;
   --space-global-md: 32px;
   --space-global-lg: 40px;
+
+  /* controls/faqs page layout */
+  --info-gap-col: 20px;
+  --info-gap-rail: 16px;
+  --info-pad-top: 20px;
+  --info-stick-top: 112px;
 }
 
 body {
@@ -30,7 +40,7 @@ body {
   gap: var(--space-global-lg);
 }
 
-/* Grid only for link cards */
+/* legacy / other usage grid (keep in place if other sections still rely on it) */
 .resources-grid {
   width: 100%;
   max-width: 1200px;
@@ -40,25 +50,33 @@ body {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-/* Responsive */
-@media (max-width: 991px) {
-  .resources-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* primary wrapper rendered by ResourceLinkCards() */
+.resource-link-cards {
+  width: 100%;
+  max-width: 1200px;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-global-md);
+
+  /* stretch both cards so they visually match height even when entry counts differ */
+  align-items: stretch;
 }
 
-@media (max-width: 575px) {
-  .resources-grid {
-    grid-template-columns: 1fr;
-  }
+/* ensure stencil hosts stretch like grid items */
+.resource-link-cards > aon-link-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
 }
 
-/* Blue card wrapper */
-.resources-callout {
+/* blue callout wrapper (shown below cards) */
+.resources-callout,
+.portal-callout {
   width: 100%;
   max-width: 1200px;
 }
-
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    Overview Section Layout
@@ -98,18 +116,6 @@ body {
   gap: var(--space-global-md);
 }
 
-@media (max-width: 991px) {
-  .overview-expansion-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 575px) {
-  .overview-expansion-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* error text (not a debug panel; just a failure message) */
 .overview-error {
   margin: 0;
@@ -118,7 +124,205 @@ body {
 }
 
 .overview-error-detail {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   font-size: 12px;
   opacity: 0.9;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Controls/FAQs Page Layout (react-owned)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+.info-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  grid-template-areas: 'main rail';
+  align-items: start;
+  column-gap: var(--info-gap-col);
+  padding: var(--info-pad-top) var(--space-global-md) var(--space-global-lg);
+}
+
+.info-main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.info-rail {
+  grid-area: rail;
+  min-width: 0;
+  align-self: start;
+}
+
+/* sticky wrapper keeps subnav + ai visible while content scrolls */
+.info-stick {
+  position: sticky;
+  top: var(--info-stick-top);
+  display: grid;
+  gap: var(--info-gap-rail);
+  align-content: start;
+
+  /* lets long category lists stay usable without losing stickiness */
+  max-height: calc(100vh - var(--info-stick-top) - var(--space-global-xs));
+  overflow: auto;
+  padding-right: 2px;
+}
+
+/* custom element hosts should fill their wrappers */
+.info-stick > aon-subnav-card,
+.info-main > aon-control-card,
+.info-main > aon-faq-card {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+/* ---------- ai placeholder (react wrapper; future stencil slot) ---------- */
+
+.ai-slot {
+  background: #ffffff;
+  border: 1px solid #cddbde;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.ai-head {
+  display: grid;
+  gap: 8px;
+}
+
+.ai-title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #262836;
+}
+
+.ai-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 18px;
+  color: #5d6d78;
+}
+
+/* placeholder "chat area" intentionally sized to reserve real component space */
+.ai-body {
+  border: 1px dashed #acc0c4;
+  border-radius: 8px;
+  background: #f9fcfc;
+  padding: 12px;
+  min-height: clamp(200px, 34vh, 360px);
+
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.ai-chip {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  color: #003c55;
+  background: #eef6f7;
+  text-transform: lowercase;
+}
+
+.ai-line {
+  height: 10px;
+  border-radius: 999px;
+  background: #e5eff0;
+}
+
+.ai-line.short {
+  width: 62%;
+}
+
+.ai-note {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #82939a;
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Tablet Overrides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+@media (max-width: 991px) {
+  .resources-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resource-link-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-expansion-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .info-grid {
+    column-gap: var(--space-global-2xs);
+    padding-inline: var(--space-global-sm);
+  }
+
+  .info-stick {
+    top: 96px;
+    max-height: calc(100vh - 96px - var(--space-global-xs));
+  }
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Mobile Overrides
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+@media (max-width: 767px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'rail'
+      'main';
+    row-gap: var(--space-global-2xs);
+    padding: var(--space-global-xs) var(--space-global-xs)
+      var(--space-global-md);
+  }
+
+  /* sticky rail becomes normal stacked flow on mobile */
+  .info-stick {
+    position: static;
+    top: auto;
+    max-height: none;
+    overflow: visible;
+    gap: 12px;
+    padding-right: 0;
+  }
+
+  .ai-body {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 575px) {
+  .resources-section,
+  .overview-section {
+    padding: var(--space-global-md) var(--space-global-xs);
+    gap: var(--space-global-md);
+  }
+
+  .overview-expansion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
 }
