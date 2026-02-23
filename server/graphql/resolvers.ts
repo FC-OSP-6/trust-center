@@ -1,14 +1,13 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  graphql resolvers (thin orchestration)
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR --> graphql resolvers (thin orchestration)
 
   - validates graphql args (cursor shape)
-  - delegates all read logic to services (sql + pagination + fallback)
+  - delegates read logic to services (sql + pagination + fallback + request memo)
   - maps db rows to graphql nodes + edges
   - logs which data source served each request (db vs mock)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared per-request context shape
-
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared pagination primitives
 import {
   getControlsPage,
@@ -16,7 +15,7 @@ import {
 } from '../services/controlsService'; // controls read path
 import { getFaqsPage, type DbFaqRow } from '../services/faqsService'; // faqs read path
 
-// ----------  data source logs  ----------
+// ---------- data source logs ----------
 
 type DataSource = 'db' | 'mock';
 
@@ -26,13 +25,12 @@ function logDataSource(args: {
   source: DataSource;
   returnedCount: number;
 }) {
-  // single-line log for terminal scanning during mvp demos
   console.log(
     `[data] requestId=${args.requestId} resolver=${args.resolverName} source=${args.source} count=${args.returnedCount}`
-  );
+  ); // single-line log for terminal scanning during mvp demos
 }
 
-// ----------  field mappers (db --> graphql)  ----------
+// ---------- field mappers (db --> graphql) ----------
 
 function mapControlNode(row: DbControlRow) {
   return {
@@ -57,23 +55,18 @@ function mapFaqNode(row: DbFaqRow) {
   };
 }
 
-// ----------  resolver map (schema execution)  ----------
+// ---------- resolver map (schema execution) ----------
 
 export const resolvers = {
   Query: {
-    // placeholder --> proves schema executes
-    hello: () => 'helloWorld  from  GraphQL!',
+    hello: () => 'helloWorld from GraphQL!', // placeholder --> proves schema executes
+    health: () => 'OK', // placeholder --> proves server is healthy without graphql errors
 
-    // placeholder --> proves server is healthy without graphql errors
-    health: () => 'OK',
-
-    // debug helper --> proves context is wired
     debugContext: (_parent: unknown, _args: unknown, ctx: GraphQLContext) => ({
       requestId: ctx.requestId, // show request trace id
       isAdmin: ctx.auth.isAdmin // show admin flag
     }),
 
-    // read-only controls connection --> pagination + filters
     controlsConnection: async (
       _parent: unknown,
       args: {
@@ -85,30 +78,32 @@ export const resolvers = {
       ctx: GraphQLContext
     ) => {
       if (args.after && !isValidCursor(args.after))
-        throw new Error('CURSOR_ERROR: invalid after cursor');
+        throw new Error('CURSOR_ERROR: invalid after cursor'); // fail early with readable cursor error
 
-      const page = await getControlsPage(args); // db-first, mock fallback when db is unavailable
+      const page = await getControlsPage(args, ctx); // service owns db/fallback/pagination internals + request memo dedupe
 
       logDataSource({
         requestId: ctx.requestId,
         resolverName: 'controlsConnection',
         source: page.source,
         returnedCount: page.rows.length
-      });
+      }); // terminal visibility for db vs seed fallback behavior
 
       const edges = page.rows.map(row => ({
-        cursor: encodeCursor({ sortValue: toIso(row.updated_at), id: row.id }),
-        node: mapControlNode(row)
+        cursor: encodeCursor({ sortValue: toIso(row.updated_at), id: row.id }), // connection cursor from stable sort tuple
+        node: mapControlNode(row) // db row -> graphql node
       }));
 
       return {
-        edges,
-        pageInfo: { hasNextPage: page.hasNextPage, endCursor: page.endCursor },
-        totalCount: page.totalCount
+        edges, // connection edges
+        pageInfo: {
+          hasNextPage: page.hasNextPage, // pagination flag from service
+          endCursor: page.endCursor // service-computed end cursor
+        },
+        totalCount: page.totalCount // post-filter total count for ui pagination metadata
       };
     },
 
-    // read-only faqs connection --> mirrors controls behavior
     faqsConnection: async (
       _parent: unknown,
       args: {
@@ -120,26 +115,29 @@ export const resolvers = {
       ctx: GraphQLContext
     ) => {
       if (args.after && !isValidCursor(args.after))
-        throw new Error('CURSOR_ERROR: invalid after cursor');
+        throw new Error('CURSOR_ERROR: invalid after cursor'); // fail early with readable cursor error
 
-      const page = await getFaqsPage(args); // db-first, mock fallback when db is unavailable
+      const page = await getFaqsPage(args, ctx); // service owns db/fallback/pagination internals + request memo dedupe
 
       logDataSource({
         requestId: ctx.requestId,
         resolverName: 'faqsConnection',
         source: page.source,
         returnedCount: page.rows.length
-      });
+      }); // terminal visibility for db vs seed fallback behavior
 
       const edges = page.rows.map(row => ({
-        cursor: encodeCursor({ sortValue: toIso(row.updated_at), id: row.id }),
-        node: mapFaqNode(row)
+        cursor: encodeCursor({ sortValue: toIso(row.updated_at), id: row.id }), // connection cursor from stable sort tuple
+        node: mapFaqNode(row) // db row -> graphql node
       }));
 
       return {
-        edges,
-        pageInfo: { hasNextPage: page.hasNextPage, endCursor: page.endCursor },
-        totalCount: page.totalCount
+        edges, // connection edges
+        pageInfo: {
+          hasNextPage: page.hasNextPage, // pagination flag from service
+          endCursor: page.endCursor // service-computed end cursor
+        },
+        totalCount: page.totalCount // post-filter total count for UI pagination metadata
       };
     }
   }
