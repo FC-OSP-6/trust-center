@@ -1,74 +1,25 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  --> grouped controls as expandable cards (aon-style)
 
-  - stencil owns all logic:
-      - fetches controls from graphql (data-mode="controls")
-      - groups nodes by category
-      - derives meta: "<n> controls <m> categories"
-      - per-card expand/collapse state (each category independent)
-
-  - ui behavior:
-      - 2 cards per row (desktop), 1 column at tablet (<= 991px)
-      - header contains:
-          - optional tile title, optional derived meta, optional subtitle
-          - per-category card header with +/- toggle (shared primitive)
-      - collapsed:
-          - show all control titles + status icons
-      - expanded:
-          - show titles + descriptions (shared primitive reveal)
-
-  - shared primitives:
-      - .aonToggleIcon (plus -> minus)
-      - .aonRevealWrap/.aonRevealInner (pull-down + bottom-first text)
+  - react owns fetching/caching and passes controls-json + loading/error props
+  - stencil owns parsing/grouping/rendering + per-category expand state
+  - optional tile header derives meta from parsed controls connection data
+  - no stencil network requests (pure prop-driven ui component)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, Prop, State, h } from '@stencil/core';
+import { Component, Prop, State, Watch, h } from '@stencil/core';
+import type {
+  Control,
+  ControlGroup,
+  ControlsConnection
+} from '../../../../types-shared';
 
-// ---------- local types ----------
+// ---------- local helpers ----------
 
-type ControlNode = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  updatedAt: string;
-  sourceUrl?: string | null;
+type ParsedControlsResult = {
+  groups: ControlGroup[];
+  totalCount: number;
 };
-
-type ControlsConnectionResponse = {
-  data?: {
-    controlsConnection?: {
-      totalCount?: number;
-      edges?: Array<{ node?: ControlNode }>;
-    };
-  };
-  errors?: Array<{ message?: string }>;
-};
-
-type CategoryGroup = {
-  title: string;
-  items: Array<{ id: string; title: string; description: string }>;
-};
-
-// ---------- graphql doc (kept local so stencil owns grouping) ----------
-
-const CONTROLS_CONNECTION_QUERY = `
-  query ControlsConnection($first: Int!, $after: String, $category: String, $search: String) {
-    controlsConnection(first: $first, after: $after, category: $category, search: $search) {
-      totalCount
-      edges {
-        node {
-          id
-          title
-          description
-          category
-          sourceUrl
-          updatedAt
-        }
-      }
-    }
-  }
-`;
 
 @Component({
   tag: 'aon-control-card',
@@ -78,137 +29,187 @@ const CONTROLS_CONNECTION_QUERY = `
 export class ControlCard {
   // ---------- public api (attributes) ----------
 
-  @Prop() dataMode: 'controls' | 'none' = 'none';
-
-  @Prop() fetchFirst: number = 100;
-
-  @Prop() showTile: boolean = false;
-
-  @Prop() titleText?: string;
-
-  @Prop() showMeta: boolean = false;
-
-  @Prop() subtitleText?: string;
-
-  @Prop() iconSrc?: string;
+  @Prop() dataMode: 'controls' | 'none' = 'none'; // explicit mode gate so callers can disable rendering
+  @Prop() showTile: boolean = false; // optional title/meta header above the grid
+  @Prop() titleText?: string; // tile title text
+  @Prop() showMeta: boolean = false; // tile meta toggle (counts)
+  @Prop() subtitleText?: string; // tile subtitle / helper copy
+  @Prop() iconSrc?: string; // optional status icon image for right column
+  @Prop() controlsJson: string = ''; // react -> stencil serialized ControlsConnection
+  @Prop() isLoading: boolean = false; // react-controlled loading state
+  @Prop() errorText: string = ''; // react-controlled error state (api/network layer)
+  @Prop() sectionIdPrefix: string = 'controls-category'; // fragment id prefix used by api-driven subnav links
 
   // ---------- internal state ----------
 
-  @State() groups: CategoryGroup[] = [];
-
-  @State() totalControls: number = 0;
-
-  @State() expandedByKey: Record<string, boolean> = {};
+  @State() groups: ControlGroup[] = []; // grouped data derived from controls-json
+  @State() totalControls: number = 0; // derived count used in tile meta
+  @State() expandedByKey: Record<string, boolean> = {}; // per-category open/closed ui state
+  @State() parseErrorText: string = ''; // local parse/shape validation error (json -> ui state)
 
   // ---------- lifecycle ----------
 
-  async componentWillLoad() {
+  componentWillLoad() {
+    this.bootstrapFromProps(); // initialize internal state from incoming props
+  }
+
+  // ---------- watchers ----------
+
+  @Watch('controlsJson')
+  onControlsJsonChange() {
+    // re-parse only when controls payload changes
     if (this.dataMode !== 'controls') return;
 
+    this.syncControlsFromJson(this.controlsJson);
+  }
+
+  @Watch('dataMode')
+  onDataModeChange() {
+    // mode changes can require a full reset or parse
+    this.bootstrapFromProps();
+  }
+
+  // ---------- state reset helpers ----------
+
+  private resetParsedControlsState() {
+    // keep ui expansion state untouched on successful refetches unless caller changes categories
+    // but clear all parsed payload state when mode/data is absent
+    this.groups = [];
+    this.totalControls = 0;
+    this.parseErrorText = '';
+  }
+
+  // ---------- id helpers ----------
+
+  private toSlug(value: string): string {
+    return (value ?? '')
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  private getCategorySectionId(categoryTitle: string): string {
+    const prefix = (this.sectionIdPrefix ?? '').trim();
+    const slug = this.toSlug(categoryTitle);
+
+    // fall back to slug-only if no prefix was passed
+    if (!prefix) return slug;
+
+    return slug ? `${prefix}-${slug}` : prefix;
+  }
+
+  // ---------- data (react-fed json -> grouped stencil ui state) ----------
+
+  private bootstrapFromProps() {
+    // non-controls mode should fully clear derived controls data
+    if (this.dataMode !== 'controls') {
+      this.resetParsedControlsState();
+      return;
+    }
+
+    // controls mode parses current payload
+    this.syncControlsFromJson(this.controlsJson);
+  }
+
+  private syncControlsFromJson(raw: string) {
+    const text = (raw ?? '').trim(); // normalize null/undefined/whitespace payloads
+
+    // empty payload is not a parse error --> it represents "no data yet" or "no results"
+    if (!text) {
+      this.resetParsedControlsState();
+      return;
+    }
+
     try {
-      const { groups, totalCount } = await this.fetchAndGroupControls();
+      const parsed = this.parseControlsConnection(text);
 
-      this.groups = groups;
+      this.groups = parsed.groups;
 
-      this.totalControls = totalCount;
+      this.totalControls = parsed.totalCount;
+
+      this.parseErrorText = '';
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
 
-      console.warn('[aon-control-card] controls load failed:', msg);
+      console.warn('[aon-control-card] controls-json parse failed:', msg);
 
       this.groups = [];
 
       this.totalControls = 0;
+
+      this.parseErrorText = `INVALID_CONTROLS_JSON: ${msg}`;
     }
   }
 
-  // ---------- data ----------
+  private parseControlsConnection(text: string): ParsedControlsResult {
+    const parsed = JSON.parse(text) as ControlsConnection; // caller passes serialized graphql connection shape
 
-  private getFetchFirst(): number {
-    const n = Number(this.fetchFirst);
+    const edges = Array.isArray(parsed?.edges) ? parsed.edges : []; // tolerate malformed/missing edges
 
-    if (!Number.isFinite(n) || n <= 0) return 100;
+    const nodes = edges
+      .map(edge => edge?.node) // pull node payloads from edges
+      .filter((node): node is Control =>
+        Boolean(node && node.id && node.title && node.category)
+      ); // keep only minimal valid controls needed by this ui
 
-    return Math.floor(n);
-  }
-
-  private async fetchAndGroupControls(): Promise<{
-    groups: CategoryGroup[];
-    totalCount: number;
-  }> {
-    const first = this.getFetchFirst();
-
-    const res = await fetch('/graphql', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        query: CONTROLS_CONNECTION_QUERY,
-        variables: { first, after: null, category: null, search: null }
-      })
-    });
-
-    if (!res.ok) throw new Error(`NETWORK_ERROR: http ${res.status}`);
-
-    const json = (await res.json()) as ControlsConnectionResponse;
-
-    if (json.errors && json.errors.length) {
-      const msg = json.errors
-        .map(e => e.message ?? 'unknown graphql error')
-        .join(' | ');
-
-      throw new Error(`GRAPHQL_ERROR: ${msg}`);
-    }
-
-    const nodes =
-      json.data?.controlsConnection?.edges
-        ?.map(e => e.node)
-        .filter((n): n is ControlNode =>
-          Boolean(n && n.id && n.title && n.category)
-        ) ?? [];
+    const groups = this.groupByCategory(nodes); // derive grouped ui structure
 
     const totalCount =
-      Number(json.data?.controlsConnection?.totalCount ?? nodes.length) ||
-      nodes.length;
-
-    const map = new Map<
-      string,
-      Array<{ id: string; title: string; description: string }>
-    >();
-
-    for (const n of nodes) {
-      const cat = (n.category || 'General').trim() || 'General';
-
-      const list = map.get(cat) ?? [];
-
-      list.push({
-        id: n.id,
-        title: (n.title || '').trim(),
-        description: (n.description || '').trim()
-      });
-
-      map.set(cat, list);
-    }
-
-    const groups: CategoryGroup[] = Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([title, items]) => ({
-        title,
-        items: items.sort((a, b) => a.title.localeCompare(b.title))
-      }));
+      Number(parsed?.totalCount ?? nodes.length) || nodes.length; // prefer server totalCount, fallback to node count
 
     return { groups, totalCount };
   }
 
-  // TODO: Abstract above code into a service worker -- Hardcoded "/graphql" – consider config or base URL (e.g. from env or host) for different environments.
-  // TODO: No request timeout or AbortController – long-lived requests can't be cancelled if component unmounts.
+  private groupByCategory(nodes: Control[]): ControlGroup[] {
+    const map = new Map<string, ControlGroup['items']>(); // category -> row items (preserves first-seen order)
+
+    for (const node of nodes) {
+      const title = (node.title || '').trim(); // normalize display title
+
+      if (!title) continue; // skip empty labels so rows stay clean
+
+      const category = (node.category || 'General').trim() || 'General'; // safe category fallback
+
+      const list = map.get(category) ?? []; // existing bucket or new bucket
+
+      list.push({
+        id: node.id,
+        title,
+        description: (node.description || '').trim()
+      });
+
+      map.set(category, list);
+    }
+
+    const groups: ControlGroup[] = Array.from(map.entries()).map(
+      ([title, items]) => ({
+        title,
+        items // preserve source order so subnav matches page order
+      })
+    );
+
+    return groups;
+  }
+
+  private getDisplayErrorText(): string {
+    // api/network error from react layer wins over local parse error
+    const externalError = (this.errorText ?? '').trim();
+
+    if (externalError.length > 0) return externalError;
+
+    return (this.parseErrorText ?? '').trim();
+  }
 
   // ---------- ui helpers ----------
 
   private isExpanded(key: string): boolean {
-    return Boolean(this.expandedByKey[key]);
+    return Boolean(this.expandedByKey[key]); // missing keys are closed by default
   }
 
   private toggleExpanded(key: string) {
+    // immutable update so stencil change detection sees a new object reference
     this.expandedByKey = {
       ...this.expandedByKey,
       [key]: !this.isExpanded(key)
@@ -216,9 +217,10 @@ export class ControlCard {
   }
 
   private renderToggle(expanded: boolean) {
+    // shared aon toggle icon pattern (plus -> minus animation handled in css)
     return (
       <span
-        class={{ 'aon-toggle-icon': true, 'is-open': expanded }}
+        class={`aon-toggle-icon${expanded ? ' is-open' : ''}`}
         aria-hidden="true"
       >
         <span class="aon-toggle-bar-h" />
@@ -228,27 +230,35 @@ export class ControlCard {
   }
 
   private renderStatusIcon() {
+    // fallback dot keeps column layout stable if no icon is supplied
     if (!this.iconSrc) return <span class="status-dot" aria-hidden="true" />;
 
     return (
-      <img class="status-icon" src={this.iconSrc} alt="" aria-hidden="true" />
+      <img
+        class="status-icon"
+        src={this.iconSrc}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+      />
     );
   }
 
-  // TODO: CSS class names are usually kebab-case instead of camelCase (e.g. status-dot, tile-header, card-header-left); consider renaming for consistency with common CSS conventions.
-  // TODO: Try adding loading="lazy" and decoding="async" on img for performance; ensure iconSrc is same-origin or use fetchpriority if above-the-fold.
-  /* TODO: class={{ toggleIcon: true, isOpen: expanded }} – in Stencil/JSX, prefer string concatenation or template literal for class to avoid subtle hydration/object reference issues: class={`toggleIcon ${expanded ? 'isOpen' : ''}`} */
-
   private renderTileHeader() {
-    if (!this.showTile) return null;
+    if (!this.showTile) return null; // caller opted out of tile header
 
-    const title = (this.titleText ?? '').trim();
+    const title = (this.titleText ?? '').trim(); // normalize optional strings
 
     const subtitle = (this.subtitleText ?? '').trim();
 
-    const categoriesCount = this.groups.length;
+    const categoriesCount = this.groups.length; // derived from grouped ui data
 
     const metaText = `${this.totalControls} controls ${categoriesCount} categories`;
+
+    // avoid rendering an empty header wrapper
+    if (title.length === 0 && subtitle.length === 0 && !this.showMeta)
+      return null;
 
     return (
       <header class="tile-header">
@@ -263,13 +273,19 @@ export class ControlCard {
     );
   }
 
-  private renderCategoryCard(group: CategoryGroup) {
-    const key = group.title;
+  private renderCategoryCard(group: ControlGroup) {
+    const key = group.title; // category title acts as expand-state key
 
-    const expanded = this.isExpanded(key);
+    const expanded = this.isExpanded(key); // current category state
 
     return (
-      <section class="card">
+      <section
+        class="card"
+        key={group.title}
+        id={this.getCategorySectionId(group.title)} // subnav anchors land here
+        role="table"
+        aria-label={`${group.title} controls`}
+      >
         <button
           class="card-header"
           type="button"
@@ -282,27 +298,29 @@ export class ControlCard {
 
           <div class="card-header-right">{this.renderToggle(expanded)}</div>
         </button>
-        {/* TODO: role="presentation" removes semantics – "Control" and "Status"
-        are column headers; consider role="row" + role="columnheader" or a
-        proper table structure if screen readers should announce them as
-        headers. */}
-        <div class="columns" role="presentation">
-          <div class="col-left">Control</div>
 
-          <div class="col-right">Status</div>
+        <div class="columns" role="row">
+          <div class="col-left" role="columnheader">
+            Control
+          </div>
+
+          <div class="col-right" role="columnheader">
+            Status
+          </div>
         </div>
-        <ul class="rows" role="list">
+
+        <ul class="rows" role="rowgroup">
           {group.items.map(c => {
-            const hasDesc = (c.description ?? '').trim().length > 0;
+            const hasDesc = (c.description ?? '').trim().length > 0; // reveal body is optional per row
 
             return (
-              <li class="row" key={c.id}>
-                <div class="row-left">
+              <li class="row" key={c.id} role="row">
+                <div class="row-left" role="cell">
                   <div class="row-title">{c.title}</div>
 
                   {hasDesc && (
                     <div
-                      class={{ 'aon-reveal-wrap': true, 'is-open': expanded }}
+                      class={`aon-reveal-wrap${expanded ? ' is-open' : ''}`}
                       aria-hidden={!expanded}
                     >
                       <div class="aon-reveal-inner">{c.description}</div>
@@ -310,7 +328,9 @@ export class ControlCard {
                   )}
                 </div>
 
-                <div class="row-right">{this.renderStatusIcon()}</div>
+                <div class="row-right" role="cell">
+                  {this.renderStatusIcon()}
+                </div>
               </li>
             );
           })}
@@ -319,16 +339,53 @@ export class ControlCard {
     );
   }
 
+  private renderStatusMessage() {
+    const finalErrorText = this.getDisplayErrorText(); // react error or local parse error
+
+    // error state has highest priority so users do not miss failures
+    if (finalErrorText.length > 0) {
+      return (
+        <div role="alert" aria-live="assertive">
+          {finalErrorText}
+        </div>
+      );
+    }
+
+    // show loading text only when there is no renderable data yet
+    if (this.isLoading && this.groups.length === 0) {
+      return (
+        <div role="status" aria-live="polite">
+          Loading controls...
+        </div>
+      );
+    }
+
+    // empty state after loading completes (or empty payload provided)
+    if (this.groups.length === 0) {
+      return (
+        <div role="status" aria-live="polite">
+          No controls available.
+        </div>
+      );
+    }
+
+    return null; // caller can render the grid
+  }
+
   // ---------- render ----------
 
   render() {
+    const statusMessage = this.renderStatusMessage(); // compute once for render branch clarity
+
     return (
       <div class="wrap">
         {this.renderTileHeader()}
 
-        <div class="grid">
-          {this.groups.map(g => this.renderCategoryCard(g))}
-        </div>
+        {statusMessage ?? (
+          <div class="grid">
+            {this.groups.map(g => this.renderCategoryCard(g))}
+          </div>
+        )}
       </div>
     );
   }

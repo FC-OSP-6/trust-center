@@ -1,99 +1,145 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  Primary section navigation bar component
+  TL;DR  -->  Primary section navigation bar
 
-  - Manages active link state internally via @State(); tradeoff is that the navbar
-    owns URL-awareness rather than receiving it from the React host, which creates
-    a tight coupling to window.location and React Router's history stack.
-  - SPA navigation is achieved by intercepting anchor clicks, calling
-    window.history.pushState, and dispatching a synthetic popstate event to notify
-    React Router; tradeoff is that this approach depends on React Router listening
-    to popstate, which may break if the routing strategy changes.
-  - Shadow DOM encapsulation chosen for style isolation; tradeoff is that global styles
-    cannot pierce the shadow boundary without CSS custom properties.
-  - Navigation structure is currently static; future iterations may accept section
-    config as a prop from the React host.
-
-  - Lives in: stencil/components/navbar/
-  - Depends on: navbar.css (component-scoped styles), tokens.css (via CSS custom properties)
-  - Exports: <aon-navbar> — consumed by the React host as the primary section
-    navigation bar rendered beneath <aon-header> on all Trust Center pages.
+  - stencil renders only; react owns routing + active-path calculation
+  - nav items are passed as json to avoid hardcoded labels/hrefs in stencil
+  - active item styling is derived from active-path prop (no window usage)
+  - no history.pushState / popstate hacks (removes react-router coupling)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { Component, h, State, Host } from '@stencil/core';
-// Stencil core decorators and JSX factory; State is used for active link tracking
+import { Component, Prop, State, Watch, h, Host } from '@stencil/core';
+
+// ---------- local types (json payload shape from react) ----------
+
+type NavbarItem = {
+  label: string; // ui text shown in navbar
+  href: string; // final href rendered in anchor
+  match?: 'exact' | 'prefix'; // active matching strategy (default: prefix)
+};
 
 @Component({
   tag: 'aon-navbar',
   styleUrl: 'navbar.css',
-  shadow: true // isolate DOM + styles for design-system safety
+  shadow: true
 })
 export class AonNavbar {
-  // Renders a static navigation list; routing / expansion handled externally
+  // ---------- public api ----------
 
-  //Track current URL path for active link highlighting
-  @State() currentPath: string = window.location.pathname;
+  @Prop() itemsJson: string = '[]'; // react passes serialized navbar items
+  @Prop() activePath: string = ''; // react passes current pathname from router
+  @Prop() navAriaLabel: string = 'Primary navigation'; // accessible nav label
 
-  // Set up listener for browser back/forward buttons
+  // ---------- internal parsed state ----------
+
+  @State() items: NavbarItem[] = [];
+
+  // ---------- lifecycle ----------
+
   componentWillLoad() {
-    window.addEventListener('popstate', () => {
-      this.currentPath = window.location.pathname; // Update active link on navigation
-    });
-  }
-  // TODO: popstate listener is never removed – add componentDidUnload() and removeEventListener('popstate', handler) to avoid leaks when element is disconnected.
-
-  // Check if given path matches current page
-  // TODO: currentPath.includes(path) can false-positive (e.g. /overview matches /overview/controls); use path === currentPath or currentPath.startsWith(path) with a trailing slash check depending on route shape.
-  isCurrentPage(path: string): boolean {
-    return this.currentPath.includes(path);
+    this.syncItemsFromJson(this.itemsJson);
   }
 
-  // Handle click navigation without page reload (SPA behavior)
-  navigateTo(path: string, e: Event) {
-    e.preventDefault(); // Stop default link behavior (prevents page reload)
-    window.history.pushState({}, '', `/trust-center${path}`); // Update URL bar
-    window.dispatchEvent(new PopStateEvent('popstate')); // Notify React Router
-    this.currentPath = window.location.pathname; // Update active state
+  // ---------- watchers ----------
+
+  @Watch('itemsJson')
+  onItemsJsonChange(next: string) {
+    this.syncItemsFromJson(next);
   }
-  // TODO: Dispatching popstate to "notify React Router" is brittle – document this contract or prefer a custom event / callback prop so the component doesn't depend on React Router internals.
+
+  // ---------- parsing helpers ----------
+
+  private syncItemsFromJson(raw: string) {
+    const text = (raw ?? '').trim();
+
+    if (!text) {
+      this.items = [];
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(text) as unknown;
+
+      if (!Array.isArray(parsed)) {
+        this.items = [];
+        return;
+      }
+
+      this.items = parsed
+        .filter((item): item is NavbarItem => {
+          if (!item || typeof item !== 'object') return false;
+
+          const candidate = item as Partial<NavbarItem>;
+
+          return (
+            typeof candidate.label === 'string' &&
+            candidate.label.trim().length > 0 &&
+            typeof candidate.href === 'string' &&
+            candidate.href.trim().length > 0
+          );
+        })
+        .map(item => ({
+          label: item.label.trim(),
+          href: item.href.trim(),
+          match: item.match === 'exact' ? 'exact' : 'prefix'
+        }));
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+
+      console.warn('[aon-navbar] items-json parse failed:', msg);
+
+      this.items = [];
+    }
+  }
+
+  // ---------- active-state helpers ----------
+
+  private normalizePath(path: string): string {
+    const raw = (path ?? '').trim();
+
+    if (!raw) return '';
+
+    // strip query + hash so active matching only compares paths
+    const noHash = raw.split('#')[0] ?? '';
+    const noQuery = noHash.split('?')[0] ?? '';
+
+    // keep root as "/" but trim trailing slash elsewhere for stable matching
+    if (noQuery === '/') return '/';
+
+    return noQuery.replace(/\/+$/, '');
+  }
+
+  private isActive(item: NavbarItem): boolean {
+    const current = this.normalizePath(this.activePath);
+    const target = this.normalizePath(item.href);
+
+    if (!current || !target) return false;
+
+    if (item.match === 'exact') {
+      return current === target;
+    }
+
+    // prefix matching with boundary check avoids false positives
+    // example: "/controls" should match "/controls" and "/controls/x"
+    // but not "/controls-extra"
+    if (current === target) return true;
+
+    return current.startsWith(`${target}/`);
+  }
+
+  // ---------- render ----------
+
   render() {
     return (
       <Host>
-        <nav class="navbar">
-          {/* Overview link - dynamically add 'active' class if on this page */}
-          <a
-            href="/trust-center/overview"
-            class={`nav-item ${this.isCurrentPage('/overview') ? 'active' : ''}`}
-            onClick={e => this.navigateTo('/overview', e)}
-          >
-            OVERVIEW
-          </a>
-
-          {/* Controls link */}
-          <a
-            href="/trust-center/controls"
-            class={`nav-item ${this.isCurrentPage('/controls') ? 'active' : ''}`}
-            onClick={e => this.navigateTo('/controls', e)}
-          >
-            CONTROLS
-          </a>
-
-          {/* Resources link */}
-          <a
-            href="/trust-center/resources"
-            class={`nav-item ${this.isCurrentPage('/resources') ? 'active' : ''}`}
-            onClick={e => this.navigateTo('/resources', e)}
-          >
-            RESOURCES
-          </a>
-
-          {/* FAQ link */}
-          <a
-            href="/trust-center/faqs"
-            class={`nav-item ${this.isCurrentPage('/faqs') ? 'active' : ''}`}
-            onClick={e => this.navigateTo('/faqs', e)}
-          >
-            FAQ
-          </a>
+        <nav class="navbar" aria-label={this.navAriaLabel}>
+          {this.items.map(item => (
+            <a
+              href={item.href}
+              class={`nav-item ${this.isActive(item) ? 'active' : ''}`}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
       </Host>
     );
