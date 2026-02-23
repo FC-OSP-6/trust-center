@@ -18,7 +18,7 @@ export interface Cache {
   del(key: string): void;
 
   // remove ALL keys that start with a given prefix — used after a mutation changes an entity
-  // optional (?) because not every adapter needs to support it (e.g. Redis stub skips it)
+  // optional (?) because not every adapter needs to support it
   // example: invalidatePrefix('controls:') wipes every controls list page from the cache at once
   invalidatePrefix?(prefix: string): void;
 

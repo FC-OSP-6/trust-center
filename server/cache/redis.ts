@@ -25,6 +25,10 @@ export class RedisAdapter implements Cache {
     throw new Error('RedisAdapter: not implemented');
   }
 
+  invalidatePrefix(_prefix: string): void {
+    throw new Error('RedisAdapter: not implemented');
+  }
+
   async getOrSet(
     _key: string,
     _ttlSeconds: number,
