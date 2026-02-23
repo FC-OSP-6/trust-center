@@ -7,7 +7,7 @@
   - logs which data source served each request (db vs mock)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { GraphQLContext } from './index'; // shared per-request context shape
+import type { GraphQLContext } from './context'; // shared per-request context shape
 
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared pagination primitives
 import {
@@ -15,65 +15,6 @@ import {
   type DbControlRow
 } from '../services/controlsService'; // controls read path
 import { getFaqsPage, type DbFaqRow } from '../services/faqsService'; // faqs read path
-import type { GraphQLContext } from './context'; // shared per-request context shape
-
-import fs from 'node:fs/promises'; // read seed json files when db is unavailable
-import path from 'node:path'; // resolve data folder paths
-import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
-import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
-
-// ----------  db row shapes  ----------
-
-type DbControlRow = {
-  id: string; // uuid primary key
-  control_key: string; // natural key used by seed upserts
-  title: string; // short label
-  description: string; // long detail
-  category: string; // grouping
-  source_url: string | null; // optional url
-  updated_at: string | Date; // timestamptz
-};
-
-type DbFaqRow = {
-  id: string; // uuid primary key
-  faq_key: string; // natural key used by seed upserts
-  question: string; // user-facing question
-  answer: string; // user-facing answer
-  category: string; // grouping
-  updated_at: string | Date; // timestamptz
-};
-
-type CursorPayload = {
-  sortValue: string; // updated_at iso string
-  id: string; // uuid tie-breaker
-};
-
-// ----------  constants  ----------
-
-const MAX_PAGE_SIZE = 50; // safety cap --> avoids accidental heavy queries
-
-// ----------  helpers (timestamps + inputs)  ----------
-
-function toIso(value: string | Date): string {
-  if (value instanceof Date) return value.toISOString(); // pg may return Date with custom parsers
-  const asDate = new Date(value); // tolerate string timestamps
-  if (Number.isNaN(asDate.getTime())) return String(value); // fallback for unexpected values
-  return asDate.toISOString(); // canonical iso output
-}
-
-function clampFirst(first: number): number {
-  if (!Number.isFinite(first)) return 10; // default page size for bad inputs
-  if (first <= 0) return 10; // default for non-positive values
-  return Math.min(first, MAX_PAGE_SIZE); // enforce safety max
-}
-
-function normalizeText(value: string): string {
-  return value.trim().replace(/\s+/g, ' '); // trim + collapse internal spaces
-}
-
-function escapeLike(value: string): string {
-  return value.replace(/[%_]/g, m => `\\${m}`); // escape wildcard chars for LIKE/ILIKE
-}
 
 // ----------  data source logs  ----------
 
