@@ -1,28 +1,28 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-TL;DR  -->  Controls service with fallback
+TL;DR  -->  FAQs service with fallback
 
- - Fetches controls from the DB using shared query() wrapper
+ - Fetches FAQs from the DB using shared query() wrapper
  - Wraps DB calls in try/catch and uses seedFallback for demo/mock data
- - Returns a full list of controls
+ - Returns a full list of FAQs
  - Keeps service logic clean and centralized, fallback is controlled with ALLOW_SEED_FALLBACK
  - Logs clearly when mock data is being used
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { query, getServerEnv } from '../db'; // Shared DB query helper
 import { seedFallback } from './seedFallback'; // Fallback handler
-import controlsData from '../db/data/controls.json'; // Mock data
+import faqsData from '../db/data/faqs.json'; // Mock data
 
-export async function getControls() {
+export async function getFaqs() {
   const { ALLOW_SEED_FALLBACK } = getServerEnv();
   try {
-    // Run SQL query to get all controls from the DB
-    const response = await query('SELECT * FROM controls;');
+    // Run SQL query to get all faqs from the DB
+    const response = await query('SELECT * FROM faqs;');
     // Return only the actual data
     return response.rows;
   } catch (error) {
     // If DB fails:
     // If ALLOW_SEED_FALLBACK=true -> return the mock data
     // If ALLOW_SEED_FALLBACK=false -> throw the real DB error
-    return seedFallback(error, controlsData.controls);
+    return seedFallback(error, faqsData.faqs);
   }
 }

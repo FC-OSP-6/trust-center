@@ -50,7 +50,8 @@ export function getServerEnv() {
     DB_POOL_CONNECTION_TIMEOUT_MS: parseNumberEnv(
       'DB_POOL_CONNECTION_TIMEOUT_MS',
       2_000
-    )
+    ),
+    ALLOW_SEED_FALLBACK: optionalEnv('Allow_SEED_FALLBACK', 'false') === 'true'
   };
 }
 

@@ -10,7 +10,7 @@ TL;DR  -->  Centralized seed fallback for demo resilience
 
 export function seedFallback<T>(error: any, mockData: T): T {
   // Check if the fallback is allowed to be used
-  if (process.env.ALLOW_SEED_FEEDBACK !== 'true') {
+  if (process.env.ALLOW_SEED_FALLBACK !== 'true') {
     // if false - we want to disable the fallback
     throw error;
   }
