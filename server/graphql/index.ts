@@ -1,25 +1,30 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  graphql handler factory
+  TL;DR  -->  GraphQL handler factory (transport layer only)
 
-  - builds yoga graphql server + schema
-  - creates per-request context (db stub + auth stub + requestId)
+  - Builds executable GraphQL schema (typeDefs + resolvers)
+  - Instantiates Yoga server
+  - Injects request context factory (dependency container)
+  - Does NOT construct dependencies directly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { createYoga, createSchema } from 'graphql-yoga'; // init functions for graphql factory using yoga
+import { createYoga, createSchema } from 'graphql-yoga';
 
-import { typeDefs } from './schema'; // sdl contract  -->  source of truth for types + queries
-import { resolvers } from './resolvers'; // resolver map  -->  executable behavior for schema fields
+import { typeDefs } from './schema'; // SDL contract (schema definition)
+import { resolvers } from './resolvers'; // Resolver map (execution layer)
 
-import { createGraphQLContext } from './context.ts';
+import { createGraphQLContext } from './context'; // Dependency injection factory
+import type { GraphQLContext } from './context'; // Shared context type
 
-// ----------  handler factory  ----------
+// ----------  GraphQL handler factory (HTTP wiring only) ----------
 
 export function createGraphQLHandler() {
-  const schema = createSchema({ typeDefs, resolvers }); // schema wiring  -->  avoids graphql-modules until needed
+  // Combine schema contract + resolvers into executable schema
+  const schema = createSchema({ typeDefs, resolvers });
 
   return createYoga<GraphQLContext>({
-    schema, // executable schema  -->  required for GET GraphiQL + POST execution
-    graphqlEndpoint: '/graphql', // endpoint path  -->  keeps behavior explicit
-    graphiql: process.env.NODE_ENV !== 'production' // dev-only ide  -->  helps debugging during MVP
+    schema, // Executable GraphQL schema
+    graphqlEndpoint: '/graphql', // Explicit endpoint path
+    graphiql: process.env.NODE_ENV !== 'production', // Dev-only IDE
+    context: createGraphQLContext // Per-request dependency injection
   });
 }
