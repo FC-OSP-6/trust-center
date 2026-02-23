@@ -15,7 +15,7 @@ export const config: Config = {
       type: 'dist-custom-elements'
     }
   ]
-  
+
   // Remove all testing configuration from here
   // Let Jest use the standalone config file instead
 };
