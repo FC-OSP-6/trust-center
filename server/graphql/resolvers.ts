@@ -8,7 +8,7 @@
   - preserves debug resolvers for early boot verification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { GraphQLContext } from './index'; // shared per-request context shape
+import type { GraphQLContext } from './context'; // shared per-request context shape
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
 import path from 'node:path'; // resolve data folder paths
