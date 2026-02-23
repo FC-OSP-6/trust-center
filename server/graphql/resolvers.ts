@@ -9,7 +9,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './index'; // shared per-request context shape
-import { query } from '../db/index'; // shared pg query wrapper (singleton pool)
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
 import path from 'node:path'; // resolve data folder paths
