@@ -13,6 +13,8 @@ import { query } from '../db';
 import { cache } from '../cache';
 import type { Cache } from '../cache';
 
+const DEBUG_PERF = process.env.DEBUG_PERF === 'true';
+
 // ----------  Process-scoped dependencies (created once per server process) ----------
 
 const dbAdapter = { query }; // thin DB wrapper (replaceable later)
@@ -36,6 +38,13 @@ export type GraphQLContext = {
 export function createGraphQLContext(
   initialContext: YogaInitialContext
 ): GraphQLContext {
+  const requestId = randomUUID();
+
+  if (DEBUG_PERF) {
+    console.log(
+      `[gql] requestId=${requestId} method=${initialContext.request.method}`
+    );
+  }
   return {
     requestId: randomUUID(),
     memo: new Map<string, Promise<unknown>>(),
