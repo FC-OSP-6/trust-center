@@ -79,7 +79,7 @@ export function isValidCursor(cursor: string): boolean {
   return decodeCursor(cursor) !== null; // validator built on decodeCursor
 }
 
-// ----------  sql helpers (category + search filters)  ----------
+// ---------- sql helpers (category + search filters) ----------
 
 export function buildCategorySearchWhere(args: {
   category?: string;
@@ -88,20 +88,18 @@ export function buildCategorySearchWhere(args: {
   const parts: string[] = []; // sql predicates
   const params: unknown[] = []; // parameter bag
 
-  // category strict match (case-insensitive)
   if (args.category && normalizeText(args.category) !== '') {
     params.push(normalizeText(args.category)); // param: category
     parts.push(`lower(category) = lower($${params.length})`); // predicate: category match
   }
 
-  // search contains match (mvp-simple) using precomputed search_text
   if (args.search && normalizeText(args.search) !== '') {
-    const needle = escapeLike(normalizeText(args.search).toLowerCase()); // normalize + escape
-    params.push(`%${needle}%`); // param: pattern
-    parts.push(`search_text ILIKE $${params.length} ESCAPE '\\\\'`); // predicate: contains
+    const needle = escapeLike(normalizeText(args.search).toLowerCase()); // normalize + escape wildcard chars
+    params.push(`%${needle}%`); // param: contains pattern
+    parts.push(`search_text ILIKE $${params.length} ESCAPE '\\'`); // explicit one-char escape for backslash
   }
 
-  const whereSql = parts.length ? `where ${parts.join(' and ')}` : ''; // join predicates
+  const whereSql = parts.length ? `where ${parts.join(' and ')}` : ''; // join predicates when present
   return { whereSql, params }; // return clause + params
 }
 
