@@ -1,65 +1,79 @@
-/* ================================
-  TL;DR  -->  Site-level footer Web Component
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Site-level footer 
 
-  - Renders the legal footer section of the Trust Center using a Stencil Web Component.
-  - Uses Shadow DOM for DOM and style encapsulation, prioritizing isolation and
-    portability over global styling flexibility.
-  - Exposes all display content and navigation targets via props to ensure that
-    state and business logic remain in the host application (e.g., React).
-  - Contains no internal state, events, or side effects; this component is strictly
-    presentational.
-  - Exports a single custom element (<aon-footer>) intended for use in site-level
-    layouts across the Trust Center and related pages.
-  - Depends only on Stencil core APIs and local styles; no shared utilities,
-    services, or external modules are required.
+  - stencil renders only; react passes legal text + link labels + hrefs
+  - removes dead shadow query code and unused @Element reference
+  - conditional rendering avoids broken anchors/images when props are absent
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-  TODO: Document architectural decisions and tradeoffs for this component in the README.
-================================ */
+import { Component, Prop, h, Fragment } from '@stencil/core';
 
-import { Component, Prop, h, Element } from '@stencil/core'; // Imports Stencil decorators for defining a Web Component and its public API
-// `h` is Stencil’s JSX factory; JSX elements compile to h('tag', ...) calls at build time
-
-// Defines the <aon-footer> Web Component
 @Component({
-  tag: 'aon-footer', // registers the custom element <aon-footer>
-  // styleUrls: ['./footer.css','../global-stencil.css'], // associates component-scoped styles at build time
-  styleUrl: 'footer.css', // this is the new name of our global css file
-  shadow: true // enables Shadow DOM for DOM and style encapsulation
+  tag: 'aon-footer',
+  styleUrl: 'footer.css',
+  shadow: true
 })
 export class AonFooter {
-  // Web Component definition and render logic for <aon-footer>
+  // ---------- public api ----------
 
-  // Public, read-only props with default values; intended to be overridden by the parent application (e.g., React)
-  @Prop() copyright: string = 'Copyright 2026 AON PLC'; // TODO: Move year generation to the React layer and pass the computed value as a prop
-  @Prop() privacyPolicyHref: string = '/privacy-policy';
-  @Prop() termsHref: string = '/terms-and-conditions';
-  @Prop() logoSrc: string;
-  @Element() el: HTMLElement;
+  @Prop() logoSrc: string = ''; // optional brand logo url
+  @Prop() logoAlt: string = 'Company logo'; // optional accessible alt text
 
-  componentDidLoad() {
-    const elementInShadowDom =
-      this.el.shadowRoot.querySelector('.footer-links');
-  }
+  @Prop() privacyPolicyHref: string = ''; // optional legal link href
+  @Prop() privacyPolicyLabel: string = ''; // optional legal link label
 
-  // TODO: logoSrc is required (!) but has no default – missing prop will render broken img src; add default or document as required in host.
+  @Prop() termsHref: string = ''; // optional legal link href
+  @Prop() termsLabel: string = ''; // optional legal link label
+
+  @Prop() copyright: string = ''; // react passes final legal text
+
+  // ---------- render ----------
 
   render() {
-    const { copyright, privacyPolicyHref, termsHref, logoSrc } = this; // Destructure component props for cleaner JSX usage
+    const logoSrc = (this.logoSrc ?? '').trim();
+    const logoAlt = (this.logoAlt ?? '').trim() || 'Company logo';
+
+    const privacyHref = (this.privacyPolicyHref ?? '').trim();
+    const privacyLabel = (this.privacyPolicyLabel ?? '').trim();
+
+    const termsHref = (this.termsHref ?? '').trim();
+    const termsLabel = (this.termsLabel ?? '').trim();
+
+    const copyright = (this.copyright ?? '').trim();
+
+    const hasLeftContent =
+      !!logoSrc ||
+      (!!privacyHref && !!privacyLabel) ||
+      (!!termsHref && !!termsLabel);
+
+    const hasRightContent = !!copyright;
+
+    if (!hasLeftContent && !hasRightContent) {
+      return null;
+    }
+
     return (
       <footer role="contentinfo">
         <div class="footer-content">
           <div class="footer-left">
-            {this.logoSrc && <img src={this.logoSrc} alt="Company logo" />}
+            {logoSrc && <img src={logoSrc} alt={logoAlt} />}
 
             <div class="footer-links">
-              <a href={privacyPolicyHref}>Privacy Policy</a>
-              <a href={termsHref}>Terms and Conditions</a>
+              {privacyHref && privacyLabel && (
+                <a href={privacyHref}>{privacyLabel}</a>
+              )}
+
+              {termsHref && termsLabel && <a href={termsHref}>{termsLabel}</a>}
             </div>
           </div>
 
           <div class="footer-right">
-            <span class="copyright-symbol">©</span>
-            <span class="footer-copyright">{copyright}</span>
+            {copyright && (
+              <Fragment>
+                <span class="copyright-symbol">©</span>
+                <span class="footer-copyright">{copyright}</span>
+              </Fragment>
+            )}
           </div>
         </div>
       </footer>

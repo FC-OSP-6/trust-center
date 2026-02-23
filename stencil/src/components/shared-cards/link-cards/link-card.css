@@ -1,88 +1,237 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Shadow-DOM Link Card Styling Module
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  shadow-dom styles for <aon-link-card> (wireframe-first resource cards)
 
-   - Encapsulates all visual styling for <aon-link-card>.
-   - Establishes internal layout (card, header, list, rows).
-   - Uses design tokens exclusively for spacing, typography, and color.
-   - Maintains visual consistency with expansion-card patterns.
-   - Expects global design tokens to be defined in :root.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  - removes divider lines between rows (wireframe parity)
+  - makes entries read as links instead of boxed list rows
+  - keeps subtitle / chip / cta / description optional
+  - uses shared tokens for reusable sizing + spacing decisions
+  - stretches to fill grid row height so paired cards match heights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-/* Root host element: establishes block context and typography inheritance */
+/* ----------  host  ---------- */
+
 :host {
   display: block;
+  width: 100%;
+  height: 100%;
   font-family: var(--font-default);
+  color: var(--color-gray-01);
+  box-sizing: border-box;
 }
 
-/* Outer wrapper: vertical layout container for card spacing */
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: border-box;
+}
+
+/* ----------  wrappers  ---------- */
+
 .wrap {
-  display: grid;
-  gap: var(--default-local-spacing);
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
-/* Card container: defines surface, border, radius, and internal padding */
 .card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--card-content-gap-md);
+  width: 100%;
+  height: 100%;
   background: var(--color-surface);
-  border: 1px solid var(--color-gray-05);
-  border-radius: 8px;
-  padding: var(--default-local-spacing);
+  border: var(--card-border-width) solid var(--card-border-color-subtle);
+  border-radius: var(--card-radius-md);
+  padding: var(--card-padding-md);
+  box-shadow: var(--card-shadow-subtle);
 }
 
-/* Header: horizontal layout for title and optional right-aligned content */
+/* ----------  header  ---------- */
+
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  gap: var(--card-header-gap-sm);
+  padding-bottom: 2px;
 }
 
-/* Title typography: applies hierarchy and brand color */
 .card-title {
   margin: 0;
+  color: var(--color-navy-primary);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);
-  color: var(--color-navy-primary);
 }
 
-/* Link list: removes default list styling and establishes vertical rhythm */
+.card-subtitle {
+  margin: 0;
+  color: var(--color-gray-02);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+/* ----------  list  ---------- */
+
 .link-list {
-  margin: 16px 0 0 0; /* separates list from header */
+  margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: var(--link-list-stack-gap);
+  align-content: start;
 }
 
-/* Individual row: two-column layout (icon + link text) */
 .link-item {
+  display: block;
+}
+
+/* intentionally no divider lines between entries (wireframe parity) */
+
+/* ----------  row anchor ---------- */
+
+.link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--link-row-gap);
+  text-decoration: none;
+  color: inherit;
+  padding: var(--link-row-padding-y) var(--link-row-padding-x);
+  border-radius: var(--link-row-radius);
+  background: transparent;
+}
+
+/* keep the interaction link-like (text-driven), not row-block-driven */
+.link-row:hover {
+  background: transparent;
+}
+
+.link-row:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-teal-dark-secondary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ----------  row main content ---------- */
+
+.row-main {
+  min-width: 0;
+  flex: 1 1 auto;
   display: grid;
-  grid-template-columns: 18px 1fr; /* fixed icon column + flexible text */
+  grid-template-columns: auto 1fr;
   align-items: start;
   gap: 10px;
 }
 
-/* Icon: fixed sizing and visual alignment within grid column */
 .icon {
-  width: 18px;
-  height: 18px;
-  display: grid;
-  place-items: center;
-  font-size: 14px;
-  color: var(--color-gray-02);
+  width: var(--link-icon-size);
+  height: var(--link-icon-size);
+  display: block;
+  flex: 0 0 auto;
+  margin-top: 1px;
 }
 
-/* Anchor: applies design-system link styling */
-a {
+.row-text {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.row-text:not(.has-description) {
+  gap: 0;
+}
+
+.row-title-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.row-title {
   color: var(--color-teal-dark-secondary);
-  text-decoration: var(--link-decoration-default);
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
+  min-width: 0;
+  word-break: break-word;
+  text-decoration: var(--link-decoration-default);
+  text-decoration-thickness: var(--link-title-underline-thickness);
+  text-underline-offset: var(--link-title-underline-offset);
 }
 
-/* Hover state: reinforces interactive affordance */
-a:hover {
+/* link text interaction follows system link tokens */
+.link-row:hover .row-title {
   color: var(--color-teal-dark-hover);
   text-decoration: var(--link-decoration-hover);
+}
+
+.link-row:active .row-title {
+  color: var(--color-teal-dark-active);
+  text-decoration: var(--link-decoration-hover);
+}
+
+/* ----------  optional content ---------- */
+
+.row-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--chip-padding-y) var(--chip-padding-x);
+  border-radius: var(--chip-radius-pill);
+  border: 1px solid var(--color-gray-05);
+  background: var(--color-gray-08);
+  color: var(--color-gray-02);
+  font-size: var(--font-size-xsmall);
+  line-height: var(--line-height-xsmall);
+  font-weight: var(--font-weight-regular);
+}
+
+.row-description {
+  margin: 0;
+  color: var(--color-gray-02);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.row-cta {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin-left: 8px;
+  color: var(--color-teal-dark-secondary);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+  text-decoration: var(--link-decoration-default);
+  text-decoration-thickness: var(--link-title-underline-thickness);
+  text-underline-offset: var(--link-title-underline-offset);
+}
+
+.link-row:hover .row-cta {
+  color: var(--color-teal-dark-hover);
+  text-decoration: var(--link-decoration-hover);
+}
+
+.link-row:active .row-cta {
+  color: var(--color-teal-dark-active);
+  text-decoration: var(--link-decoration-hover);
+}
+
+/* ----------  row layout when optional cta exists ---------- */
+
+.link-row.has-cta {
+  align-items: flex-start;
+}
+
+/* ----------  responsive ---------- */
+
+@media (max-width: 640px) {
+  .link-row.has-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .row-cta {
+    margin-left: 0;
+  }
 }

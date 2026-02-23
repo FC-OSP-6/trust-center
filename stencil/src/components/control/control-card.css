@@ -1,9 +1,10 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  --> styling for controls grouped cards (shadow-dom)
 
+  - keeps component-internal spacing only
+  - page-level spacing/layout lives in react wrappers
   - 2 cards per row (desktop), 1 column at tablet (<= 991px)
-  - cards never touch viewport edges (wrap padding-inline)
-  - token-driven type scale + spacing rhythm (no local tokens)
+  - token-driven type scale + spacing rhythm
   - status/icons centered under the status column
   - reuses shared primitives:
       - .aonToggleIcon (plus -> minus)
@@ -21,16 +22,6 @@
 .wrap {
   display: grid;
   gap: var(--default-local-spacing);
-  padding-inline: var(--default-local-spacing);
-  padding-block: var(--default-local-spacing);
-}
-
-@media (max-width: 575px) {
-  .wrap {
-    padding-inline: var(--mobile-local-spacing);
-    padding-block: var(--mobile-local-spacing);
-    gap: var(--mobile-local-spacing);
-  }
 }
 
 /* ---------- tile header (optional) ---------- */
@@ -93,8 +84,9 @@
 
 .card {
   background: var(--color-surface);
-  border: 1px solid var(--color-gray-05);
-  border-radius: 8px;
+  border: var(--card-border-width) solid var(--card-border-color-subtle);
+  border-radius: var(--card-radius-md);
+  box-shadow: var(--card-shadow-subtle);
   overflow: hidden;
 }
 
@@ -104,7 +96,7 @@
   display: grid;
   grid-template-columns: 1fr var(--toggle-hit-col-width);
   align-items: center;
-  padding: 16px var(--default-local-spacing);
+  padding: 16px var(--default-local-spacing) 14px var(--default-local-spacing);
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -113,7 +105,7 @@
 
 @media (max-width: 575px) {
   .card-header {
-    padding: 16px var(--mobile-local-spacing);
+    padding: 16px var(--mobile-local-spacing) 14px var(--mobile-local-spacing);
   }
 }
 
@@ -123,7 +115,7 @@
 
 .card-header:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-gray-06);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-gray-06);
 }
 
 .card-title {
@@ -145,12 +137,12 @@
   display: grid;
   grid-template-columns: 1fr var(--toggle-hit-col-width);
   align-items: end;
-  padding: 0 var(--default-local-spacing) 12px var(--default-local-spacing);
+  padding: 2px var(--default-local-spacing) 14px var(--default-local-spacing);
 }
 
 @media (max-width: 575px) {
   .columns {
-    padding: 0 var(--mobile-local-spacing) 12px var(--mobile-local-spacing);
+    padding: 2px var(--mobile-local-spacing) 14px var(--mobile-local-spacing);
   }
 }
 
@@ -177,7 +169,7 @@
   padding: 0 var(--default-local-spacing) var(--default-local-spacing)
     var(--default-local-spacing);
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 @media (max-width: 575px) {
@@ -192,12 +184,12 @@
   display: grid;
   grid-template-columns: 1fr var(--toggle-hit-col-width);
   align-items: start;
-  column-gap: 12px;
+  column-gap: 14px;
 }
 
 .row-left {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .row-title {
@@ -228,6 +220,10 @@
 }
 
 /* controls descriptions should read as muted detail */
+.aon-reveal-wrap {
+  margin-top: 2px;
+}
+
 .aon-reveal-inner {
   color: var(--color-gray-02);
 }
