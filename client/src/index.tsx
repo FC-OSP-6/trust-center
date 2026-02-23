@@ -17,7 +17,6 @@ import { defineCustomElements } from '../../stencil/loader/index.es2017.js';
 if (typeof window !== 'undefined') {
   defineCustomElements(window);
 }
-
 // Get root container with explicit null check
 const container = document.getElementById('root');
 if (!container) {
