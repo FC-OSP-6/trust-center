@@ -18,7 +18,7 @@
   font-size: var(--font-size-xxlarge);
   line-height: var(--line-height-large);
   color: var(--color-gray-01);
-  margin: 20px 40px 20px 20px;
+  margin: 20px 40px 20px 30px;
 }
 
 /* Header container layout, background, and shadow */

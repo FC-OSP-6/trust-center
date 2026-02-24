@@ -1,4 +1,4 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  postgres pool + env validation + query helper
 
   - creates a singleton pg pool (lazy init via getDbPool)
@@ -6,7 +6,7 @@
   - provides query() wrapper used by services/seed
   - exposes pingDb() for smoke checks (not wired into routes yet)
   - runs sql migrations from server/db/migrations (runMigrations + ensureDbSchema)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import pg from 'pg'; // postgres driver  -->  provides Pool for connection pooling
 import dotenv from 'dotenv'; // loads .env into process.env for local dev / scripts

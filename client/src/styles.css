@@ -144,14 +144,14 @@ body {
 
 .info-grid {
   width: 100%;
-  max-width: 1600px;
   min-width: 320px;
+  max-width: 1600px;
   margin: 0 auto;
   display: grid;
   /* 8-4 layout */
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  /* grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); */
   /* 6-6 layout */
-  /* grid-template-columns: 1fr 1fr; */
+  grid-template-columns: 1fr 1fr;
   /* 4-8 layout */
   /* grid-template-columns:  minmax(280px, 1fr) minmax(0, 2fr); */
   grid-template-areas: 'main rail';
@@ -188,7 +188,7 @@ body {
 
 /* custom element hosts should fill their wrappers */
 .info-stick > aon-subnav-card {
-  width: 100%;
+  width: 50%;
   margin: 0 auto;
 }
 .info-stick > .ai-slot {

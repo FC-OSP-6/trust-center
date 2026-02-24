@@ -1,9 +1,9 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   tl;dr  -->  vite dev / build config
 
   - enables react support
   - proxies /api/health and /graphql to express server
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import { defineConfig, loadEnv } from 'vite'; // config helper + mode-aware env loader (.env, .env.[mode], etc.)
 import react from '@vitejs/plugin-react'; // enables react fast refresh + jsx/tsx transform
