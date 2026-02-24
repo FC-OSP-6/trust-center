@@ -234,6 +234,43 @@ export const query = async (text: string, params?: any[]) => {
   }
 };
 
+// ----------  perf / observability (prototype)  ----------
+
+type TimedQueryOptions = {
+  requestId: string;
+  enabled: boolean; // gate all perf logs behind DEBUG_PERF
+};
+
+export function createTimedQuery({ requestId, enabled }: TimedQueryOptions) {
+  return async (text: string, params?: any[]) => {
+    const start = Date.now();
+    const pool = getDbPool();
+
+    try {
+      const res = await pool.query(text, params);
+      const durationMs = Date.now() - start;
+
+      if (enabled) {
+        console.log(
+          `[db] requestId=${requestId} duration=${durationMs}ms rows=${res.rowCount ?? 0}`
+        );
+      }
+
+      return res;
+    } catch (error) {
+      const durationMs = Date.now() - start;
+
+      if (enabled) {
+        console.log(
+          `[db] requestId=${requestId} ERROR duration=${durationMs}ms`
+        );
+      }
+
+      throw error;
+    }
+  };
+}
+
 // ----------  scripts (dev-only helpers)  ----------
 
 // runs migrations + always closes pool so node exits
@@ -320,5 +357,6 @@ export default {
   runMigrations, // applies new .sql migrations and returns summary
   runDbMigrate, // script runner for migrations (logs + closes pool)
   cleanApplyDb, // drops app tables + re-runs migrations + returns summary
-  runCleanApplyDb // script runner for clean apply (logs + closes pool + sets exit)
+  runCleanApplyDb, // script runner for clean apply (logs + closes pool + sets exit)
+  createTimedQuery // request-scoped db query wrapper (DEBUG_PERF)
 };
