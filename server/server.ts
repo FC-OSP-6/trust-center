@@ -99,8 +99,6 @@ export function createServer() {
 
 // ----------  server entry point  ----------
 
-// ----------  server entry point  ----------
-
 export function startServer() {
   const host = process.env.HOST ?? 'http://localhost'; // for logs
   const port = Number(process.env.SERVER_PORT ?? 4000);
