@@ -14,6 +14,7 @@ import fs from 'node:fs/promises'; // read seed json files when db is unavailabl
 import path from 'node:path'; // resolve data folder paths
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
+import { buildControlsKey, buildFaqsKey } from '../cache';
 
 // ----------  db row shapes  ----------
 
@@ -363,15 +364,25 @@ async function fetchControlsPage(
   totalCount: number;
   source: DataSource;
 }> {
-  const firstClamped = clampFirst(args.first); // enforce safe page size
+  const firstClamped = clampFirst(args.first);
+
+  // cache keys should be based ONLY on query args (never requestId)
+  const cacheKey = buildControlsKey({
+    first: firstClamped,
+    ...(args.after !== undefined ? { after: args.after } : {}),
+    ...(args.category !== undefined ? { category: args.category } : {}),
+    ...(args.search !== undefined ? { search: args.search } : {})
+  });
+
+  const ttlSeconds = 60; // prototype-friendly TTL
 
   const whereArgs = {
     ...(args.category !== undefined ? { category: args.category } : {}),
     ...(args.search !== undefined ? { search: args.search } : {})
-  }; // omit undefined props for exactOptionalPropertyTypes
+  };
 
-  const { whereSql, params } = buildControlsWhere(whereArgs); // build filters
-  const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary
+  const { whereSql, params } = buildControlsWhere(whereArgs);
+  const afterBoundary = buildAfterBoundary(args.after, params.length + 1);
 
   const countSql = `
     select count(*)::int as count
@@ -380,42 +391,47 @@ async function fetchControlsPage(
   `;
 
   try {
-    const countRes = await ctx.db.query(countSql, params); // run count query
-    const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize result
+    const cached = await ctx.cache.getOrSet(cacheKey, ttlSeconds, async () => {
+      const countRes = await ctx.db.query(countSql, params);
+      const totalCount = Number(countRes.rows?.[0]?.count ?? 0);
 
-    const pageSql = `
-      select
-        id,
-        control_key,
-        title,
-        description,
-        category,
-        source_url,
-        updated_at
-      from public.controls
-      ${whereSql}
-      ${whereSql ? '' : 'where true'}
-      ${afterBoundary.sql}
-      order by updated_at desc, id desc
-      limit $${params.length + afterBoundary.params.length + 1}
-    `;
+      const pageSql = `
+        select
+          id,
+          control_key,
+          title,
+          description,
+          category,
+          source_url,
+          updated_at
+        from public.controls
+        ${whereSql}
+        ${whereSql ? '' : 'where true'}
+        ${afterBoundary.sql}
+        order by updated_at desc, id desc
+        limit $${params.length + afterBoundary.params.length + 1}
+      `;
 
-    const limitParam = firstClamped + 1; // fetch one extra row
-    const pageParams = [...params, ...afterBoundary.params, limitParam]; // compose params in order
-    const pageRes = await ctx.db.query(pageSql, pageParams); // run page query
+      const limitParam = firstClamped + 1;
+      const pageParams = [...params, ...afterBoundary.params, limitParam];
 
-    const fetched = (pageRes.rows ?? []) as DbControlRow[]; // cast rows to shape
-    const hasNextPage = fetched.length > firstClamped; // compute pagination flag
-    const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // drop extra row
+      const pageRes = await ctx.db.query(pageSql, pageParams);
+      const fetched = (pageRes.rows ?? []) as DbControlRow[];
 
-    const last = rows.length ? rows[rows.length - 1] : null; // pick last row for endCursor
-    const endCursor = last
-      ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
-      : null; // compute endCursor
+      const hasNextPage = fetched.length > firstClamped;
+      const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched;
 
-    return { rows, hasNextPage, endCursor, totalCount, source: 'db' };
+      const last = rows.length ? rows[rows.length - 1] : null;
+      const endCursor = last
+        ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
+        : null;
+
+      return { rows, hasNextPage, endCursor, totalCount };
+    });
+
+    // getOrSet returns unknown, so cast back to our shape
+    return { ...(cached as any), source: 'db' };
   } catch (error) {
-    // only fallback when error indicates db is unavailable or not configured
     if (!shouldFallbackToMock(error)) throw error;
 
     const msg = error instanceof Error ? error.message : String(error);
@@ -439,14 +455,13 @@ async function fetchControlsPage(
             .toLowerCase()
             .includes(searchNorm)
         : true;
-
       return catOk && searchOk;
     });
 
     const pageArgs = {
       first: args.first,
       ...(args.after !== undefined ? { after: args.after } : {})
-    }; // omit undefined props for exactOptionalPropertyTypes
+    };
 
     const page = pageFromRows(filtered, pageArgs);
     return { ...page, source: 'mock' };
@@ -468,15 +483,24 @@ async function fetchFaqsPage(
   totalCount: number;
   source: DataSource;
 }> {
-  const firstClamped = clampFirst(args.first); // enforce safe page size
+  const firstClamped = clampFirst(args.first);
+
+  const cacheKey = buildFaqsKey({
+    first: firstClamped,
+    ...(args.after !== undefined ? { after: args.after } : {}),
+    ...(args.category !== undefined ? { category: args.category } : {}),
+    ...(args.search !== undefined ? { search: args.search } : {})
+  });
+
+  const ttlSeconds = 60;
 
   const whereArgs = {
     ...(args.category !== undefined ? { category: args.category } : {}),
     ...(args.search !== undefined ? { search: args.search } : {})
-  }; // omit undefined props for exactOptionalPropertyTypes
+  };
 
-  const { whereSql, params } = buildFaqsWhere(whereArgs); // build filters
-  const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary
+  const { whereSql, params } = buildFaqsWhere(whereArgs);
+  const afterBoundary = buildAfterBoundary(args.after, params.length + 1);
 
   const countSql = `
     select count(*)::int as count
@@ -485,41 +509,45 @@ async function fetchFaqsPage(
   `;
 
   try {
-    const countRes = await ctx.db.query(countSql, params); // run count query
-    const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize result
+    const cached = await ctx.cache.getOrSet(cacheKey, ttlSeconds, async () => {
+      const countRes = await ctx.db.query(countSql, params);
+      const totalCount = Number(countRes.rows?.[0]?.count ?? 0);
 
-    const pageSql = `
-      select
-        id,
-        faq_key,
-        question,
-        answer,
-        category,
-        updated_at
-      from public.faqs
-      ${whereSql}
-      ${whereSql ? '' : 'where true'}
-      ${afterBoundary.sql}
-      order by updated_at desc, id desc
-      limit $${params.length + afterBoundary.params.length + 1}
-    `;
+      const pageSql = `
+        select
+          id,
+          faq_key,
+          question,
+          answer,
+          category,
+          updated_at
+        from public.faqs
+        ${whereSql}
+        ${whereSql ? '' : 'where true'}
+        ${afterBoundary.sql}
+        order by updated_at desc, id desc
+        limit $${params.length + afterBoundary.params.length + 1}
+      `;
 
-    const limitParam = firstClamped + 1; // fetch one extra row
-    const pageParams = [...params, ...afterBoundary.params, limitParam]; // compose params in order
-    const pageRes = await ctx.db.query(pageSql, pageParams); // run page query
+      const limitParam = firstClamped + 1;
+      const pageParams = [...params, ...afterBoundary.params, limitParam];
 
-    const fetched = (pageRes.rows ?? []) as DbFaqRow[]; // cast rows to shape
-    const hasNextPage = fetched.length > firstClamped; // compute pagination flag
-    const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched; // drop extra row
+      const pageRes = await ctx.db.query(pageSql, pageParams);
+      const fetched = (pageRes.rows ?? []) as DbFaqRow[];
 
-    const last = rows.length ? rows[rows.length - 1] : null; // pick last row for endCursor
-    const endCursor = last
-      ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
-      : null; // compute endCursor
+      const hasNextPage = fetched.length > firstClamped;
+      const rows = hasNextPage ? fetched.slice(0, firstClamped) : fetched;
 
-    return { rows, hasNextPage, endCursor, totalCount, source: 'db' };
+      const last = rows.length ? rows[rows.length - 1] : null;
+      const endCursor = last
+        ? encodeCursor({ sortValue: toIso(last.updated_at), id: last.id })
+        : null;
+
+      return { rows, hasNextPage, endCursor, totalCount };
+    });
+
+    return { ...(cached as any), source: 'db' };
   } catch (error) {
-    // only fallback when error indicates db is unavailable or not configured
     if (!shouldFallbackToMock(error)) throw error;
 
     const msg = error instanceof Error ? error.message : String(error);
@@ -543,14 +571,13 @@ async function fetchFaqsPage(
             .toLowerCase()
             .includes(searchNorm)
         : true;
-
       return catOk && searchOk;
     });
 
     const pageArgs = {
       first: args.first,
       ...(args.after !== undefined ? { after: args.after } : {})
-    }; // omit undefined props for exactOptionalPropertyTypes
+    };
 
     const page = pageFromRows(filtered, pageArgs);
     return { ...page, source: 'mock' };

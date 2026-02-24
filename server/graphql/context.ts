@@ -9,15 +9,11 @@
 import type { YogaInitialContext } from 'graphql-yoga';
 import { randomUUID } from 'node:crypto';
 
-import { query } from '../db';
+import { createTimedQuery, query } from '../db';
 import { cache } from '../cache';
 import type { Cache } from '../cache';
 
 const DEBUG_PERF = process.env.DEBUG_PERF === 'true';
-
-// ----------  Process-scoped dependencies (created once per server process) ----------
-
-const dbAdapter = { query }; // thin DB wrapper (replaceable later)
 
 // ----------  GraphQL context shape (available to all resolvers) ----------
 
@@ -40,13 +36,20 @@ export function createGraphQLContext(
 ): GraphQLContext {
   const requestId = randomUUID();
 
-  if (DEBUG_PERF) {
-    console.log(
-      `[gql] requestId=${requestId} method=${initialContext.request.method}`
-    );
-  }
+  console.log(`[request:${requestId}] Incoming GraphQL request`);
+
+  // -------------------------
+  // DB (request-scoped wrapper)
+  // -------------------------
+  const dbAdapter = {
+    query: createTimedQuery({
+      requestId,
+      enabled: DEBUG_PERF
+    })
+  };
+
   return {
-    requestId: randomUUID(),
+    requestId: requestId,
     memo: new Map<string, Promise<unknown>>(),
     cache,
     db: dbAdapter,

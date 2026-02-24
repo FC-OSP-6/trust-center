@@ -48,18 +48,22 @@ export function createGraphQLHandler() {
       ctx.cache = {
         ...originalCache,
 
-        async getOrSet(key, fetcher, ttlMs) {
+        async getOrSet(
+          key: string,
+          ttlSeconds: number,
+          fn: () => Promise<unknown>
+        ) {
           const existing = originalCache.get(key);
 
           if (enabled) {
-            console.log(
-              `[cache] requestId=${requestId} ${
-                existing !== undefined ? 'hit' : 'miss'
-              } key=${key}`
-            );
+            if (existing !== null) {
+              console.log(`[cache] requestId=${requestId} hit key=${key}`);
+            } else {
+              console.log(`[cache] requestId=${requestId} miss key=${key}`);
+            }
           }
 
-          return originalCache.getOrSet(key, fetcher, ttlMs);
+          return originalCache.getOrSet(key, ttlSeconds, fn);
         }
       };
 
