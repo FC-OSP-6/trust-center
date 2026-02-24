@@ -325,8 +325,9 @@ export function InfoRail({ subRef, navTitle, navJson, emptyText }: RailProps) {
           items-json={navJson}
           empty-text={emptyText}
         />
-
-        <AiStub />
+        <div className="ai-slot-wrapper">
+          <AiStub />
+        </div>
       </div>
     </aside>
   );

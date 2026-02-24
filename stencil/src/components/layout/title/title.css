@@ -33,7 +33,8 @@ p {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 20px;
+  padding: 30px;
+  /* padding-left: 40px; */
 }
 .name {
 }
