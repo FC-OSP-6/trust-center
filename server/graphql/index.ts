@@ -41,26 +41,25 @@ export function createGraphQLHandler() {
       });
 
       // --------------------------
-      // Cache wrapper (SAFE)
+      // Cache wrapper (SAFE + preserves methods)
+      // Cache.getOrSet(key, ttlSeconds, fn)
       // --------------------------
       const originalCache = ctx.cache;
 
       ctx.cache = {
-        ...originalCache,
+        get: originalCache.get.bind(originalCache),
+        set: originalCache.set.bind(originalCache),
+        del: originalCache.del.bind(originalCache),
 
-        async getOrSet(
-          key: string,
-          ttlSeconds: number,
-          fn: () => Promise<unknown>
-        ) {
-          const existing = originalCache.get(key);
+        async getOrSet(key, ttlSeconds, fn) {
+          const existing = originalCache.get(key); // returns unknown | null
 
           if (enabled) {
-            if (existing !== null) {
-              console.log(`[cache] requestId=${requestId} hit key=${key}`);
-            } else {
-              console.log(`[cache] requestId=${requestId} miss key=${key}`);
-            }
+            console.log(
+              `[cache] requestId=${requestId} ${
+                existing !== null ? 'hit' : 'miss'
+              } key=${key}`
+            );
           }
 
           return originalCache.getOrSet(key, ttlSeconds, fn);
