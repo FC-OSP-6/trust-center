@@ -1,12 +1,31 @@
-/* ================================
-  TL;DR  -->  postgres pool + env validation + query helper
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Postgres pool, env validation, and migration layer
 
   - creates a singleton pg pool (lazy init via getDbPool)
   - validates env with readable errors (getServerEnv + helpers)
   - provides query() wrapper used by services/seed
   - exposes pingDb() for smoke checks (not wired into routes yet)
   - runs sql migrations from server/db/migrations (runMigrations + ensureDbSchema)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/*
+  Responsibilities:
+  - Owns database connectivity and lifecycle management
+  - Enforces environment validation for DB configuration
+  - Provides shared query abstractions for services and scripts
+  - Executes and tracks SQL-based schema migrations
+
+  Consumed by:
+  - Server services (via query / createTimedQuery)
+  - Seed scripts and CLI tooling
+  - Dev migration scripts
+
+  Expected environment variables:
+  - DATABASE_URL (required)
+  - DB_POOL_MAX (optional, number)
+  - DB_POOL_IDLE_TIMEOUT_MS (optional, number)
+  - DB_POOL_CONNECTION_TIMEOUT_MS (optional, number)
+*/
 
 import pg from 'pg'; // postgres driver  -->  provides Pool for connection pooling
 import dotenv from 'dotenv'; // loads .env into process.env for local dev / scripts
@@ -19,19 +38,25 @@ import { fileURLToPath } from 'node:url'; // resolve current file location in ES
 dotenv.config(); // load env once so any script importing db has access to config
 const ENV_ERROR_PREFIX = 'ENV_ERROR:'; // makes env failures easy to spot in logs
 
-// fail fast  -->  notify when a required env var is missing
+// requireEnv
+// Ensures a required environment variable exists and throws with a standardized prefix if missing.
+// Used during database configuration assembly.
 export function requireEnv(key: string): string {
   const value = process.env[key];
   if (!value) throw new Error(`${ENV_ERROR_PREFIX} missing ${key}`);
   return value;
 }
 
-// allow optional env keys while keeping defaults explicit
+// optionalEnv
+// Returns an environment variable if defined; otherwise returns the provided fallback.
+// Keeps defaulting behavior explicit at the callsite.
 export function optionalEnv(key: string, fallback: string): string {
   return process.env[key] ?? fallback;
 }
 
-// parse numeric env safely for pool tuning (max/timeout settings)
+// parseNumberEnv
+// Parses a numeric environment variable with validation.
+// Throws if the value is non-numeric; otherwise returns the fallback when undefined.
 export function parseNumberEnv(key: string, fallback: number): number {
   const raw = process.env[key];
   if (raw == null || raw === '') return fallback;
@@ -41,7 +66,9 @@ export function parseNumberEnv(key: string, fallback: number): number {
   return parsed;
 }
 
-// grab server-only env so the rest of the code has a single source of truth
+// getServerEnv
+// Produces the validated database configuration object used to construct the pg Pool.
+// Centralizes env access to avoid scattered process.env usage.
 export function getServerEnv() {
   return {
     DATABASE_URL: requireEnv('DATABASE_URL'),
@@ -62,16 +89,17 @@ const { Pool } = pg;
 // keep a single pool per node process to avoid too many connections
 export let cachedPool: pg.Pool | null = null;
 
-// create the pool only when needed (avoids side effects at import time)
+// getDbPool
+// Lazily initializes and returns a singleton pg.Pool instance.
+// Defers environment validation and connection setup until first use.
 export function getDbPool(): pg.Pool {
   if (cachedPool) return cachedPool;
 
   // validate env only at first db use  -->  server can boot without DB configured
   const env = getServerEnv();
 
-  // enable tls for supabase (req) while keeping local postgres simple
+  // Enable SSL automatically for hosted providers (e.g., Supabase); leave disabled for local development
   const isSupabase = env.DATABASE_URL.includes('supabase.com');
-
   cachedPool = new Pool({
     connectionString: env.DATABASE_URL,
     max: env.DB_POOL_MAX,
@@ -80,12 +108,12 @@ export function getDbPool(): pg.Pool {
     ssl: isSupabase ? { rejectUnauthorized: false } : undefined
   });
 
-  // log successful connection
+  // Log when a new client successfully connects to the pool
   cachedPool.on('connect', () => {
     console.log('✅  Connected to Supabase database \n');
   });
 
-  // surface unexpected pool issues instead of killing the whole app
+  // Log unexpected idle client errors without crashing the process
   cachedPool.on('error', err => {
     console.error('❌ Unexpected database error:', err);
   });
@@ -118,13 +146,15 @@ function getMigrationsDir(): string {
   return path.resolve(here, 'migrations');
 }
 
-// safe re-runs  -->  apply migrations in lexical order, tracked by schema_migrations
+// runMigrations
+// Applies pending .sql migrations in lexical order.
+// Each migration executes in its own transaction and is tracked in schema_migrations.
 export async function runMigrations(): Promise<{
   applied: string[];
   skipped: string[];
 }> {
-  const pool = getDbPool(); // lazy pool init happens here (not at import time)
-  const migrationsDir = getMigrationsDir(); // server/db/migrations next to this index.ts file
+  const pool = getDbPool();
+  const migrationsDir = getMigrationsDir(); // Absolute path to the migrations directory adjacent to this file
 
   // ensure migrations folder exists so failures are obvious and readable
   await fs.access(migrationsDir).catch(() => {
@@ -178,7 +208,7 @@ export async function runMigrations(): Promise<{
       await client.query(sql); // run the migration SQL exactly as written
       await client.query('INSERT INTO schema_migrations(name) VALUES ($1);', [
         filename
-      ]); // record success
+      ]); // Record migration as applied
       await client.query('COMMIT'); // finalize changes for this migration
 
       applied.push(filename);
@@ -187,7 +217,7 @@ export async function runMigrations(): Promise<{
       ); // keep logs obvious in CI/dev
     } catch (err) {
       await client.query('ROLLBACK'); // keep DB clean on failure
-      console.error(`❌  Migration failed: ${filename}`); // keep failure visible + searchable
+      console.error(`❌  Migration failed: ${filename}`); // Log migration failure for visibility in CI and production logs
       throw err;
     } finally {
       client.release(); // always return the connection to the pool
@@ -207,7 +237,9 @@ export async function ensureDbSchema(): Promise<void> {
   await runMigrations();
 }
 
-// query wrapper API so services / seed can stay consistent
+// query
+// Primary database execution helper used across services.
+// Wraps pool.query with optional development logging.
 export const query = async (text: string, params?: any[]) => {
   const start = Date.now();
 
@@ -238,9 +270,12 @@ export const query = async (text: string, params?: any[]) => {
 
 type TimedQueryOptions = {
   requestId: string;
-  enabled: boolean; // gate all perf logs behind DEBUG_PERF
+  enabled: boolean; // When true, logs per-request query timing
 };
 
+// createTimedQuery
+// Returns a request-scoped query function that logs execution timing when enabled.
+// Intended for per-request observability without modifying global query behavior.
 export function createTimedQuery({ requestId, enabled }: TimedQueryOptions) {
   return async (text: string, params?: any[]) => {
     const start = Date.now();
@@ -273,16 +308,17 @@ export function createTimedQuery({ requestId, enabled }: TimedQueryOptions) {
 
 // ----------  scripts (dev-only helpers)  ----------
 
-// runs migrations + always closes pool so node exits
+// runDbMigrate
+// CLI-oriented migration runner that logs summary output and ensures pool shutdown.
 export async function runDbMigrate(): Promise<void> {
   try {
     const summary = await runMigrations(); // apply new .sql files only
 
-    // log success in the same “verification-friendly” style
+    // Log successful completion
     console.log('\n✅  migrate complete');
     console.log(summary);
   } catch (error) {
-    // keep failures loud
+    // Surface failures and set non-zero exit code
     console.error('\n❌  migrate script failed:', error);
     process.exitCode = 1;
   } finally {
@@ -291,7 +327,9 @@ export async function runDbMigrate(): Promise<void> {
   }
 }
 
-// resets app tables + re-run migrations from scratch
+// cleanApplyDb
+// Drops selected application tables and re-applies migrations from scratch.
+// Intended for local development resets and controlled rebuild scenarios.
 export async function cleanApplyDb(): Promise<{
   dropped: string[];
   migrated: { applied: string[]; skipped: string[] };
@@ -313,7 +351,7 @@ export async function cleanApplyDb(): Promise<{
       await pool.query(`drop table if exists ${name} cascade;`);
     }
 
-    // commit the drop phase (keeps deterministic)
+    // Commit the drop transaction before re-running migrations
     await pool.query('commit');
   } catch (error) {
     // rollback on failure  -->  prevents half-reset states
@@ -324,20 +362,21 @@ export async function cleanApplyDb(): Promise<{
 
   // run migrations after drops  -->  recreates schema from the migration folder
   const migrated = await runMigrations();
-  // return a structured summary
+
   return { dropped: targets, migrated };
 }
 
-// runs clean apply + always closes pool so node exits
+// runCleanApplyDb
+// CLI-oriented clean reset runner that drops tables, re-migrates, and closes the pool.
 export async function runCleanApplyDb(): Promise<void> {
   try {
     const summary = await cleanApplyDb(); // run the drop + migrate
 
-    // log success
+    // Log successful completion
     console.log('\n✅  clean apply complete');
     console.log(summary);
   } catch (error) {
-    // surface failures
+    // Log failure and set non-zero exit code
     console.error('\n❌  clean apply script failed:', error);
     process.exitCode = 1; // non-zero exit
   } finally {
