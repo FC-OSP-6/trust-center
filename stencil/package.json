@@ -2,8 +2,8 @@
   "scripts": {
     "start": "stencil build --dev --watch",
     "build": "stencil build",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
+    "test:spec": "stencil test --spec",
+    "test:spec:watch": "stencil test --spec --watch",
     "pretest": "npm run build"
   },
   "jest": {
