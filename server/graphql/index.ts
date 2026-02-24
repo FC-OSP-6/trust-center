@@ -1,23 +1,39 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  GraphQL handler factory (transport layer only)
+  TL;DR  -->  GraphQL HTTP handler factory
 
-  - Builds executable GraphQL schema (typeDefs + resolvers)
-  - Instantiates Yoga server
-  - Injects request context factory (dependency container)
-  - Does NOT construct dependencies directly
+  - Builds executable schema (typeDefs + resolvers)
+  - Instantiates GraphQL Yoga HTTP transport
+  - Injects request-scoped dependency container (createGraphQLContext)
+  - Adds optional DB and cache instrumentation for observability
+  - Exports: createGraphQLHandler()
+  - Used by: HTTP/server entry point to mount GraphQL endpoint
+  - Depends on: graphql-yoga runtime, schema, resolvers, context factory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+// GraphQL Yoga runtime (HTTP transport + executable schema utilities)
 import { createYoga, createSchema } from 'graphql-yoga';
+// DB instrumentation utility (adds request-scoped timing/logging)
 import { createTimedQuery } from '../db/index.js';
 
-import { typeDefs } from './schema'; // SDL contract (schema definition)
+import { typeDefs } from './schema'; // GraphQL SDL contract
 import { resolvers } from './resolvers'; // Resolver map (execution layer)
 
 import { createGraphQLContext } from './context'; // Dependency injection factory
 import type { GraphQLContext } from './context'; // Shared context type
 
-// ----------  GraphQL handler factory (HTTP wiring only) ----------
+// ---------- GraphQL handler factory (HTTP wiring only) ----------
 
+/**
+ * Creates the GraphQL HTTP handler.
+ *
+ * Responsibilities:
+ * - Builds executable schema from SDL + resolvers
+ * - Configures Yoga transport layer
+ * - Injects per-request GraphQLContext
+ * - Applies request-scoped DB and cache instrumentation
+ *
+ * Used by the server entry point to mount the /graphql endpoint.
+ */
 export function createGraphQLHandler() {
   // Combine schema contract + resolvers into executable schema
   const schema = createSchema({ typeDefs, resolvers });
@@ -26,24 +42,24 @@ export function createGraphQLHandler() {
     schema, // Executable GraphQL schema
     graphqlEndpoint: '/graphql', // Explicit endpoint path
     graphiql: process.env.NODE_ENV !== 'production', // Dev-only IDE
+    // Construct request-scoped dependency container
     context: async initialContext => {
       const ctx = createGraphQLContext(initialContext);
 
       const requestId = ctx.requestId;
       const enabled = process.env.DEBUG_PERF === 'true';
 
-      // --------------------------
-      // DB timing wrapper
-      // --------------------------
+      // ---------- Request-scoped DB instrumentation ----------
       ctx.db.query = createTimedQuery({
         requestId,
         enabled
       });
 
-      // --------------------------
-      // Cache wrapper (SAFE + preserves methods)
-      // Cache.getOrSet(key, ttlSeconds, fn)
-      // --------------------------
+      // ---------- Request-scoped cache decorator ----------
+      // Adds logging while preserving original cache interface
+      // getOrSet(key, ttlSeconds, fn)
+
+      // Preserve original cache instance to delegate behavior safely
       const originalCache = ctx.cache;
 
       ctx.cache = {
