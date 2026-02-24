@@ -21,13 +21,13 @@ export default defineConfig({
 
     include: [
       'server/**/*.test.ts', // server-side unit/integration tests colocated in server if added later
-      'testing/unit-test/**/*.test.ts', // root unit tests
-      'testing/integration-tests/**/*.test.ts', // root integration tests
+      'testing/unit/**/*.test.ts', // root unit tests
+      'testing/integration/**/*.test.ts', // root integration tests
       'testing/**/*.test.tsx' // ui/component tests at root if you keep any tsx vitest files
     ],
 
     exclude: [
-      'testing/e2e-tests/**', // playwright owns E2E
+      'testing/e2e/**', // playwright owns E2E
       'testing/_todo/**', // planning stubs should not execute
       'stencil/**', // stencil has its own runner/configs and generated output
       'node_modules/**',

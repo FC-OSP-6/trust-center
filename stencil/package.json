@@ -6,29 +6,8 @@
     "test:spec:watch": "stencil test --spec --watch",
     "pretest": "npm run build"
   },
-  "jest": {
-    "testRunner": "jest-circus/runner",
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.(ts|tsx|js|jsx|css)$": "@stencil/core/testing/jest-preprocessor.js"
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json"
-    ],
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?|jsx?)$",
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(@stencil)/)"
-    ],
-    "rootDir": "."
-  },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
-    "@stencil/core": "^4.43.1",
-    "@types/jest": "^30.0.0",
-    "jest-stencil-runner": "^0.0.19"
+    "@stencil/core": "^4.43.1"
   }
 }
