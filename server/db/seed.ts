@@ -83,10 +83,6 @@ export type SeedFaqRow = {
   search_text: string;
 };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> main
 // ----------  load seed json  ----------
 
 // resolve server/db/data relative to THIS file  -->  works even when cwd changes

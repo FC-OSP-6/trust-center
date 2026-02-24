@@ -93,7 +93,6 @@ describe('aon-control-card', () => {
     const grid = element.shadowRoot.querySelector('.grid');
     expect(grid).toBeTruthy();
     expect(grid.children.length).toBe(0);
-
     // No tile header
     expect(element.shadowRoot.querySelector('.tileHeader')).toBeNull();
   });
@@ -126,18 +125,15 @@ describe('aon-control-card', () => {
 
     // Check groups were created correctly
     expect(component.groups).toHaveLength(2); // Security and Operations
-
     // Security group should have 3 controls
     const securityGroup = component.groups.find(g => g.title === 'Security');
     expect(securityGroup).toBeTruthy();
     expect(securityGroup.items).toHaveLength(3);
     expect(securityGroup.items[0].title).toBe('Access Control Policy');
-
     // Operations group should have 2 controls
     const opsGroup = component.groups.find(g => g.title === 'Operations');
     expect(opsGroup).toBeTruthy();
     expect(opsGroup.items).toHaveLength(2);
-
     // Total count should be set
     expect(component.totalControls).toBe(5);
   });
@@ -182,12 +178,10 @@ describe('aon-control-card', () => {
     const title = element.shadowRoot.querySelector('.tileTitle');
     expect(title).toBeTruthy();
     expect(title.textContent).toBe('Security Controls');
-
     // Check meta (10 controls, 0 categories because edges empty)
     const meta = element.shadowRoot.querySelector('.tileMeta');
     expect(meta).toBeTruthy();
     expect(meta.textContent).toContain('10 controls');
-
     // Check subtitle
     const subtitle = element.shadowRoot.querySelector('.tileSubtitle');
     expect(subtitle).toBeTruthy();
@@ -219,7 +213,6 @@ describe('aon-control-card', () => {
     const cardHeader = firstCard.querySelector('.cardHeader');
     const cardTitle = firstCard.querySelector('.cardTitle');
     expect(cardTitle.textContent).toBe('Security');
-
     // Check columns
     const columns = firstCard.querySelector('.columns');
     expect(columns).toBeTruthy();
@@ -375,7 +368,6 @@ describe('aon-control-card', () => {
     await page.waitForChanges();
 
     const component = page.rootInstance;
-
     // Should handle error gracefully
     expect(component.groups).toEqual([]);
     expect(component.totalControls).toBe(0);

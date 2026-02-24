@@ -52,6 +52,7 @@
     "@stencil/react-output-target": "^0.5.3",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.10.2",
     "@types/pg": "^8.16.0",
     "@types/react": "^18.0.0",

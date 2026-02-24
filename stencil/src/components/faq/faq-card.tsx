@@ -23,9 +23,6 @@ type FaqRowItem = {
   styleUrl: 'faq-card.css',
   shadow: true
 })
-
-
-
 export class FaqCard {
   /* ---------- public api ---------- */
 
