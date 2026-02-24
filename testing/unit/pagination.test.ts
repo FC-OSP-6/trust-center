@@ -133,7 +133,7 @@ describe('pagination helpers', () => {
 
     expect(result.params).toEqual(['Security', '%iam\\_\\%%']); // category normalized + LIKE wildcards escaped
     expect(result.whereSql).toContain('lower(category) = lower($1)'); // category predicate uses first param
-    expect(result.whereSql).toContain("search_text ILIKE $2 ESCAPE '\\\\'"); // search predicate uses explicit escape char
+    expect(result.whereSql).toContain("search_text ILIKE $2 ESCAPE '\\'"); // search predicate uses explicit escape char
     expect(result.whereSql.startsWith('where ')).toBe(true); // clause should be prefixed with WHERE
   });
 
