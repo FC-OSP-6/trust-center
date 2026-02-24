@@ -8,6 +8,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { createYoga, createSchema } from 'graphql-yoga';
+import { createTimedQuery } from '../db/index.js';
 
 import { typeDefs } from './schema'; // SDL contract (schema definition)
 import { resolvers } from './resolvers'; // Resolver map (execution layer)
@@ -25,6 +26,44 @@ export function createGraphQLHandler() {
     schema, // Executable GraphQL schema
     graphqlEndpoint: '/graphql', // Explicit endpoint path
     graphiql: process.env.NODE_ENV !== 'production', // Dev-only IDE
-    context: createGraphQLContext // Per-request dependency injection
+    context: async initialContext => {
+      const ctx = createGraphQLContext(initialContext);
+
+      const requestId = ctx.requestId;
+      const enabled = process.env.DEBUG_PERF === 'true';
+
+      // --------------------------
+      // DB timing wrapper
+      // --------------------------
+      ctx.db.query = createTimedQuery({
+        requestId,
+        enabled
+      });
+
+      // --------------------------
+      // Cache wrapper (SAFE)
+      // --------------------------
+      const originalCache = ctx.cache;
+
+      ctx.cache = {
+        ...originalCache,
+
+        async getOrSet(key, fetcher, ttlMs) {
+          const existing = originalCache.get(key);
+
+          if (enabled) {
+            console.log(
+              `[cache] requestId=${requestId} ${
+                existing !== undefined ? 'hit' : 'miss'
+              } key=${key}`
+            );
+          }
+
+          return originalCache.getOrSet(key, fetcher, ttlMs);
+        }
+      };
+
+      return ctx;
+    }
   });
 }
