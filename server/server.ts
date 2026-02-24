@@ -17,8 +17,6 @@ import cors from 'cors'; // allows cross-origin requests when not using dev prox
 import path from 'node:path'; // resolve entrypoint for ESM guard
 import { pathToFileURL } from 'node:url'; // convert file path to file:// url for import.meta.url
 import { createGraphQLHandler } from './graphql/index'; // mounts yoga at /graphql
-import { getControls } from './services/controlsService';
-import { getFaqs } from './services/faqsService';
 
 export function createServer() {
   const app = express(); // instance returned below for testing without a listener
@@ -49,26 +47,6 @@ export function createServer() {
       serviceName: 'trust-center-server',
       timestamp: new Date().toISOString()
     });
-  });
-
-  // ----------  REST endpoints for controls/faqs fallback ----------
-
-  app.get('/api/controls', async (req, res, next) => {
-    try {
-      const controls = await getControls();
-      res.status(200).json({ ok: true, controls });
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  app.get('/api/faqs', async (req, res, next) => {
-    try {
-      const faqs = await getFaqs();
-      res.status(200).json({ ok: true, faqs });
-    } catch (err) {
-      next(err);
-    }
   });
 
   // ----------  graphQL  ----------
