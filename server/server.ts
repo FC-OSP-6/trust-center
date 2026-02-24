@@ -1,9 +1,9 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  express bootstrap + routes
 
   - sets up express middleware
   - mounts /api/health and /graphql
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import 'dotenv/config'; // load once and first so middleware have access to the api keys
 import express from 'express'; // server factory  -->  http routes + middleware

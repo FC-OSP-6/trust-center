@@ -24,7 +24,50 @@ Step 3. Npm run dev to run the client and server concurrently.
 
 ##Why GraphQL?
 
+- Aligns with Aon's use of GraphQL, ensuring consistency with their tech stack
+- Allows the frontend to request exactly the data it needs, preventing over and under fetching
+- Uses a single endpoint with a schema that is strongly typed
+- Makes nested and relational data easier to query in one request
+- Improves frontend-backend collaboration through a shared schema contract
+
 ##Why StencilJS?
+
+- Aligns with Aon's use of Stencil, maintaining consistency with their architecture
+- Allows for more flexibility because the web components are framework-agnostic
+- Separates component prensentation (Stencil) from component behavior (React)
+- Compiles to optimized, standards-based browser components
+- Includes strong TypeScript support out of the box
+- Reduces long-term framework lock-in risk
+
+##Why Flat Folder Rule?
+--- Needs Review ---
+
+- Enforces data integrity at the database level
+- Defines clear structure and contstraints for all stored data
+- Makes migrations versioned and predictable
+- Prevents invalid data from entering the system
+- Serves as documentation of the domain model
+- Reduces reliance on application-layer validation alone
+
+##Why DB schema approach?
+--- Needs Review ---
+
+- Enforces data integrity at the database level
+- Defines clear structure and constraints for all stored data
+- Makes migrations versioned and predictable
+- Prevents invalid data from entering the system
+- Serves as documentation of the domain model
+- Reduces reliance on application-layer validation alone
+
+##Why tests centralized in /testing?
+--- Needs Review ---
+
+- Keeps testing logic separate from production code
+- Improves organization and discoverability of tests
+- Makes shared fixtures and utilities easier to manage
+- Supports scaling across unit, integration and end to end tests
+- Reduces clutter in feature folders
+- Encourages consistent testing patterns across the project
 
 ##Common Problems:
 

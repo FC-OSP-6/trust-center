@@ -1,4 +1,4 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR 🧠 Why Stencil needs its own tsconfig
 
   React + Vite:
@@ -17,7 +17,7 @@
 
   ➜ Because of this, Stencil cannot safely share
     the same tsconfig.json as a React app.
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 {
   "compilerOptions": {
@@ -31,7 +31,8 @@
     "module": "esnext",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "types": ["@stencil/core", "jest", "jest-stencil-runner"]
+    "types": ["@stencil/core"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["testing", "dist", "node_modules"]
 }

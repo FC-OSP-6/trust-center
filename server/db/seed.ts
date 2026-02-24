@@ -1,11 +1,11 @@
-/* ================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  schema + deterministic seed
 
   - ensures db schema exists (migrations)
   - reads sample json data + normalizes rows
   - upserts by stable natural keys (control_key / faq_key)
   - prints deterministic metrics for repeatable runs (+ pagination practice)
-================================ */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import fs from 'node:fs/promises'; // read seed json files from disk
 import path from 'node:path'; // build absolute paths for data folder
