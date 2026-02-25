@@ -1,4 +1,4 @@
--- ============================================
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -- TL;DR  -->  trust center base schema
 --
 --   - creates the minimum tables for MVP (controls + faqs)
@@ -6,7 +6,7 @@
 --   - keeps re-runs safe (if exists / add column if not exists)
 --   - stretch:  supports tags as text[]
 --   - stretch:  supports full-text search (to_tsvector + GIN)
--- ============================================
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
 
 -- ----------  extensions  ----------

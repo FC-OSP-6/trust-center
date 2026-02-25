@@ -135,10 +135,25 @@ body {
    Controls/FAQs Page Layout (react-owned)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+/* Prevents components from spilling over the width of the page */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .info-grid {
   width: 100%;
+  min-width: 320px;
+  max-width: 1600px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  /* 8-4 layout */
+  /* grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); */
+  /* 6-6 layout */
+  grid-template-columns: 1fr 1fr;
+  /* 4-8 layout */
+  /* grid-template-columns:  minmax(280px, 1fr) minmax(0, 2fr); */
   grid-template-areas: 'main rail';
   align-items: start;
   column-gap: var(--info-gap-col);
@@ -157,21 +172,29 @@ body {
 }
 
 /* sticky wrapper keeps subnav + ai visible while content scrolls */
+
 .info-stick {
   position: sticky;
   top: var(--info-stick-top);
   display: grid;
-  gap: var(--info-gap-rail);
+  gap: 40px;
   align-content: start;
-
   /* lets long category lists stay usable without losing stickiness */
   max-height: calc(100vh - var(--info-stick-top) - var(--space-global-xs));
-  overflow: auto;
+  /* overflow: auto; */
+  overflow: visible;
   padding-right: 2px;
 }
 
 /* custom element hosts should fill their wrappers */
-.info-stick > aon-subnav-card,
+.info-stick > aon-subnav-card {
+  width: 50%;
+  margin: 0 auto;
+}
+.info-stick > .ai-slot {
+  width: 100%;
+  margin: 0 auto;
+}
 .info-main > aon-control-card,
 .info-main > aon-faq-card {
   display: block;
@@ -189,6 +212,9 @@ body {
   padding: 16px;
   display: grid;
   gap: 12px;
+  max-height: 100%; /* can’t exceed the info-stick container */
+  min-height: 100px; /* optional: avoid collapsing too much */
+  overflow: hidden; /* no inner scroll */
 }
 
 .ai-head {
