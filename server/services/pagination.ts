@@ -89,13 +89,20 @@ export function buildCategorySearchWhere(args: {
   const params: unknown[] = []; // parameter bag
 
   if (args.category && normalizeText(args.category) !== '') {
-    params.push(normalizeText(args.category)); // param: category
-    parts.push(`lower(category) = lower($${params.length})`); // predicate: category match
+    // pre-lowercase the param so postgres only evaluates lower() on the indexed column side
+    // aligns with the lower(category) expression index added in 002_indexes.sql
+    // EXPLAIN: Index Scan using controls_category_lower_idx / faqs_category_lower_idx
+    params.push(normalizeText(args.category).toLowerCase()); // normalized lowercase param
+    parts.push(`lower(category) = $${params.length}`); // index-friendly: lower() only on column, not param
   }
 
   if (args.search && normalizeText(args.search) !== '') {
     const needle = escapeLike(normalizeText(args.search).toLowerCase()); // normalize + escape wildcard chars
     params.push(`%${needle}%`); // param: contains pattern
+    // prototype: ILIKE is a seq scan but acceptable for current dataset size
+    // production path: switch to search_vector @@ plainto_tsquery('english', $N)
+    // to use the GIN index (controls_search_vector_gin / faqs_search_vector_gin)
+    // validate search semantics with UI team before switching (substring vs word-stem match)
     parts.push(`search_text ILIKE $${params.length} ESCAPE '\\'`); // explicit one-char escape for backslash
   }
 
