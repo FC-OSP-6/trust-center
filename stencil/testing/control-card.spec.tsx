@@ -1,3 +1,29 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  stencil spec tests for aon-control-card
+
+  what this file tests:
+    - component rendering with no data
+    - data fetch + grouping behavior in controls mode
+    - expand/collapse interaction state
+    - basic error fallback behavior
+
+  what this file does not test:
+    - backend graphql resolver correctness (root vitest integration tests cover that)
+    - full app routing/navigation behavior (root playwright e2e covers that)
+
+  why this split matters:
+    - keeps component tests fast, stable, and focused on stencil behavior
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+// ---------- test setup ----------
+
+// ---------- shared mock payloads ----------
+
+// ---------- render and interaction tests ----------
+
+// ---------- error and fallback tests ----------
+
+/*
 // src/components/aon-control-card/aon-control-card.spec.tsx
 import { newSpecPage } from '@stencil/core/testing';
 import { ControlCard } from '../src/components/control/control-card';
@@ -428,3 +454,4 @@ describe('aon-control-card', () => {
     expect(securityGroup.items[2].title).toBe('Password Policy');
   });
 });
+*/

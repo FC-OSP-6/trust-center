@@ -1,88 +1,91 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  GraphQL HTTP handler factory
 
-  - Builds executable schema (typeDefs + resolvers)
-  - Instantiates GraphQL Yoga HTTP transport
-  - Injects request-scoped dependency container (createGraphQLContext)
-  - Adds optional DB and cache instrumentation for observability
-  - Exports: createGraphQLHandler()
-  - Used by: HTTP/server entry point to mount GraphQL endpoint
-  - Depends on: graphql-yoga runtime, schema, resolvers, context factory
+  - builds the executable schema from typeDefs + resolvers
+  - creates the GraphQL Yoga handler used by the server entry point
+  - injects a per-request GraphQLContext for every request
+  - decorates the shared cache with request-aware logging
+  - preserves the full cache contract while adding debug visibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// GraphQL Yoga runtime (HTTP transport + executable schema utilities)
-import { createYoga, createSchema } from 'graphql-yoga';
-// DB instrumentation utility (adds request-scoped timing/logging)
-import { createTimedQuery } from '../db/index.js';
+import { createYoga, createSchema } from 'graphql-yoga'; // GraphQL Yoga runtime + schema builder
 
 import { typeDefs } from './schema'; // GraphQL SDL contract
-import { resolvers } from './resolvers'; // Resolver map (execution layer)
+import { resolvers } from './resolvers'; // resolver execution map
 
-import { createGraphQLContext } from './context'; // Dependency injection factory
-import type { GraphQLContext } from './context'; // Shared context type
+import { createGraphQLContext } from './context'; // per-request dependency injection factory
+import type { GraphQLContext } from './context'; // shared request context type
+import type { Cache } from '../cache'; // shared cache interface so the decorator preserves the full contract
 
-// ---------- GraphQL handler factory (HTTP wiring only) ----------
+// ---------- local debug helpers ----------
 
-/**
- * Creates the GraphQL HTTP handler.
- *
- * Responsibilities:
- * - Builds executable schema from SDL + resolvers
- * - Configures Yoga transport layer
- * - Injects per-request GraphQLContext
- * - Applies request-scoped DB and cache instrumentation
- *
- * Used by the server entry point to mount the /graphql endpoint.
- */
+function isDebugPerfEnabled(): boolean {
+  const raw = String(process.env.DEBUG_PERF ?? '').toLowerCase(); // env flags arrive as strings
+  return raw === 'true' || raw === '1' || raw === 'yes' || raw === 'on'; // tolerate common truthy values
+}
+
+// ---------- cache decorator ----------
+
+function decorateCacheWithRequestLogging(
+  cache: Cache,
+  requestId: string
+): Cache {
+  const debugEnabled = isDebugPerfEnabled(); // compute once per request so nested cache calls stay cheap
+
+  return {
+    get(key) {
+      return cache.get(key); // direct cache reads pass straight through to the underlying adapter
+    },
+
+    set(key, value, ttlSeconds) {
+      cache.set(key, value, ttlSeconds); // direct cache writes pass straight through to the underlying adapter
+    },
+
+    del(key) {
+      cache.del(key); // direct cache deletes pass straight through to the underlying adapter
+    },
+
+    async getOrSet(key, ttlSeconds, fn) {
+      const existing = cache.get(key); // probe once here so hit/miss logging stays centralized in one place
+
+      if (debugEnabled) {
+        console.log(
+          `[cache] requestId=${requestId} ${
+            existing !== null ? 'hit' : 'miss'
+          } key=${key} ttl=${ttlSeconds}s`
+        ); // one request-aware cache line replaces the older duplicate service + decorator logs
+      }
+
+      return cache.getOrSet(key, ttlSeconds, fn); // delegate cache behavior to the real adapter
+    },
+
+    invalidatePrefix(prefix) {
+      if (debugEnabled) {
+        console.log(
+          `[cache] requestId=${requestId} invalidatePrefix prefix=${prefix}`
+        ); // request-aware invalidation log helps trace admin-ready cache clears
+      }
+
+      cache.invalidatePrefix?.(prefix); // preserve optional prefix invalidation support from the underlying adapter
+    }
+  };
+}
+
+// ---------- handler factory ----------
+
 export function createGraphQLHandler() {
-  // Combine schema contract + resolvers into executable schema
-  const schema = createSchema({ typeDefs, resolvers });
+  const schema = createSchema({ typeDefs, resolvers }); // combine SDL + resolvers into one executable schema
 
   return createYoga<GraphQLContext>({
-    schema, // Executable GraphQL schema
-    graphqlEndpoint: '/graphql', // Explicit endpoint path
-    graphiql: process.env.NODE_ENV !== 'production', // Dev-only IDE
-    // Construct request-scoped dependency container
+    schema, // executable schema consumed by GraphQL Yoga
+    graphqlEndpoint: '/graphql', // keep the endpoint explicit for clarity
+    graphiql: process.env.NODE_ENV !== 'production', // enable GraphiQL outside production
     context: async initialContext => {
-      const ctx = createGraphQLContext(initialContext);
+      const ctx = createGraphQLContext(initialContext); // build the per-request dependency container first
 
-      const requestId = ctx.requestId;
-      const enabled = process.env.DEBUG_PERF === 'true';
+      ctx.cache = decorateCacheWithRequestLogging(ctx.cache, ctx.requestId); // preserve full cache interface while adding request-aware logs
 
-      // ---------- Request-scoped DB instrumentation ----------
-      ctx.db.query = createTimedQuery({
-        requestId,
-        enabled
-      });
-
-      // ---------- Request-scoped cache decorator ----------
-      // Adds logging while preserving original cache interface
-      // getOrSet(key, ttlSeconds, fn)
-
-      // Preserve original cache instance to delegate behavior safely
-      const originalCache = ctx.cache;
-
-      ctx.cache = {
-        get: originalCache.get.bind(originalCache),
-        set: originalCache.set.bind(originalCache),
-        del: originalCache.del.bind(originalCache),
-
-        async getOrSet(key, ttlSeconds, fn) {
-          const existing = originalCache.get(key); // returns unknown | null
-
-          if (enabled) {
-            console.log(
-              `[cache] requestId=${requestId} ${
-                existing !== null ? 'hit' : 'miss'
-              } key=${key}`
-            );
-          }
-
-          return originalCache.getOrSet(key, ttlSeconds, fn);
-        }
-      };
-
-      return ctx;
+      return ctx; // return the finished context for this request
     }
   });
 }
