@@ -56,28 +56,28 @@ export type GraphQLContext = {
 export function createGraphQLContext(
   initialContext: YogaInitialContext
 ): GraphQLContext {
-  const requestId = randomUUID();
+  const requestId = randomUUID(); // generate one trace id per GraphQL request
 
   // Log request entry for trace correlation across services
-  console.log(`[request:${requestId}] Incoming GraphQL request`);
+  console.log(`[req] requestId=${requestId} event=incoming_graphql_request`);
 
   // DB adapter: wraps base query function with request-scoped timing instrumentation
   const dbAdapter = {
     query: createTimedQuery({
-      requestId,
-      enabled: DEBUG_PERF
+      requestId, // bind requestId into db timing logs for this request
+      enabled: DEBUG_PERF // only emit db timing logs when perf debugging is enabled
     })
   };
 
   return {
-    requestId: requestId,
-    memo: new Map<string, Promise<unknown>>(),
-    cache,
-    db: dbAdapter,
+    requestId: requestId, // expose the request trace id to all resolvers/services
+    memo: new Map<string, Promise<unknown>>(), // create a fresh request-scoped memo map for this one request
+    cache, // inject the process-scoped shared cache instance
+    db: dbAdapter, // inject the request-scoped db adapter wrapper
     auth: {
-      userEmail: null,
-      roles: [],
-      isAdmin: false
+      userEmail: null, // auth is still a placeholder in this prototype
+      roles: [], // no role data is attached yet
+      isAdmin: false // default to non-admin until real auth exists
     }
   };
 }
