@@ -288,7 +288,7 @@ export function createTimedQuery({ requestId, enabled }: TimedQueryOptions) {
 
       if (enabled) {
         console.log(
-          `[db] requestId=${requestId} duration=${durationMs}ms rows=${res.rowCount ?? 0}`
+          `[db] requestId=${requestId} duration=${durationMs}ms rows=${res.rowCount ?? 0} sql="${text.trim().substring(0, 50)}..."`
         );
       }
 
