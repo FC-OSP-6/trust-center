@@ -1,74 +1,119 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  admin mutation resolver stubs (not wired yet)
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  admin-ready cache invalidation mutations
 
-  - placeholder resolver map for future Admin GUI mutations
-  - shows the invalidation pattern: write to DB → invalidate cache → return result
-  - every method throws "not implemented" until real DB mutations are built
-  - wire into schema.ts + resolvers.ts when Admin GUI work begins (EPIC 005-T.f)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  - exposes safe GraphQL mutation hooks for read-cache invalidation
+  - keeps invalidation callable before real admin writes exist
+  - preserves the future write pattern: write db first, then invalidate reads
+  - allows local verification in non-production while auth is still a stub
+  - returns structured mutation results so GraphiQL checks are easy to verify
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import { invalidateControls, invalidateFaqs } from '../cache/invalidation'; // entity invalidators
-import type { Cache } from '../cache/cache'; // cache type used in context shape
+import type { GraphQLContext } from './context'; // shared GraphQL context contract
+import { invalidateControls, invalidateFaqs } from '../cache/invalidation'; // domain-level invalidation helpers
 
-// minimal context shape needed here — just cache + auth
-// matches the GraphQLContext that will carry cache once T.a (context refactor) lands
-type MutationContext = {
-  cache: Cache; // the shared process-level cache instance
-  requestId: string; // for tracing — log this on every mutation
-  auth: { isAdmin: boolean }; // guard: only admins can call these
+// ---------- local mutation context ----------
+
+type MutationContext = Pick<GraphQLContext, 'cache' | 'requestId' | 'auth'>; // only the fields this file actually needs
+
+type InvalidationScope = 'controls' | 'faqs'; // supported invalidation domains
+
+type InvalidationResult = {
+  ok: boolean; // success flag for GraphQL clients and GraphiQL smoke tests
+  scope: InvalidationScope; // which domain was invalidated
+  invalidatedPrefix: string; // exact prefix that was cleared
+  requestId: string; // request trace id for terminal correlation
 };
 
-// ----------  mutation resolver map  ----------
+// ---------- constants ----------
+
+const CONTROLS_LIST_PREFIX = 'controls:list:'; // list-read prefix for controls cache keys
+const FAQS_LIST_PREFIX = 'faqs:list:'; // list-read prefix for faqs cache keys
+
+// ---------- helpers ----------
+
+function assertAdminOrLocalDev(ctx: MutationContext): void {
+  const isLocalDev = process.env.NODE_ENV !== 'production'; // local dev has no real auth yet, so allow verification outside production
+
+  if (!ctx.auth.isAdmin && !isLocalDev) {
+    throw new Error('FORBIDDEN: admin only'); // production still requires real admin auth
+  }
+}
+
+function logInvalidation(args: {
+  requestId: string;
+  scope: InvalidationScope;
+  prefix: string;
+}): void {
+  console.log(
+    `[cache] requestId=${args.requestId} invalidate scope=${args.scope} prefix=${args.prefix}`
+  ); // structured invalidation log keeps terminal traces consistent with cache/db logs
+}
+
+function buildInvalidationResult(args: {
+  requestId: string;
+  scope: InvalidationScope;
+  invalidatedPrefix: string;
+}): InvalidationResult {
+  return {
+    ok: true, // mutation completed successfully
+    scope: args.scope, // domain that was invalidated
+    invalidatedPrefix: args.invalidatedPrefix, // exact prefix that was cleared
+    requestId: args.requestId // trace id for GraphiQL-to-terminal matching
+  };
+}
+
+// ---------- mutation resolvers ----------
 
 export const mutationResolvers = {
   Mutation: {
-    // stub: upsert (create or update) a control record
-    // pattern: validate → write DB → invalidate controls cache → return updated record
-    adminControlUpsert: async (
+    adminInvalidateControlsReads: async (
       _parent: unknown,
       _args: unknown,
       ctx: MutationContext
-    ): Promise<never> => {
-      if (!ctx.auth.isAdmin) throw new Error('FORBIDDEN: admin only'); // auth guard
-      invalidateControls(ctx.cache); // wipe controls cache so next read is fresh from DB
-      // TODO: implement DB upsert (EPIC 005-T.b service layer)
-      throw new Error('adminControlUpsert: not implemented');
+    ): Promise<InvalidationResult> => {
+      assertAdminOrLocalDev(ctx); // allow local verification now while keeping production restricted
+
+      invalidateControls(ctx.cache); // clear all cached controls list reads
+
+      logInvalidation({
+        requestId: ctx.requestId, // tie invalidation log to this GraphQL request
+        scope: 'controls', // domain being invalidated
+        prefix: CONTROLS_LIST_PREFIX // exact prefix used by cache invalidation
+      });
+
+      return buildInvalidationResult({
+        requestId: ctx.requestId, // echo request id back to GraphQL client
+        scope: 'controls', // mutation invalidated controls reads
+        invalidatedPrefix: CONTROLS_LIST_PREFIX // return exact prefix for easy verification
+      });
     },
 
-    // stub: upsert a faq record
-    adminFaqUpsert: async (
+    adminInvalidateFaqsReads: async (
       _parent: unknown,
       _args: unknown,
       ctx: MutationContext
-    ): Promise<never> => {
-      if (!ctx.auth.isAdmin) throw new Error('FORBIDDEN: admin only'); // auth guard
-      invalidateFaqs(ctx.cache); // wipe faqs cache so next read is fresh from DB
-      // TODO: implement DB upsert (EPIC 005-T.b service layer)
-      throw new Error('adminFaqUpsert: not implemented');
-    },
+    ): Promise<InvalidationResult> => {
+      assertAdminOrLocalDev(ctx); // allow local verification now while keeping production restricted
 
-    // stub: hard-delete a control record by id
-    adminControlDelete: async (
-      _parent: unknown,
-      _args: unknown,
-      ctx: MutationContext
-    ): Promise<never> => {
-      if (!ctx.auth.isAdmin) throw new Error('FORBIDDEN: admin only'); // auth guard
-      invalidateControls(ctx.cache); // delete also makes cached lists stale
-      // TODO: implement DB delete (EPIC 005-T.b service layer)
-      throw new Error('adminControlDelete: not implemented');
-    },
+      invalidateFaqs(ctx.cache); // clear all cached faq list reads
 
-    // stub: hard-delete a faq record by id
-    adminFaqDelete: async (
-      _parent: unknown,
-      _args: unknown,
-      ctx: MutationContext
-    ): Promise<never> => {
-      if (!ctx.auth.isAdmin) throw new Error('FORBIDDEN: admin only'); // auth guard
-      invalidateFaqs(ctx.cache); // delete also makes cached lists stale
-      // TODO: implement DB delete (EPIC 005-T.b service layer)
-      throw new Error('adminFaqDelete: not implemented');
+      logInvalidation({
+        requestId: ctx.requestId, // tie invalidation log to this GraphQL request
+        scope: 'faqs', // domain being invalidated
+        prefix: FAQS_LIST_PREFIX // exact prefix used by cache invalidation
+      });
+
+      return buildInvalidationResult({
+        requestId: ctx.requestId, // echo request id back to GraphQL client
+        scope: 'faqs', // mutation invalidated faq reads
+        invalidatedPrefix: FAQS_LIST_PREFIX // return exact prefix for easy verification
+      });
     }
   }
 };
+
+// ---------- future admin-write notes ----------
+
+// future admin writes should follow this order: validate auth -> write db -> invalidate reads -> return payload
+// future controls writes should call invalidateControls(ctx.cache) only after the db write succeeds
+// future faq writes should call invalidateFaqs(ctx.cache) only after the db write succeeds

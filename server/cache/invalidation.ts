@@ -9,16 +9,13 @@
 
 import type { Cache } from './cache'; // only need the interface type here
 
-// invalidate every cached controls list result
-// call this after any admin write that changes controls data (upsert, delete)
-// wipes keys like: controls:list:first=10, controls:list:category=SOC2, etc.
+const CONTROLS_LIST_PREFIX = 'controls:list:'; // keep invalidation scoped to cached list reads only
+const FAQS_LIST_PREFIX = 'faqs:list:'; // same pattern for faq list-read cache entries
+
 export function invalidateControls(cache: Cache): void {
-  cache.invalidatePrefix?.('controls:'); // ?. = safe call — skips if adapter doesn't implement it
+  cache.invalidatePrefix?.(CONTROLS_LIST_PREFIX); // only clear controls list/read entries
 }
 
-// invalidate every cached faqs list result
-// call this after any admin write that changes faqs data (upsert, delete)
-// wipes keys like: faqs:list:first=10, faqs:list:search=audit, etc.
 export function invalidateFaqs(cache: Cache): void {
-  cache.invalidatePrefix?.('faqs:'); // same pattern — one call clears all faq list variants
+  cache.invalidatePrefix?.(FAQS_LIST_PREFIX); // only clear faq list/read entries
 }

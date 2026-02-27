@@ -1,0 +1,819 @@
+* 3878c27 - (origin/annie, annie) chore: write ReadMe draft 1 (2 days ago) <Annie Tadvick>
+*   7cfd24e - chore: merge with backend op branch (2 days ago) <Annie Tadvick>
+|\  
+* | 73b7023 - chore(db): add code comments for documentation for index (2 days ago) <Annie Tadvick>
+* | a5ef35b - chore(graphql): add code comments for documentation for resolvers (2 days ago) <Annie Tadvick>
+* | fcc9afe - chore(graphql): add code comments for documentation (2 days ago) <Annie Tadvick>
+* | 8fd48f6 - chore(graphql): add code comments for documentation (2 days ago) <Annie Tadvick>
+* |   8113fcd - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (2 days ago) <Annie Tadvick>
+|\ \  
+| * \   0f55bb6 - Merge branch 'backend-optimization' into annie (3 days ago) <Annie Tadvick>
+| |\ \  
+* | | | 5c42157 - fix(graphql): fix bug in cache observability (2 days ago) <Annie Tadvick>
+* | | |   28f0f83 - Merge branch 'backend-optimization' into annie (2 days ago) <Annie Tadvick>
+|\ \ \ \  
+| |/ / /  
+|/| | |   
+* | | | 5fa420c - Part of MIL-273): feat(observability): refactor fetchControlsPage, fetchFaqsPage, cache wrapper in index (3 days ago) <Annie Tadvick>
+* | | | f009383 - Part of MIL-273): feat(observability): feat(db): add createTimedQuery wrapper for request-scoped query timing (3 days ago) <Annie Tadvick>
+* | | | 60d32c4 - Part of MIL-273): feat(observability): instrument GraphQL context with DB timing and cache logging (3 days ago) <Annie Tadvick>
+* | | | e443569 - Part of MIL-273): refactor(request tracing): add DEBUG_PERF in console.log to implement request tracing (3 days ago) <Annie Tadvick>
+* | | |   0a3205f - Merge branch 'backend-optimization' into annie (3 days ago) <Annie Tadvick>
+|\ \ \ \  
+* | | | | 543fc03 - chore: add backend-optimization branch to CI scripts (3 days ago) <Annie Tadvick>
+* | | | |   70c1c6a - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (3 days ago) <Annie Tadvick>
+|\ \ \ \ \  
+| * \ \ \ \   9e6f213 - Merge branch 'main' into annie (6 days ago) <Annie Tadvick>
+| |\ \ \ \ \  
+* | | | | | | 94a5b95 - Part of MIL-267: refactor(resolvers): update GraphQLContext type import (3 days ago) <Annie Tadvick>
+* | | | | | | 3381074 - Part of MIL-267: refactor(resolvers): add ctx to all fetchers and pass ctx to all resolvers. (3 days ago) <Annie Tadvick>
+* | | | | | | 6b809a2 - Part of MIL-267: refactor(resolvers): delete query import. (3 days ago) <Annie Tadvick>
+* | | | | | | 55ab684 - Part of MIL-267: refactor: implement createGraphQLContext. Update graphQLContext type. Create thin db wrapper. Update inline note comments (3 days ago) <Annie Tadvick>
+* | | | | | | 6457235 - Part of MIL-267: refactor: wire context from new context.ts file. Update inline note comments (3 days ago) <Annie Tadvick>
+* | | | | | | d9490c1 - Part of MIL-267: refactor: delete imports owned by context.ts and context within createYoga function (3 days ago) <Annie Tadvick>
+* | | | | | | dff7b1c - Part of MIL-267: refactor: create context.ts file (3 days ago) <Annie Tadvick>
+* | | | | | |   8d61440 - Merge branch 'main' into annie (4 days ago) <Annie Tadvick>
+|\ \ \ \ \ \ \  
+* | | | | | | | 00144e5 - save work (4 days ago) <Annie Tadvick>
+* | | | | | | |   42cd823 - Merge branch 'main' into annie (6 days ago) <Annie Tadvick>
+|\ \ \ \ \ \ \ \  
+| |_|/ / / / / /  
+|/| | | | | | |   
+| | | | | | | | *   fa192a1 - (HEAD -> elijah) Merge branch 'backend-optimization' into elijah (2 days ago) <Elijah Morris>
+| | | | | | | | |\  
+| | | | | | | | |/  
+| | | | | | | |/|   
+| | | | | | | * | 7dd3f07 - (origin/backend-optimization, backend-optimization) chore(refactor): merge in testing suite (#65) (2 days ago) <morrisxelijah>
+| | | | | | | | * f79fdb2 - (origin/elijah) chore: linting to merge (2 days ago) <Elijah Morris>
+| | | | | | | | * 52d2104 - part of MIL-229: chore(testing): adds unit testing for pagination and graphql integration testing (2 days ago) <Elijah Morris>
+| | | | | | | | * e5e7cfc - chore(testing): clean up testing (2 days ago) <Elijah Morris>
+| | | | | | | | *   aa36c7f - chore(refactor): Merge branch 'backend-optimization' of into elijah (2 days ago) <Elijah Morris>
+| | | | | | | | |\  
+| | | | | | | | |/  
+| | | | | | | |/|   
+| | | | | | | * | 09625fe - Refactoring README (#64) (2 days ago) <xglover410>
+| | | | | | | | * f61fdc5 - chore: updates playwright run (2 days ago) <Elijah Morris>
+| | | | | | | | * 1ec4712 - chore(testing): consolidate test layout and remove legacy stencil jest artifacts (2 days ago) <Elijah Morris>
+| | | | | | | | * 3018b96 - chore(testing): rename and move testing folders + files (2 days ago) <Elijah Morris>
+| | | | | | | | * 6b1908f - chore: remove legacy testing stubs (2 days ago) <Elijah Morris>
+| | | | | | | | * f29c085 - chore: rename testing folder (2 days ago) <Elijah Morris>
+| | | | | | | | * f40211e - chore: stubs testing files (2 days ago) <Elijah Morris>
+| | | | | | | | *   6eecec7 - Merge branch 'mila' into elijah (2 days ago) <Elijah Morris>
+| | | | | | | | |\  
+| | | | | | | | | * 8f34439 - (origin/mila, mila) Merge branch 'backend-optimization' into mila (2 days ago) <Elijah Morris>
+| | | | | | | | | *   e62124a - Merge branch 'backend-optimization' into mila (2 days ago) <Elijah Morris>
+| | | | | | | | | |\  
+| | | | | | | | | * | 3dc9a03 - Part of MIL-229: Just implemented a unit test for the control card (3 days ago) <milapaprika>
+| | | | | | | | | * | 78139e2 - part of MIL-229: removed jest config and testing folder (3 days ago) <milapaprika>
+| | | | | | | | | * | 35ce1ea - part of MIL-229: Uninstalled jest (3 days ago) <milapaprika>
+| | | | | | | | | * |   7247a53 - fixed merge conflict (3 days ago) <milapaprika>
+| | | | | | | | | |\ \  
+| | | | | | | | | | * \   aa59de7 - merge main into mila and format with prettier (3 days ago) <Elijah Morris>
+| | | | | | | | | | |\ \  
+| | | |_|_|_|_|_|_|_|/ /  
+| | |/| | | | | | | | |   
+| | | | | | | | | * | | 4b78a5a - part of MIL-229: Removed jest from stencil (3 days ago) <milapaprika>
+| | | | | | | | | * | |   00ed4e1 - Merge branch 'main' into mila (3 days ago) <milapaprika>
+| | | | | | | | | |\ \ \  
+| | | |_|_|_|_|_|_|/ / /  
+| | |/| | | | | | | | |   
+| | | | | | | | * | | |   59cb431 - Merge branch 'elijah' of https://github.com/FC-OSP-6/trust-center into elijah (3 days ago) <Elijah Morris>
+| | | | | | | | |\ \ \ \  
+| | | | | | | | | * \ \ \   0d26475 - Merge branch 'backend-optimization' into elijah (3 days ago) <morrisxelijah>
+| | | | | | | | | |\ \ \ \  
+| | | | | | | | * | \ \ \ \   c369d9e - chore: Merge branch 'amen' into elijah (3 days ago) <Elijah Morris>
+| | | | | | | | |\ \ \ \ \ \  
+| | | | | | | | | |/ / / / /  
+| | | | | | | | |/| | | | |   
+| | | | | | | | * | | | | | 1badaf6 - fixes MIL-271: refactor(cache): add normalized read-cache key builders for shared service caching (3 days ago) <Elijah Morris>
+| | | | | | | | * | | | | |   8562190 - chore: merge amen branch into elijah (3 days ago) <Elijah Morris>
+| | | | | | | | |\ \ \ \ \ \  
+| | | | | | | | * | | | | | | 3030d1c - fixes MIL-269: refactor(server): add request-scoped promise memoization to read services (3 days ago) <Elijah Morris>
+| | | | | | | | * | | | | | | 9ee1468 - part of MIL-269: fix(server): correct SQL for ILIKE escape clause in shared pagination search helper (3 days ago) <Elijah Morris>
+| | | | | | | | * | | | | | | cda0248 - fix(graphQL): updates reseolvers from backend-optimization merge (3 days ago) <Elijah Morris>
+| | | | | | | | * | | | | | |   c55e514 - Merge branch 'backend-optimization' into elijah (3 days ago) <Elijah Morris>
+| | | | | | | | |\ \ \ \ \ \ \  
+| | | | | |_|_|_|/ / / / / / /  
+| | | | |/| | | | | | | | | /   
+| | | | | | | | | |_|_|_|_|/    
+| | | | | | | | |/| | | | |     
+| | | | | | | | * | | | | |   2ac152b - merge backend-optimization into elijah (3 days ago) <Elijah Morris>
+| | | | | | | | |\ \ \ \ \ \  
+| | | | | | | | * | | | | | | 8246016 - fixes MIL-268: refactor(server): thin graphql resolvers to call services, add shared pagination helpers for services, add controls/faqs service read layer (3 days ago) <Elijah Morris>
+| | | | | | | | * | | | | | | 633b119 - chore(prettier): config files cleanup to merge into main (4 days ago) <Elijah Morris>
+| | | | | | | | | | | | | | | * 831cfde - (origin/amen) Merge branch 'backend-optimization' into amen (2 days ago) <Amen Stoney>
+| | | | | | | | | | | | |_|_|/| 
+| | | | | | | | | | | |/| | |/  
+| | | | | | |_|_|_|_|_|_|_|/|   
+| | | | | |/| | | | | | | | |   
+| | | | | | | | | | | * | | | ab2affe - (amen) Merge branch 'backend-optimization' into amen (3 days ago) <Amen Stoney>
+| | | | | | | | | | |/| | | | 
+| | | | | | | | | | * | | | | 350108a - added  fixed invalidate prefix and changed some comments (3 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | 309aaf6 - closes MIL-272: feat(cache): add prefix invalidation strategy and mutation stubs (3 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | 63546e4 - feat(cache): implement swappable LRU/Redis abstraction with deterministic key builders (3 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | c8e3b86 - (closes MIL-270: feat(cache): add unified cache abstraction with LRU adapter (3 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | |   f4cacfc - Merge branch 'main' into amen (4 days ago) <Amen Stoney>
+| | | | | | | | | | |\ \ \ \ \  
+| | | |_|_|_|_|_|_|_|/ / / / /  
+| | |/| | | | | | | | | | | |   
+| | | | | | | | | | * | | | | c99a31a - chore:merging main into amen (4 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | e56eab1 - fixes MIL-238: fix(index): add SSR safety and improve error handling in index.tsx (6 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | 3c84917 - closes MIL-245: refactor(stencil): added store handler ref, added memory leak prevention, added custom event for popstate (6 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | 53e459d -  navbar refactor (6 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | | 67c3c9c -  navbar refactor (6 days ago) <Amen Stoney>
+| | | | | | | | | | * | | | |   1f5bd56 - Merge branch 'main' into amen (6 days ago) <Amen Stoney>
+| | | | | | | | | | |\ \ \ \ \  
+| | |_|_|_|_|_|_|_|_|/ / / / /  
+| |/| | | | | | | | | | | | |   
+| | | | | | | | | | * | | | |   c9bba65 - Merge branch 'main' into amen (7 days ago) <Amen Stoney>
+| | | | | | | | | | |\ \ \ \ \  
+| | | | |_|_|_|_|_|_|/ / / / /  
+| | | |/| | | | | | | | | | |   
+| | | | | | | | | | * | | | |   86caeda - Merge branch 'amen' of https://github.com/FC-OSP-6/trust-center into amen (7 days ago) <Amen Stoney>
+| | | | | | | | | | |\ \ \ \ \  
+| | | | | | | | | | | * \ \ \ \   9f2f75e - Merge branch 'main' into amen (8 days ago) <Amen Stoney>
+| | | | | | | | | | | |\ \ \ \ \  
+| | | | | | | | | | * | \ \ \ \ \   ba4f2a4 - Merge branch 'main' into amen (7 days ago) <Amen Stoney>
+| | | | | | | | | | |\ \ \ \ \ \ \  
+| | | | | | | | | | | |/ / / / / /  
+| | | | | | | | | | |/| | | | | |   
+| | | | | | | | | | * | | | | | | 8cef34f - navbar,subnav-card and title TLDRs done (8 days ago) <Amen Stoney>
+| | | | | | | | | | | | | | | | | *   8ede003 - (origin/xavier) Merge branch 'backend-optimization' into xavier (2 days ago) <Xavier>
+| | | | | | | | | | | | | | | | | |\  
+| | | | | | | | |_|_|_|_|_|_|_|_|_|/  
+| | | | | | | |/| | | | | | | | | |   
+| | | | | | | * | | | | | | | | | | f85d811 - fix(graphql): fix bug in cache wrapper, add code comments (#62) (2 days ago) <Annie Tadvick>
+| | | | | | |/ / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | 33aa769 - feat(observability): add request tracing, DB timing, and cache hit/miss logging (#61) (3 days ago) <Annie Tadvick>
+| | | | | |/ / / / / / / / / / /  
+| | | | | | | | | | | | | | | * 7eed9fe - Working on README (2 days ago) <Xavier>
+| | | | | | | | | | | | | | | * 7ce932a - Chore: UI Cleanup and TLDR Formatting (2 days ago) <Xavier>
+| | | | | | | | | | | | | | | * a6c7778 - achieved 8-4 layout, controls and faqs single columns (2 days ago) <Xavier>
+| | | | | | | | | | | | | | | *   b9f06e0 - Merge branch 'backend-optimization' into xavier (3 days ago) <Xavier>
+| | | | | | | | | | | | | | | |\  
+| | | | | | |_|_|_|_|_|_|_|_|_|/  
+| | | | | |/| | | | | | | | | |   
+| | | | | * | | | | | | | | | | 7c51144 - refactor(services): normalizes read-cache key builders for shared service (#60) (3 days ago) <morrisxelijah>
+| | | | | | |_|_|_|_|_|/ / / /  
+| | | | | |/| | | | | | | | |   
+| | | | | * | | | | | | | | | b4e8131 - feat(cache): implement swappable LRU/Redis abstraction and invalidation strategy (#59) (3 days ago) <Amen Stoney>
+| | | | | | |_|_|_|_|/ / / /  
+| | | | | |/| | | | | | | |   
+| | | | | * | | | | | | | | 3ec0f26 - Elijah  -- refactor(server): modularizes services out of graphQL resolvers (#58) (3 days ago) <morrisxelijah>
+| | | | |/ / / / / / / / /  
+| | | | | | | | | | | | * f624c9f - Working on MIL-266 T.i -> Seed Fallback Isolation + Feature Bug (3 days ago) <Xavier>
+| | | | | | | | | | | | *   214ac27 - Merge branch 'backend-optimization' into xavier (3 days ago) <Xavier>
+| | | | | | | | | | | | |\  
+| | | | | |_|_|_|_|_|_|_|/  
+| | | | |/| | | | | | | |   
+| | | | * | | | | | | | | 4c926b5 - chore: add backend-optimization branch to CI scripts (#57) (3 days ago) <Annie Tadvick>
+| | | | | |/ / / / / / /  
+| | | | |/| | | | | | |   
+| | | | * | | | | | | | dc87953 - feature (cache): Cache feature implementation  (#56) (3 days ago) <Amen Stoney>
+| | | | * | | | | | | | 8066bfe - Refactor(graphQL): refactor graphQL context (dependency injection) (#55) (3 days ago) <Annie Tadvick>
+| | | |/ / / / / / / /  
+| | |/| | | | | | | |   
+| | | | | | | | | | * b4d7922 - Part of MIL-266 T.i → Seed Fallback Isolation + Feature Flag (3 days ago) <Xavier>
+| | | | | | | | | | *   86197d6 - Merge branch 'main' into xavier (4 days ago) <Xavier>
+| | | | | | | | | | |\  
+| | | |_|_|_|_|_|_|_|/  
+| | |/| | | | | | | |   
+| | * | | | | | | | | 902802c - (origin/main, origin/HEAD) refactor: merge code cleanup (#54) (4 days ago) <morrisxelijah>
+| |/ / / / / / / / /  
+| | | | | | | | | *   09f83b2 - Merge branch 'main' into xavier (6 days ago) <Xavier>
+| | | | | | | | | |\  
+| | |_|_|_|_|_|_|_|/  
+| |/| | | | | | | |   
+| | | | | | | | | * 75f25be - Fix: Merge Conflict subnav-card.css (7 days ago) <Xavier>
+| | | | | | | | | *   ad4ca4d - Merge branch 'main' into xavier (7 days ago) <Xavier>
+| | | | | | | | | |\  
+| | | |_|_|_|_|_|_|/  
+| | |/| | | | | | |   
+| | | | | | | | | *   5f9bcca - Merge branch 'main' into xavier (7 days ago) <Xavier>
+| | | | | | | | | |\  
+| | | | | | |_|_|_|/  
+| | | | | |/| | | |   
+| | | | | | | | | *   f54786c - Merge branch 'main' into xavier (8 days ago) <Xavier>
+| | | | | | | | | |\  
+| | | | | | | | | | | * 34989ee - (refs/stash) WIP on elijah: 5bfb92e feat(UI): adds section for AI chatbot (4 days ago) <Elijah Morris>
+| | | | |_|_|_|_|_|_|/| 
+| | | |/| | | | | | | | 
+| | | | | | | | | | | * 914f242 - index on elijah: 5bfb92e feat(UI): adds section for AI chatbot (4 days ago) <Elijah Morris>
+| | | | |_|_|_|_|_|_|/  
+| | | |/| | | | | | |   
+| | | * | | | | | | | 5bfb92e - feat(UI): adds section for AI chatbot (4 days ago) <Elijah Morris>
+| | | * | | | | | | | 1b61b0e - fixes MIL-237: chore(client): centralize link card item mapping and static json payloads (4 days ago) <Elijah Morris>
+| | | * | | | | | | | a93cda9 - fixes MIL-238: fix(client): guard web component registration for SSR and tests (4 days ago) <Elijah Morris>
+| | | * | | | | | | | b2be0f4 - chore: merge index.tsx from amen branch (4 days ago) <Elijah Morris>
+| | | * | | | | | | | 4bb8d14 - fixes MIL-249: fix(UI): subnav cards map to controls/FAQs categories and jump to section when clicked (4 days ago) <Elijah Morris>
+| | | * | | | | | | | 40babea - part of MIL-249: refactor(stencil): makes common stencil components prop driven (4 days ago) <Elijah Morris>
+| | | * | | | | | | | dca3547 - part of MIL-251 and MIL-249: refactor(stencil): make navbar, title, footer, and subnav prop-driven (4 days ago) <Elijah Morris>
+| | | * | | | | | | |   6f69590 - Merge branch 'elijah' of https://github.com/FC-OSP-6/trust-center into elijah (4 days ago) <Elijah Morris>
+| | | |\ \ \ \ \ \ \ \  
+| | | | * | | | | | | | fefe6d8 - part of MIL-254: refactor(stencil): normalize toggle/reveal class patterns across cards (4 days ago) <Elijah Morris>
+| | | | * | | | | | | | fc1654f - part of MIL-241: chore(client): remove stale custom-element fetch-first prop typings (4 days ago) <Elijah Morris>
+| | | | * | | | | | | | db8c7a2 - fix(stencil): improve control card semantics and lazy icon loading and make control card fully prop-driven from react controls data (4 days ago) <Elijah Morris>
+| | | * | | | | | | | | 26b35dd - part of MIL-254: refactor(stencil): normalize toggle/reveal class patterns across cards (4 days ago) <Elijah Morris>
+| | | * | | | | | | | | 931cd1d - part of MIL-241: chore(client): remove stale custom-element fetch-first prop typings (4 days ago) <Elijah Morris>
+| | | * | | | | | | | | 6bb287e - fixes MIL-240: fix(stencil): improve control card semantics and lazy icon loading and make control card fully prop-driven from react controls data (4 days ago) <Elijah Morris>
+| | | |/ / / / / / / /  
+| | | * | | | | | | | 148b1e3 - part of MIL-241: fix(client): align stencil JSX prop typings with current component APIs (4 days ago) <Elijah Morris>
+| | | * | | | | | | | 1007b57 - part of MIL-241: fix(typing): align control and expansion custom element props in frontend-types (4 days ago) <Elijah Morris>
+| | | * | | | | | | | a4c0569 - refactor(stencil): consume client-fed controls connection json in control-card (4 days ago) <Elijah Morris>
+| | | * | | | | | | | 3ac0ad6 - refactor: stencil components and React layer to be more DRY (4 days ago) <Elijah Morris>
+| | | * | | | | | | | 59ad639 - fixes MIL-253: fix(UI): Link card padding/spacing (5 days ago) <Elijah Morris>
+| | | * | | | | | | | 92f7297 - fixes MIL-252: refactor: dedupes queries in Expansion Card and adds ID + keys (5 days ago) <Elijah Morris>
+| | | * | | | | | | | a0bc318 - fixes MIL-243: fix(FAQ): keyboard accessibility & header issues (5 days ago) <Elijah Morris>
+| | | * | | | | | | | 22fb32b - part of MIL-248: fix: link cards spacing on overview and resources page (5 days ago) <Elijah Morris>
+| | | * | | | | | | | 31d6bed - closes MIL-255: refactor(api): removes graphql / data fetching from stencil components and creates a thin service layer in react for optimizations (caching, deduplication, memoization) (5 days ago) <Elijah Morris>
+| | | * | | | | | | | 5d41245 - part of MIL-241: fix(types): resolves TS errors for asset imports and cleans up stale interfaces (5 days ago) <Elijah Morris>
+| | | * | | | | | | |   f936247 - Merge branch 'main' into elijah (6 days ago) <Elijah Morris>
+| | | |\ \ \ \ \ \ \ \  
+| | |_|/ / / / / / / /  
+| |/| | | | | | | | |   
+| * | | | | | | | | | ecfd157 - (main) refactor(stencil): fix blue cards, kebab-casing, and footer (#53) (6 days ago) <Annie Tadvick>
+| |/ / / / / / / / /  
+| * | | / / / / / / 9e275a7 - fix(prettier): add husky workflow to automate prettier to format before commits (#52) (7 days ago) <Annie Tadvick>
+| | |_|/ / / / / /  
+| |/| | | | | | |   
+| | * | | | | | |   a6b4451 - fix(test): adds playwright and puts jest in stencil dependencies with it's own testing folder (6 days ago) <Elijah Morris>
+| | |\ \ \ \ \ \ \  
+| |_|/ / / / / / /  
+|/| | | | | | | |   
+* | | | | | | | | ac2d12b - Closes MIL-246: refactor(stencl): fix potential drift in supportEmail and supportEmailLink. (6 days ago) <Annie Tadvick>
+* | | | | | | | | 9a108a8 - refactor(blue-card): fix button to be logic-based. (6 days ago) <Annie Tadvick>
+* | | | | | | | | 29e22cf - Closes MIL-247: refactor(blue-cards): set props to required. (7 days ago) <Annie Tadvick>
+* | | | | | | | | d103017 - Closes MIL-254: done (7 days ago) <Annie Tadvick>
+* | | | | | | | | e23938b - Part of MIL-254: fix(stencil): align kebab-case class names with CSS selectors to restore expandable behavior (7 days ago) <Annie Tadvick>
+* | | | | | | | | 6806aa9 - Part of MIL-254: refactor(stencil expansion cards): remove redundant attribute config from stencil props. change css classes to kebab case. (7 days ago) <Annie Tadvick>
+* | | | | | | | | 438425a - Part of MIL-254: fix(stencil control-card): change span classes to kebab case. (7 days ago) <Annie Tadvick>
+* | | | | | | | | 9ed329b - Part of MIL-254: refactor(stencil faq-card): remove redundant attribute config from stencil props. change css classes to kebab case. (7 days ago) <Annie Tadvick>
+* | | | | | | | | db69ea4 - Part of MIL-254: refactor(stencil control cards): remove redundant attribute config from stencil props. change css classes to kebab case. (7 days ago) <Annie Tadvick>
+* | | | | | | | | 914edf2 - chore: add Oleg todos (7 days ago) <Annie Tadvick>
+* | | | | | | | | ad0a968 - fix(husky): format entire repo (7 days ago) <Annie Tadvick>
+* | | | | | | | | 638d8b6 - fix: remove leftover merge conflict message (7 days ago) <Annie Tadvick>
+* | | | | | | | | 62d7eeb - finish husky/prettier setup (7 days ago) <Annie Tadvick>
+* | | | | | | | | 3c9ff29 - remove format test code (7 days ago) <Annie Tadvick>
+* | | | | | | | | ae51039 - format test (7 days ago) <Annie Tadvick>
+* | | | | | | | | e07fe9b - remove deprecated husky wrapper (7 days ago) <Annie Tadvick>
+* | | | | | | | | 80dddd6 - husky test (7 days ago) <Annie Tadvick>
+* | | | | | | | | 327f29d - Merge branch 'main' into annie (7 days ago) <Annie Tadvick>
+|\| | | | | | | | 
+* | | | | | | | | f755879 - Add crlf/lf check to CI file (7 days ago) <Annie Tadvick>
+* | | | | | | | |   3e71f4b - Merge branch 'main' into annie (8 days ago) <Annie Tadvick>
+|\ \ \ \ \ \ \ \ \  
+* \ \ \ \ \ \ \ \ \   526e6dd - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (8 days ago) <Annie Tadvick>
+|\ \ \ \ \ \ \ \ \ \  
+| * \ \ \ \ \ \ \ \ \   1e2364e - Merge branch 'main' into annie (8 days ago) <Annie Tadvick>
+| |\ \ \ \ \ \ \ \ \ \  
+* | \ \ \ \ \ \ \ \ \ \   3319c12 - Merge branch 'main' into annie (8 days ago) <Annie Tadvick>
+|\ \ \ \ \ \ \ \ \ \ \ \  
+| | |_|_|_|_|_|_|_|_|_|/  
+| |/| | | | | | | | | |   
+* | | | | | | | | | | | 8401c55 - Update package.json (8 days ago) <Annie Tadvick>
+| |/ / / / / / / / / /  
+|/| | | | | | | | | |   
+* | | | | | | | | | | 81c2c2a - chore: normalize line endings via .gitattributes (8 days ago) <Annie Tadvick>
+* | | | | | | | | | | 93809a2 - Normalize line endings (8 days ago) <Annie Tadvick>
+| | | | | * | | | | |   6b33b3a - Merge branch 'mila' into elijah (6 days ago) <Elijah Morris>
+| | | | | |\ \ \ \ \ \  
+| | | | | | | |_|_|/ /  
+| | | | | | |/| | | |   
+| | | | | | * | | | | e07d8ef - implemented testing for stencil with jest/control card component && implemented vitest for backend (7 days ago) <milapaprika>
+| | | | | | | |_|/ /  
+| | | | | | |/| | |   
+| | | | | | * | | |   7d268cd - fixed merge conflict (7 days ago) <milapaprika>
+| | | | | | |\ \ \ \  
+| | | | | |_|/ / / /  
+| | | | |/| | | | |   
+| | | | | | * | | |   75aa6b0 - pulled changes from main (7 days ago) <milapaprika>
+| | | | | | |\ \ \ \  
+| | | | | | | * \ \ \   81bb2a0 - Merge branch 'main' of https://github.com/FC-OSP-6/trust-center (8 days ago) <milapaprika>
+| | | | | | | |\ \ \ \  
+| | | | |_|_|_|/ / / /  
+| | | |/| | | | | | |   
+| | | | | | | * | | | 68b22a0 - changes to package.json (2 weeks ago) <milapaprika>
+| | | | | | * | | | | 37aef2b - implemented onclick listener into faq (13 days ago) <milapaprika>
+| | | | | * | | | | |   c06df07 - Merge branch 'main' into elijah (7 days ago) <Elijah Morris>
+| | | | | |\ \ \ \ \ \  
+| | | | | |/ / / / / /  
+| | | | |/| | | | | |   
+| | | | * | | | | | | 6ec6eac - Elijah -- adds faq cards and overview page (#51) (7 days ago) <morrisxelijah>
+| | | |/ / / / / / /  
+| | | | * | | | | | e977f0e - fixes merge conflict in pdf files (7 days ago) <Elijah Morris>
+| | | | * | | | | |   5e84dcd - Merge branch 'main' into elijah (7 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \  
+| | | | |/ / / / / /  
+| | | |/| | | | | |   
+| | | | * | | | | | b5f07cd - fixes merge conflict (7 days ago) <Elijah Morris>
+| | | | * | | | | | 69e0690 - fixes expansion cards on overview page (7 days ago) <Elijah Morris>
+| | | | * | | | | | 399695b - part of MIL-192: fix merge for alt version of faq card UI using +/- explandables, refactors control cards (8 days ago) <Elijah Morris>
+| | | | * | | | | |   3a27f56 - Merge branch 'annie' into elijah (8 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \  
+| | | | | * \ \ \ \ \   b916ff3 - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (8 days ago) <Elijah Morris>
+| | | | | |\ \ \ \ \ \  
+| |_|_|_|_|/ / / / / /  
+|/| | | | | | | | | |   
+* | | | | | | | | | | 952a4b8 - Update code comment notes in footer and blue-card (9 days ago) <Annie Tadvick>
+* | | | | | | | | | | 5488a5d - Add fake PDFs, placeholder external links, and clean up comments/TLDRs (9 days ago) <Annie Tadvick>
+* | | | | | | | | | | d7dd81d - Fix svgs for link cards (9 days ago) <Annie Tadvick>
+| | | | | * | | | | | 9299f06 - Revert "Elijah  -- fixes merge duplicate artifacts (#42)" (13 days ago) <Elijah Morris>
+| | | | | * | | | | | 61241fa - Revert "Save work" (13 days ago) <Elijah Morris>
+| | | | | * | | | | |   9b20e73 - Merging main (13 days ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \  
+| | | | | | * \ \ \ \ \   152faa1 - Merge branch 'main' into annie (13 days ago) <Annie Tadvick>
+| | | | | | |\ \ \ \ \ \  
+| | | | | | | | |/ / / /  
+| | | | | | | |/| | | |   
+| | | | | * | | | | | |   a548eeb - Merge branch 'main' into annie (13 days ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \  
+| | | | | | * \ \ \ \ \ \   042a2e3 - Merge branch 'main' of https://github.com/FC-OSP-6/trust-center (13 days ago) <Annie Tadvick>
+| | | | | | |\ \ \ \ \ \ \  
+| |_|_|_|_|_|/ / / / / / /  
+|/| | | | | | | | | | | |   
+| | | | | * | | | | | | | cb9d815 - Save work (13 days ago) <Annie Tadvick>
+| | | | | | |/ / / / / /  
+| | | | | |/| | | | | |   
+| | | | * | | | | | | |   ef56be6 - Merge branch 'xavier' into elijah (8 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|/  
+| | | | | |/| | | | | |   
+| | | | | * | | | | | | ddc92d5 - (xavier) Header and subnav card TLDRs (8 days ago) <Xavier>
+| | | | | * | | | | | | d28d5da - Subnav + Header Notes w/ cleaned up code (9 days ago) <Xavier>
+| | | | | * | | | | | |   eb7e0e0 - Merge branch 'xavier' of https://github.com/FC-OSP-6/trust-center into xavier (13 days ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \  
+| | | | | | * \ \ \ \ \ \   e65bca3 - Merge branch 'main' into xavier (13 days ago) <xglover410>
+| | | | | | |\ \ \ \ \ \ \  
+| | | | | * | | | | | | | | c1f90f0 - Woring on subnav bar (13 days ago) <Xavier>
+| | | | | * | | | | | | | |   d932b26 - Merge branch 'main' into xavier (13 days ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \  
+| |_|_|_|_|/ / / / / / / / /  
+|/| | | | | | | | | | | | |   
+| | | | | * | | | | | | | |   fb35596 - Merge branch 'main' into xavier (13 days ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \  
+| | | | | | |/ / / / / / / /  
+| | | | | |/| | | | | | | |   
+| | | | | * | | | | | | | | 912a105 - Finished Header (13 days ago) <Xavier>
+| | | | | * | | | | | | | |   ce70ecf - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into xavier (2 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \  
+| | | | | * \ \ \ \ \ \ \ \ \   634abf8 - Header-inprogress (2 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|_|_|/ / / /  
+| | | | | | |/| | | | | | | |   
+| | | | | * | | | | | | | | |   0ad581c - Merge branch 'main' into xavier (2 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \ \  
+| | | | * | \ \ \ \ \ \ \ \ \ \   8161674 - Merge branch 'amen' into elijah (8 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|_|_|/ /  
+| | | | | |/| | | | | | | | | |   
+| | | | | * | | | | | | | | | | 2b211b7 - navbar and title TLDR update (9 days ago) <Amen Stoney>
+| | | | | * | | | | | | | | | |   82cc4bf - pulled changes to macbook (9 days ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \  
+| | | |_|_|/ / / / / / / / / / /  
+| | |/| | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | |   d39d168 - Merge branch 'amen' of https://github.com/FC-OSP-6/trust-center into amen (13 days ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \  
+| | | | | | * \ \ \ \ \ \ \ \ \ \   192a5a1 - Merge branch 'main' into amen (13 days ago) <Amen Stoney>
+| | | | | | |\ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | \ \ \ \ \ \ \ \ \ \ \   c7ca87b - merge fixes (13 days ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \  
+| |_|_|_|_|/ / / / / / / / / / / / /  
+|/| | | | | / / / / / / / / / / / /   
+| | | | | |/ / / / / / / / / / / /    
+| | | | * | | | | | | | | | | | | ba9c58c - part of MIL-192: alt version of faq card UI using +/- explandables, refactors control cards (8 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | 35418f8 - closes MIL-191: +/- animation is working --> shows/hides control descriptions (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | |   ee79737 - Merge branch 'main' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * | | | | | | | | | | | | | 962a4af - fixes merge duplicate artifacts (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | |   bfce5e7 - Merge branch 'main' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|/ / / / / /  
+| | | | | |/| | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | |   6226c9e - Merge branch 'main' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * \ \ \ \ \ \ \ \ \ \ \ \ \ \   aa7e4f0 - Merge branch 'elijah' of https://github.com/FC-OSP-6/trust-center into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * \ \ \ \ \ \ \ \ \ \ \ \ \ \   145f19b - Merge branch 'main' into elijah (13 days ago) <morrisxelijah>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * | \ \ \ \ \ \ \ \ \ \ \ \ \ \ \   7880355 - Merge branch 'main' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | |/ / / / / / / / / / / / / / / /  
+| | | | |/| | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | 62edeef - closes MIL-189: view all works and controls render (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | e4ce2d1 - Merge branch 'main' into elijah: cleans up merge artifacts (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | a81c141 - Merge branch 'main' into elijah: cleans up merge artifacts (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | |   c5d84bd - Merge branch 'main' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * | | | | | | | | | | | | | | | | | e523033 - Merge branch 'annie' into elijah (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | |   9bc68e5 - Merge branch 'annie' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+| | | | | |/| | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | 4a96fe5 - prettier configuration (13 days ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | |   230c8e0 - Merge branch 'amen' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|/ / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | 16be6df - finished navbar (13 days ago) <Amen Stoney>
+| | | | | * | | | | | | | | | | | | | | | |   db44943 - Merge branch 'annie' into amen (2 weeks ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|_|_|_|_|_|_|_|_|/ / / / /  
+| | | | | | |/| | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | |   59e8d6e - Merge branch 'main' into amen (2 weeks ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|_|_|_|_|_|_|_|/ / / / / /  
+| | | | | | |/| | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | 547206d - chore: stop tracking generated files (2 weeks ago) <Amen Stoney>
+| | | | * | | | | | | | | | | | | | | | | | a7e468e - closes MIL-189: view all works (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | 7959438 - part of MIL-192: closes button tag so stencil renders (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | |   e4fdce1 - Merge branch 'mila' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|/ /  
+| | | | | |/| | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | 3a5ef7a - part of MIL-192: Figuring out how State works in Stencil, Onclick event listener is functioning (2 weeks ago) <milapaprika>
+| | | | | * | | | | | | | | | | | | | | | | 9b9a50b - fixed gitignore issue (2 weeks ago) <milapaprika>
+| | | | * | | | | | | | | | | | | | | | | |   cea6dfb - Merge branch 'annie' into elijah (13 days ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|/ / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | e7891d8 - Closes MIL-180: final styling and spacing for the title section. (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | 66d6e9f - Change border colors and text spacing to closely align with mockup. (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | 6cdc30e - Closes MIL-179: final styling and component spacing for blue card complete (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | 9698bd3 - Part of MIL-194: destructure component props (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | a70bff9 - Closes MIL-139: fix spacing to complete component. (2 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | a979ca1 - part of MIL-189: expansion card components are styled, but not rendered on the overview page (13 days ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | 9a8986c - update packages (2 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | 8313e62 - Merge branch 'annie' into elijah (2 weeks ago) <Elijah Morris>
+| | | | |\| | | | | | | | | | | | | | | | | 
+| | | | | * | | | | | | | | | | | | | | | | 1e12589 - Part of MIL-190: Footer styling, everything but final spacing (2 weeks ago) <Annie Tadvick>
+| | | | | | |_|_|/ / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | 6426321 - Merge branch 'annie' into elijah (2 weeks ago) <Elijah Morris>
+| | | | |\| | | | | | | | | | | | | | | | 
+| | | | | * | | | | | | | | | | | | | | | 8d57650 - fix logic bug in title, header, navbar invocation in app.tsx (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | e50e511 - move logo into public for access (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | 0d8c256 - Comment cleanup. Naming fix. (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | 3cc9037 - Fix tokesn (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | b77a16a - Remove dead code from stencil.config.ts (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | d3b42ef - Remove dead code from index.tsx (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | |   3dd1b4a - Merge branch 'main' into annie (2 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|_|_|_|_|_|_|_|_|_|_|/ /  
+| | | | | | |/| | | | | | | | | | | | | |   
+| | | | | | * | | | | | | | | | | | | | |   58be581 - Merge branch 'main' of https://github.com/FC-OSP-6/trust-center (2 weeks ago) <Annie Tadvick>
+| | | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | * | | | | | | | | | | | | | | | dfe7ab8 - chore: stop tracking node_modules artifacts (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | b852950 - Removing tracking for node_modules (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | 6ca0081 - Merge branch 'main' into annie (2 weeks ago) <Annie Tadvick>
+| | | | | |\| | | | | | | | | | | | | | | | 
+| | | | | * | | | | | | | | | | | | | | | | 2643841 - chore: stop tracking generated stencil artifacts (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | |   1c7c24c - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (2 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | * \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \   805eedb - Merge branch 'main' into annie (2 weeks ago) <Annie Tadvick>
+| | | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | 23d74a5 - Gitignore update (2 weeks ago) <Annie Tadvick>
+| | | | | |/ / / / / / / / / / / / / / / / / /  
+| | | | * | | | | | | | | | | | | | | | | | | cb668ca - chore: makes comments in db/index.ts more specific (2 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | |   56c9cd7 - Merge branch 'main' into elijah (2 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|/ / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | ce50e78 - chore: stop tracking generated files (2 weeks ago) <Elijah Morris>
+| | | | | |_|_|_|_|/ / / / / / / / / / / / /  
+| | | | |/| | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | |   8289450 - Merge branch 'main' into elijah (2 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * | | | | | | | | | | | | | | | | | | 964e71b - removes generated stencil folders (2 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | |   be7447c - Merge branch 'annie' into elijah (2 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | 8cfe4a5 - Update gitignore to include loader folder and components.d.ts (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | f0b3cb4 - Demo prep (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | a656ad5 - Import styling correctly to React level. (2 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | 1738b50 - Save work before pulling from Xavier (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | |   7c245fc - Merge branch 'main' into annie (3 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | 6197b3f - Fix typos in stencil causing build errors (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | 028bc21 - Correct navbar (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | |   bed73e6 - Merge branch 'main' into annie (3 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | | 74ed90f - Correct navbar in stencil layer (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | 3711b88 - Routing pages for SPA (3 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | | | | 6f62a2c - adds more comments to sever folders (2 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | a66ea5d - updates packages (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | |   c4f183c - Merge branch 'xavier' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | 104f4ff - completed some of faqs.tsx (3 weeks ago) <Xavier>
+| | | | | * | | | | | | | | | | | | | | | | | | |   9d122ef - Merge branch 'main' into xavier (3 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|_|_|/ / / / / / / / / / / / / /  
+| | | | | | |/| | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | 9e125b1 - Header,Title,Control-Card,Subnav-card,Blue-card Components (3 weeks ago) <Xavier>
+| | | | | * | | | | | | | | | | | | | | | | | | |   5c126af - Merge branch 'main' into xavier (3 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * | | | | | | | | | | | | | | | | | | | | | ec3588b - part of MIL-151: graphql can talk to supabase (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | 2afaa5b - closes MIL-149: seeds sample json into Supabase (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | 7088d77 - closes MIL-147: adds migrations and ensures DB schema (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | 60ce8f6 - closes MIL-145: successfully connects to Supabase (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | |   cf86b16 - Merge branch 'main' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | | | | 96bd049 - part of MIL-145: creates pooled Postgres client (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | |   7f1f84b - Merge branch 'annie' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | | | | f7df2e6 - updating packages (3 weeks ago) <Elijah Morris>
+| | | | | * | | | | | | | | | | | | | | | | | | | | |   07ba640 - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (3 weeks ago) <Elijah Morris>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|/ / / / / / / / / / / / / / / / / /  
+| | | | | | |/| | | | | | | | | | | | | | | | | | | |   
+| | | | | | * | | | | | | | | | | | | | | | | | | | | 3d05af9 - Fix stencil config (3 weeks ago) <Annie Tadvick>
+| | | | | | * | | | | | | | | | | | | | | | | | | | |   ab0a1c8 - Merge branch 'main' into annie (3 weeks ago) <Annie Tadvick>
+| | | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | | |_|/ / / / / / / / / / / / / / / / / /  
+| | | | | | | |/| | | | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | | | | |   2a93333 - Merge branch 'amen' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|_|_|_|_|_|_|_|_|_|/ / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | | |   6900a64 - Merge branch 'amen' of https://github.com/FC-OSP-6/trust-center into amen (3 weeks ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|_|/ / / / / / / / / / / / / / / / /  
+| | | | | | |/| | | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | | |   703299d - removed db comments (3 weeks ago) <Amen Stoney>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | | |_|_|/ / / / / / / / / / / / / / / / / /  
+| | | | | | |/| | | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | | | e806674 - removed db comments (3 weeks ago) <Amen Stoney>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | 2ac9139 - stencil rebuild (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | |   71830f5 - Merge branch 'main' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |/ / / / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | | | | | 62df912 - part of MIL 141: adds docs folder (3 weeks ago) <Elijah Morris>
+| | | | | |_|_|/ / / / / / / / / / / / / / / / / / /  
+| | | | |/| | | | | | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | | | |   5cac610 - Merge branch 'annie' of https://github.com/FC-OSP-6/trust-center into annie (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | |_|_|/ / / / / / / / / / / / / / / / / / /  
+| | | | |/| | | / / / / / / / / / / / / / / / / / /   
+| | | | | | |_|/ / / / / / / / / / / / / / / / / /    
+| | | | | |/| | | | | | | | | | | | | | | | | | |     
+| | | | | * | | | | | | | | | | | | | | | | | | | 487d849 - Part of MIL-139: Complete stencils for navbar, footer, link-card, expansion-card, faq-card (3 weeks ago) <Annie Tadvick>
+| | | | | | |/ / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | | 5c0f92e - fixes stencil tsconfig issue (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | |   c25b9f1 - Merge branch 'annie' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | | 4655ab9 - gerge branch 'main' into annie (3 weeks ago) <Annie Tadvick>
+| | | | | |\| | | | | | | | | | | | | | | | | | | 
+| | | | | * | | | | | | | | | | | | | | | | | | | 4b4fb2a - Save work to merge Elijah solution (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | 81640a1 - Save work to merge Elijah solution (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | 6936999 - merge xavier (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | |   40bfae7 - Merge branch 'xavier' into annie (3 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | | | 27257da - save work (3 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | | | | |   dc72455 - Merge branch 'xavier' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \   56a1b4e - Merge branch 'main' into xavier (3 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | / / / / / / / / / / / / / / / / / / /   
+| | | | | | | |/ / / / / / / / / / / / / / / / / / /    
+| | | | | | |/| | | | | | | | | | | | | | | | | | |     
+| | | | * | | | | | | | | | | | | | | | | | | | | | ee56f38 - fixes footer rendering issue (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | |   f7b7fab - Merge branch 'annie' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | | 6341cae - Comment cleanup. (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | 62a9c6f - Fix fon-family so that it is applied consistently. Body is inconsistent with shadow dom (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | |   ce21a74 - Merge branch 'main' into annie (3 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | | | | 8be5e7c - Update tokens.css file to reflect Aon design foundations (3 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | | | | | |   8df0ee3 - Merge branch 'xavier' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | | |   ef5d08d - Trying to connect render Footer (3 weeks ago) <Xavier>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |/ / / / / / / / / / / / / / / / / / / / /  
+| | | | | |/| / / / / / / / / / / / / / / / / / / / /   
+| | | | | | |/ / / / / / / / / / / / / / / / / / / /    
+| | | | | * | | | | | | | | | | | | | | | | | | | | ae7223c - Start of tokens.css file for stencil styling (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | 95e4ada - Add Aon foundations color scheme (3 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | |   b1dbf90 - Merge main into annie and resolve stencil conflicts (3 weeks ago) <Annie Tadvick>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * | | | | | | | | | | | | | | | | | | | | | ca52cab - PR save (3 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | 7f71e8d - removes unused packages (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | |   de8c231 - Merge branch 'main' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | * \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \   9b0f774 - Merge branch 'main' of https://github.com/FC-OSP-6/trust-center (3 weeks ago) <Elijah Morris>
+| | | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | | f7aae5d - closes MIL-135: graphql is created and mounts correctly, context shapes are defined, uuids are generated, post/ to graphql is stable without DB vars set (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | | 90f6c68 - merge Mila into Elijah for backend setup, yoga server and schema (#17) (3 weeks ago) <morrisxelijah>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | | 4fcca8c - closes MIL-132: seperates server creation and start for testing  +  proxies health check  +  mounts GraphQL (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | | 8c3938a - closes MIL-130: /api/health returns JSON and GraphiQL for yoga shows up in the browser (3 weeks ago) <Elijah Morris>
+| | | | |/ / / / / / / / / / / / / / / / / / / / / / / /  
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | e9296b7 - fixes MIL-128: updates cleanexit script to sleep before the intentional error (make the failure more apparent) (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | |   37ab039 - Merge branch 'main' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | | | |   
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | e71dfbd - fixes MIL-128: adds stencil build to main dev script (3 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | |   00c1042 - Merge branch 'annie' into elijah (3 weeks ago) <Elijah Morris>
+| | | | |\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  
+| | | | | | |_|/ / / / / / / / / / / / / / / / / / / / /  
+| | | | | |/| | | | | | | | | | | | | | | | | | | | | |   
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | 1a07a72 - Part of mil-139Update gitignore to account for stencil generated files. (4 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | cded75d - chore: remove generated Stencil build output (4 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | 8db0b56 - Part of mil-139: Create footer web component. Use as reference for further components. (4 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | caddcb2 - closes MIL-128: sripts are in place, stencil runs, orchestrator exits cleanly (4 weeks ago) <Elijah Morris>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | 3f7dddb - Merge branch 'annie' into elijah (4 weeks ago) <Elijah Morris>
+| | | | |\| | | | | | | | | | | | | | | | | | | | | | | 
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | cca08e1 - Closes mil-137: stencil config is working. Add separate package.json in stencil. (4 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | d20bb05 - Part of mil-137: Add tsconfig for stencil compiler to auto-generate types in dist (4 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | 79cf940 - Part of mil-137: Add .stencil/ to git ignore list. Remove .vscode folder. (4 weeks ago) <Annie Tadvick>
+| | | | | * | | | | | | | | | | | | | | | | | | | | | | 2c8bf2f - Part of mil-137: EP0-T5a Lock consumption strategy (4 weeks ago) <Annie Tadvick>
+| | | | * | | | | | | | | | | | | | | | | | | | | | | | 1f361a9 - fixes MIL-143: add stretch sections and seperates to client only and server only (4 weeks ago) <Elijah Morris>
+| | | | |/ / / / / / / / / / / / / / / / / / / / / / /  
+| | | | | | | | | | | | | | | | | | | | | | | | | | | * 5956992 - (origin/oc-review-01-prettified) chore: run prettier (8 days ago) <Oleg Chursin>
+| | | | | | | | | | | | | | | | | | | | | | | | | | | * 3ca243b - (origin/oc-review-01) chore: OC code review 01 (8 days ago) <Oleg Chursin>
+| | | | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/  
+| | | |/| | | | | | | | | | | | | | | | | | | | | | |   
+| | | * | | | | | | | | | | | | | | | | | | | | | | | 24bd48a - navbar, subnav-card and title TLDRs done  (#48) (8 days ago) <Amen Stoney>
+| | | | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/  
+| | | |/| | | | | | | | | | | | | | | | | | | | | |   
+| | | * | | | | | | | | | | | | | | | | | | | | | | c690813 - Completed Header and Subnav TLDRs (#47) (8 days ago) <xglover410>
+| | | * | | | | | | | | | | | | | | | | | | | | | | 595273b - Test CI configuration (#46) (8 days ago) <Annie Tadvick>
+| | |/ / / / / / / / / / / / / / / / / / / / / / /  
+| |/| | | | | | | | | | | | | | | | | | | | | | |   
+| * | | | | | | | | | | | | | | | | | | | | | | | b33b1fa - Fix git pull.rebase issue (#45) (8 days ago) <Annie Tadvick>
+| |/ / / / / / / / / / / / / / / / / / / / / / /  
+| * | | | | | | | | | | | | | | | | | | / / / / 7b391e8 - Elijah  --  adds controls cards to the controls page (#44) (13 days ago) <morrisxelijah>
+| | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+| |/| | | | | | | | | | | | | | | | | | | | |   
+| * | | | | | | | | | | | | | | | | | | | | | 5bda5a4 - Working on subnav card (#43) (13 days ago) <xglover410>
+|/ / / / / / / / / / / / / / / / / / / / / /  
+* | | | | | | | | | | | | | | | | | / / / / f060674 - Elijah  -- fixes merge duplicate artifacts (#42) (13 days ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+|/| | | | | | | | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | | | | | | | 8311a8f - Elijah -- merge issues (#41) (13 days ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+|/| | | | | | | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | | | | | | e01e407 - Revert 38 elijah  -- fixes expansion card changes that didn't merge correctly (#40) (13 days ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|_|_|_|_|_|/ / / / /  
+|/| | | | | | | | | | | | | | | | | |   
+| | | | | | | | | | | | | | | | | | | * 451268b - (origin/revert-38-elijah) Revert "Elijah  --  adds tile and meta data to selected controls section (#38)" (13 days ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | | | | | e44440f - Elijah  --  adds tile and meta data to selected controls section (#38) (13 days ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+|/| | | | | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | | | | 398241b - Elijah -- adds expansion cards (#37) (13 days ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|_|_|_|_|/ / / /  
+|/| | | | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | | | 2aa9e03 - Navbar  (#36) (13 days ago) <Amen Stoney>
+| |_|_|_|_|_|_|_|_|_|_|_|_|/ / /  
+|/| | | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | | bf96bc5 - Finished Header (#35) (13 days ago) <xglover410>
+| |_|_|_|_|_|_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | | | | | | |   
+* | | | | | | | | | | | | | | c51d984 - Annie (#34) (13 days ago) <Annie Tadvick>
+| |_|_|_|_|_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | | | | | |   
+| | | | | | | | | | | | | | * 003d0c7 - (origin/aon-review, aon-review) chore: aon-review-1 (2 weeks ago) <Elijah Morris>
+| | | | | | | | | | | | | | * 07161ce - chore: review branch for aon (2 weeks ago) <Elijah Morris>
+| |_|_|_|_|_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | | | | | |   
+* | | | | | | | | | | | | | 744e02f - Frontend components added to react for styling (#32) (2 weeks ago) <Annie Tadvick>
+| |_|_|_|_|_|_|_|_|_|/ / /  
+|/| | | | | | | | | | | |   
+* | | | | | | | | | | | | bd2de81 - Fix gitignore tracking (#31) (2 weeks ago) <Annie Tadvick>
+| |_|_|_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | | | |   
+* | | | | | | | | | | | aa78ff3 - Chore: remove tracking on gitignore files  (#30) (2 weeks ago) <Annie Tadvick>
+| |_|_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | | |   
+* | | | | | | | | | | 2838bb4 - removing generated stencil files from tracking (#28) (2 weeks ago) <morrisxelijah>
+| |_|_|_|_|_|_|_|_|/  
+|/| | | | | | | | |   
+* | | | | | | | | | 4a57289 - Fix .gitignore (#27) (2 weeks ago) <Annie Tadvick>
+| |_|_|_|_|_|/ / /  
+|/| | | | | | | |   
+* | | | | | | | | 7653240 - Fix stencil card import errors (#24) (3 weeks ago) <Annie Tadvick>
+| |_|_|_|_|_|_|/  
+|/| | | | | | |   
+* | | | | | | | 47c63bf - Routing for pages on navbar (#23) (3 weeks ago) <Annie Tadvick>
+| |_|_|_|_|_|/  
+|/| | | | | |   
+* | | | | | | f39f2f7 - Header, Title, Control-Card, Subnav-Card, Blue-Card (#22) (3 weeks ago) <xglover410>
+| |_|_|_|_|/  
+|/| | | | |   
+* | | | | | f1cb5c8 - adds docs folder (#21) (3 weeks ago) <morrisxelijah>
+| |_|_|_|/  
+|/| | | |   
+* | | | | 046438c - fix footer rendering issue (stencil) (#20) (3 weeks ago) <morrisxelijah>
+| |_|_|/  
+|/| | |   
+* | | | 5f0c070 - updates packages (#19) (3 weeks ago) <morrisxelijah>
+| |_|/  
+|/| |   
+* | | a48ea42 - merge day 1 (epic 0) backend tasks (#18) (3 weeks ago) <morrisxelijah>
+| |/  
+|/|   
+* | b96923d - Elijah -- epic 0, front end and back end build along with stencil  (#16) (3 weeks ago) <morrisxelijah>
+|/  
+*   d0e128d - Merge pull request #15 from FC-OSP-6/dev (4 weeks ago) <morrisxelijah>
+|\  
+| *   7448bd8 - Merge branch 'main' into dev (4 weeks ago) <morrisxelijah>
+| |\  
+| |/  
+|/|   
+* |   7fc578a - Merge pull request #14 from FC-OSP-6/xavier (4 weeks ago) <morrisxelijah>
+|\ \  
+| * \   070f93c - Merge branch 'main' into xavier (4 weeks ago) <morrisxelijah>
+| |\ \  
+| |/ /  
+|/| |   
+* | |   761207d - Merge pull request #13 from FC-OSP-6/elijah (4 weeks ago) <morrisxelijah>
+|\ \ \  
+| * \ \   50ea5a2 - Merge branch 'main' into elijah (4 weeks ago) <morrisxelijah>
+| |\ \ \  
+| |/ / /  
+|/| | |   
+* | | |   a136e41 - Merge pull request #12 from FC-OSP-6/mila (4 weeks ago) <morrisxelijah>
+|\ \ \ \  
+| * \ \ \   d833362 - Merge branch 'main' into mila (4 weeks ago) <morrisxelijah>
+| |\ \ \ \  
+| |/ / / /  
+|/| | | |   
+* | | | |   65a6880 - Merge pull request #11 from FC-OSP-6/amen (4 weeks ago) <morrisxelijah>
+|\ \ \ \ \  
+| * \ \ \ \   b2eed5f - Merge branch 'main' into amen (4 weeks ago) <morrisxelijah>
+| |\ \ \ \ \  
+| |/ / / / /  
+|/| | | | |   
+* | | | | | a4ad0b4 - Fix vcs (#10) (4 weeks ago) <Annie Tadvick>
+* | | | | | 212a19d - Restructure VCS (#9) (4 weeks ago) <Annie Tadvick>
+| * | | | | 03d7aa2 - Add database connection setup and testing infrastructure (4 weeks ago) <Amen Stoney>
+| * | | | |   c1e3a28 - resolved merge conflicts (4 weeks ago) <Amen Stoney>
+| |\ \ \ \ \  
+| * | | | | | 46b1467 - saved work on db setup and personal .env supabase setup (4 weeks ago) <Amen Stoney>
+| * | | | | | 802a050 - Merge .env.example from Elijah's branch with complete env var setup (4 weeks ago) <Amen Stoney>
+| * | | | | | e2a5535 - Save current .env progress (4 weeks ago) <Amen Stoney>
+| * | | | | | 70e1d5a - Fixes MIL-27: Add how to run locally section to README (4 weeks ago) <Amen Stoney>
+| * | | | | |   369caee - Merge branch 'amen' of https://github.com/FC-OSP-6/aon-cyqu-trust-center into amen (4 weeks ago) <Amen Stoney>
+| |\ \ \ \ \ \  
+| | * \ \ \ \ \   9b75f0c - Merge branch 'dev' into amen (4 weeks ago) <Amen Stoney>
+| | |\ \ \ \ \ \  
+| * | | | | | | | 2876aad - Merge dev into amen, accept dev version of index.html (4 weeks ago) <Amen Stoney>
+| |/ / / / / / /  
+| * | | | | | | 2ceef92 - fixes MIL-25:put some testing in (4 weeks ago) <Amen Stoney>
+| * | | | | | | ea6ccf4 - part of MIL-25: testing that the linear flag works (4 weeks ago) <Amen Stoney>
+| | | | * | | | 5473804 - started readme (4 weeks ago) <milapaprika>
+| | | | * | | |   f2f25d8 - merged with dev (4 weeks ago) <milapaprika>
+| | | | |\ \ \ \  
+| | | | * | | | | efd67ae - started readme (4 weeks ago) <milapaprika>
+| | |_|/ / / / /  
+| |/| | | | | |   
+| | | | | * | | c548b7e - part of MIL-37: comment on VITE_ variables (4 weeks ago) <Elijah Morris>
+| | | | | * | | e987ed4 - part of MIL-37: commented out AI varriables (stretch) (4 weeks ago) <Elijah Morris>
+| | | | | * | | 1726713 - merging yaml from dev (4 weeks ago) <Elijah Morris>
+| | | | | * | | 0796059 - merging git ignore from dev (4 weeks ago) <Elijah Morris>
+| | | | | * | | 65c7d15 - merging package-lock from dev (4 weeks ago) <Elijah Morris>
+| | | | | * | | 5807bd8 - copied yaml from dev (4 weeks ago) <Elijah Morris>
+| | | | | * | | 225d26d - fixes MIL-25:put some testing in (#7) (4 weeks ago) <Amen Stoney>
+| | | | | * | | 646bcb9 - Fixes MIL-111: verify auto-resolution (#6) (4 weeks ago) <Annie Tadvick>
+| | | | | * | | 1a49570 - Annie (#5) (4 weeks ago) <Annie Tadvick>
+| | | | | * | | 19fd621 - part of MIL-37: defining env variable names (4 weeks ago) <Elijah Morris>
+| |_|_|_|/ / /  
+|/| | | | | |   
+| | | | | * | e261e1a - part of MIL-53 Connect to DOM and render page (4 weeks ago) <Xavier>
+| | | | |/ /  
+| | | | | * f52176d - Merge branch 'main' into dev (4 weeks ago) <Annie Tadvick>
+| | | | |/| 
+| | | |/|/  
+| |_|_|/|   
+|/| | | |   
+* | | | |   6808768 - Merge pull request #1 from FC-OSP-6/fix/gitignore-and-lockfile (4 weeks ago) <Annie Tadvick>
+|\ \ \ \ \  
+| * | | | | 9141327 - Fix .gitignore to properly ignore node_modules (4 weeks ago) <Annie Tadvick>
+| * | | | | c7ed92c - Remove node_modules from version control (4 weeks ago) <Annie Tadvick>
+| * | | | | d0a2b36 - Include package-lock.json by running npm install locally for CI (4 weeks ago) <Annie Tadvick>
+|/ / / / /  
+* | | | | 0fa7133 - Add CI pipeline with GitHub Actions (4 weeks ago) <Annie Tadvick>
+| | | * | a1b0305 - part of MIL-53 Connect to DOM and render page (#8) (4 weeks ago) <xglover410>
+| | | |/  
+| | | * 9879073 - fixes MIL-25:put some testing in (#7) (4 weeks ago) <Amen Stoney>
+| | |/  
+| | * 4d3ca9e - Fixes MIL-111: verify auto-resolution (#6) (4 weeks ago) <Annie Tadvick>
+| |/  
+| * 826f2ef - Annie (#5) (4 weeks ago) <Annie Tadvick>
+| * 1af06c0 - Fix/gitignore and lockfile (#2) (4 weeks ago) <Annie Tadvick>
+|/  
+* 9516bcf - Initial commit (4 weeks ago) <Annie Tadvick>

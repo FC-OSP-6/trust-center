@@ -19,6 +19,7 @@
     "db:seed": "tsx server/db/seed.ts",
     "db:migrate": "npm exec tsx -- -e \"import { runDbMigrate } from './server/db/index.ts'; runDbMigrate();\"",
     "db:cleanapply": "npm exec tsx -- -e \"import { runCleanApplyDb } from './server/db/index.ts'; runCleanApplyDb();\"",
+    "db:explain": "tsx server/db/explainReadPaths.ts",
     "test": "npm run test:unit && npm run test:integration",
     "test:watch": "vitest",
     "test:unit": "vitest run testing/unit",
