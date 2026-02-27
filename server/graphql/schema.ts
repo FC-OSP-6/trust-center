@@ -2,9 +2,10 @@
   TL;DR  -->  graphql schema (sdl)
 
   - defines read-only queries for controls + faqs
-  - defines connection/pageinfo for pagination
-  - preserves debug fields for early boot verification
-  - documents future-only stubs as comments (not executable yet)
+  - defines connection/pageInfo for pagination
+  - exposes debug fields for boot/runtime verification
+  - exposes admin-ready cache invalidation mutations
+  - keeps future AI/query ideas as comments only until implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 export const typeDefs = /* GraphQL */ `
@@ -67,6 +68,15 @@ export const typeDefs = /* GraphQL */ `
     totalCount: Int!
   }
 
+  # ----------  mutation payloads  ----------
+
+  type InvalidationResult {
+    ok: Boolean!
+    scope: String!
+    invalidatedPrefix: String!
+    requestId: String!
+  }
+
   # ----------  root query  ----------
 
   type Query {
@@ -90,16 +100,16 @@ export const typeDefs = /* GraphQL */ `
     ): FaqConnection!
   }
 
-  # ----------  FUTURE-ONLY STUBS (COMMENTS ONLY)  ----------
+  # ----------  root mutation  ----------
 
-  # type Mutation {
-  #   adminControlUpsert(...)
-  #   adminFaqUpsert(...)
-  #   adminControlDelete(...)
-  #   adminFaqDelete(...)
-  # }
+  type Mutation {
+    # admin-ready cache invalidation hooks  -->  safe to verify before real writes land
+    adminInvalidateControlsReads: InvalidationResult!
+    adminInvalidateFaqsReads: InvalidationResult!
+  }
 
-  # type Query {
-  #   aiAnswer(question: String!): AiAnswerResponse!
-  # }
+  # ----------  FUTURE-ONLY NOTES (COMMENTS ONLY)  ----------
+
+  # future admin writes should use: write db -> invalidate reads -> return payload
+  # future ai work may add: aiAnswer(question: String!): AiAnswerResponse!
 `;

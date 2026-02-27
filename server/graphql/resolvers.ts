@@ -10,6 +10,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
+import { mutationResolvers } from './mutations'; // admin-ready cache invalidation mutation hooks
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared cursor + timestamp helpers
 import {
   getControlsPage,
@@ -150,5 +151,6 @@ export const resolvers = {
         totalCount: page.totalCount // total count stays on the connection for client pagination metadata
       };
     }
-  }
+  },
+  Mutation: mutationResolvers.Mutation // wire cache invalidation mutations into the executable resolver map
 };
