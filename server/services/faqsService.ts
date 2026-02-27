@@ -9,7 +9,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
-import { buildFaqsKey } from '../cache'; // deterministic memo key builder (raw args for readability)
 import { buildFaqsReadCacheKey } from '../cache/keys'; // normalized cache key builder (includes auth scope)
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import {
@@ -135,7 +134,9 @@ export async function getFaqsPage(
   args: FaqsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
-  const memoKey = `faqsService:getFaqsPage:${buildFaqsKey(args)}`; // deterministic per-request dedupe key
+  const memoKey = `faqsService:getFaqsPage:${buildFaqsReadCacheKey(args, {
+    authScope: getAuthScopeForReadCache(ctx)
+  })}`; // align memo identity with shared read-cache identity so future auth-scoped reads cannot collide
 
   return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
     try {

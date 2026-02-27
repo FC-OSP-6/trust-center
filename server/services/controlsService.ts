@@ -9,7 +9,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
-import { buildControlsKey } from '../cache'; // deterministic memo key builder (raw args for readability)
 import { buildControlsReadCacheKey } from '../cache/keys'; // normalized cache key builder (includes auth scope)
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import {
@@ -136,7 +135,12 @@ export async function getControlsPage(
   args: ControlsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<ControlsPage> {
-  const memoKey = `controlsService:getControlsPage:${buildControlsKey(args)}`; // deterministic per-request dedupe key
+  const memoKey = `controlsService:getControlsPage:${buildControlsReadCacheKey(
+    args,
+    {
+      authScope: getAuthScopeForReadCache(ctx)
+    }
+  )}`; // align memo identity with shared read-cache identity so future auth-scoped reads cannot collide
 
   return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
     try {
