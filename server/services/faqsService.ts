@@ -52,23 +52,9 @@ export type FaqsPage = {
   source: 'db' | 'mock';
 };
 
-// ---------- cache config + debug helpers ----------
+// ---------- cache config helpers ----------
 
-const FAQS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl for repeated UI reads while keeping data reasonably fresh
-
-function isDebugPerfEnabled(): boolean {
-  const raw = String(process.env.DEBUG_PERF ?? '').toLowerCase(); // env flags are strings
-  return raw === 'true' || raw === '1' || raw === 'yes' || raw === 'on'; // tolerate common truthy values
-}
-
-function logReadCache(
-  event: 'hit' | 'miss',
-  key: string,
-  ttlSeconds: number
-): void {
-  if (!isDebugPerfEnabled()) return; // keep logs quiet unless explicitly enabled
-  console.log(`[cache] ${event} key=${key} ttl=${ttlSeconds}s`); // single-line terminal log for quick perf checks
-}
+const FAQS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl keeps repeated UI reads fast while staying reasonably fresh
 
 function getAuthScopeForReadCache(ctx: GraphQLContext): string {
   if (ctx.auth.isAdmin) return 'admin'; // placeholder until real auth scopes land
@@ -196,17 +182,10 @@ async function getFaqsPageDbCached(
     authScope: getAuthScopeForReadCache(ctx)
   }); // normalized cross-request cache key with placeholder auth scope
 
-  const cached = ctx.cache.get(cacheKey); // probe once for debug visibility before getOrSet
-  logReadCache(
-    cached === null ? 'miss' : 'hit',
-    cacheKey,
-    FAQS_READ_CACHE_TTL_SECONDS
-  ); // optional cache hit/miss logs
-
   const page = await ctx.cache.getOrSet(
     cacheKey,
     FAQS_READ_CACHE_TTL_SECONDS,
-    async () => getFaqsPageFromDb(args, ctx) // cache DB-backed result only (fallback is handled outside)
+    async () => getFaqsPageFromDb(args, ctx) // only db-backed reads belong in the shared cross-request cache
   );
 
   return page as FaqsPage; // cache interface is generic/unknown-friendly, so cast to service return type
@@ -220,18 +199,21 @@ export async function getFaqsPage(
 ): Promise<FaqsPage> {
   const memoKey = `faqsService:getFaqsPage:${buildFaqsKey(args)}`; // deterministic per-request dedupe key
 
-  return memoizePromise(ctx.memo, memoKey, async () => {
+  return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
     try {
-      return await getFaqsPageDbCached(args, ctx); // shared read cache sits inside request memo for best of both
+      return await getFaqsPageDbCached(args, ctx); // request memo wraps shared read cache so one request never duplicates work
     } catch (error) {
-      if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should not be masked
+      if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should surface normally
 
-      const msg = error instanceof Error ? error.message : String(error); // normalize error for logging
-      console.warn('[gql] faqsConnection fallback to seed json:', msg); // explicit fallback log for demos
+      const msg = error instanceof Error ? error.message : String(error); // normalize error for structured logging
 
-      const seedRows = await loadSeedFaqs(); // parse/cached seed rows
+      console.warn(
+        `[gql] requestId=${ctx.requestId} resolver=faqsConnection event=fallback_to_seed reason=${msg}`
+      ); // fallback logs need requestId so they can be correlated with the rest of the request trace
+
+      const seedRows = await loadSeedFaqs(); // parse or reuse normalized seed rows
       const filtered = filterRowsByCategorySearch(seedRows, args, {
-        getCategory: r => r.category, // category source for shared filter helper
+        getCategory: r => r.category, // category source for shared in-memory filter helper
         getSearchText: r => `${r.question} ${r.answer} ${r.category}` // simple seed-mode search text
       });
 
@@ -240,8 +222,8 @@ export async function getFaqsPage(
         ...(args.after !== undefined ? { after: args.after } : {})
       }; // omit undefined props for exactOptionalPropertyTypes
 
-      const page = pageFromRows(filtered, pageArgs); // shared in-memory paging helper
-      return { ...page, source: 'mock' }; // preserve resolver contract while signaling fallback source
+      const page = pageFromRows(filtered, pageArgs); // shared in-memory paging helper for fallback mode
+      return { ...page, source: 'mock' }; // preserve resolver contract while signaling seed fallback source
     }
   });
 }

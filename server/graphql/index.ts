@@ -30,40 +30,40 @@ function decorateCacheWithRequestLogging(
   cache: Cache,
   requestId: string
 ): Cache {
-  const debugEnabled = isDebugPerfEnabled(); // compute once per request so nested calls stay cheap
+  const debugEnabled = isDebugPerfEnabled(); // compute once per request so nested cache calls stay cheap
 
   return {
     get(key) {
-      return cache.get(key); // pass through direct cache reads unchanged
+      return cache.get(key); // direct cache reads pass straight through to the underlying adapter
     },
 
     set(key, value, ttlSeconds) {
-      cache.set(key, value, ttlSeconds); // pass through direct cache writes unchanged
+      cache.set(key, value, ttlSeconds); // direct cache writes pass straight through to the underlying adapter
     },
 
     del(key) {
-      cache.del(key); // pass through targeted cache deletes unchanged
+      cache.del(key); // direct cache deletes pass straight through to the underlying adapter
     },
 
     async getOrSet(key, ttlSeconds, fn) {
-      const existing = cache.get(key); // peek first so we can log hit vs miss before delegating
+      const existing = cache.get(key); // probe once here so hit/miss logging stays centralized in one place
 
       if (debugEnabled) {
         console.log(
           `[cache] requestId=${requestId} ${
             existing !== null ? 'hit' : 'miss'
-          } key=${key}`
-        ); // structured request-aware cache log for terminal scanning
+          } key=${key} ttl=${ttlSeconds}s`
+        ); // one request-aware cache line replaces the older duplicate service + decorator logs
       }
 
-      return cache.getOrSet(key, ttlSeconds, fn); // delegate actual cache behavior to the real adapter
+      return cache.getOrSet(key, ttlSeconds, fn); // delegate cache behavior to the real adapter
     },
 
     invalidatePrefix(prefix) {
       if (debugEnabled) {
         console.log(
           `[cache] requestId=${requestId} invalidatePrefix prefix=${prefix}`
-        ); // request-aware invalidation log helps when we wire admin mutations later
+        ); // request-aware invalidation log helps trace admin-ready cache clears
       }
 
       cache.invalidatePrefix?.(prefix); // preserve optional prefix invalidation support from the underlying adapter
@@ -78,7 +78,7 @@ export function createGraphQLHandler() {
 
   return createYoga<GraphQLContext>({
     schema, // executable schema consumed by GraphQL Yoga
-    graphqlEndpoint: '/graphql', // keep the endpoint explicit for server/router clarity
+    graphqlEndpoint: '/graphql', // keep the endpoint explicit for clarity
     graphiql: process.env.NODE_ENV !== 'production', // enable GraphiQL outside production
     context: async initialContext => {
       const ctx = createGraphQLContext(initialContext); // build the per-request dependency container first
