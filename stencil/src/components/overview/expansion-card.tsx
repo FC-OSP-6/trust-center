@@ -1,4 +1,4 @@
-/* ======================================================
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  --> expandable bullet list card + controls overview mode (prop-driven)
 
   static mode:
@@ -9,7 +9,7 @@
   - no network requests in stencil
   - react passes controls-json + loading/error props
   - stencil groups controls by category + renders view-all behavior
-====================================================== */
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import { Component, Prop, State, Watch, h } from '@stencil/core';
 import type {
