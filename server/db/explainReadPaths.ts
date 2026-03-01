@@ -1,12 +1,20 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR --> read-path EXPLAIN helper for backend perf checks
+  TL;DR  -->  local EXPLAIN ANALYZE helper for current read paths
 
-  - runs EXPLAIN ANALYZE for representative controls + faqs read queries
-  - probes real categories from the current DB instead of assuming hardcoded values exist
-  - proves whether index-friendly predicates are present in the query shape
-  - shows that current substring search remains a seq-scan prototype choice
-  - avoids shell/psql quoting issues by reusing the app's DB layer + .env loading
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+  what this script proves:
+    - category-filtered count/page queries still look index-friendly after service refactors
+    - current substring search still behaves as the chosen prototype path
+    - read-path select lists now reflect the richer taxonomy-aware row shape
+
+  what this script does NOT prove:
+    - production-scale plan quality on large datasets
+    - final full-text search ranking behavior
+    - admin-write invalidation correctness
+
+  usage:
+    - run after db:seed so explain cases probe real seeded data
+    - npm run db:explain
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { closeDbPool, query } from './index'; // reuse the app db layer so local .env loading and pool config stay consistent
 
@@ -41,8 +49,8 @@ async function getExistingLowercaseCategory(
 }
 
 function getFallbackCategory(tableName: 'controls' | 'faqs'): string {
-  if (tableName === 'controls') return 'security'; // stable fallback for local/dev cases where the table is empty
-  return 'general'; // stable fallback for local/dev cases where the table is empty
+  if (tableName === 'controls') return 'access control'; // stable fallback for local/dev cases where the table is empty
+  return 'encryption'; // stable fallback for local/dev cases where the table is empty
 }
 
 // ---------- explain case builders ----------
@@ -70,7 +78,17 @@ function buildExplainCases(args: {
         'index-friendly predicate present for lower(category) page query while ORDER BY stays compatible with updated_at/id pagination',
       sql: `
         EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT id, control_key, title, description, category, source_url, updated_at
+        SELECT
+          id,
+          control_key,
+          title,
+          description,
+          section,
+          category,
+          subcategory,
+          tags,
+          source_url,
+          updated_at
         FROM public.controls
         WHERE lower(category) = $1
         ORDER BY updated_at DESC, id DESC
@@ -96,7 +114,16 @@ function buildExplainCases(args: {
         'index-friendly predicate present for lower(category) page query while ORDER BY stays compatible with updated_at/id pagination',
       sql: `
         EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT id, faq_key, question, answer, category, updated_at
+        SELECT
+          id,
+          faq_key,
+          question,
+          answer,
+          section,
+          category,
+          subcategory,
+          tags,
+          updated_at
         FROM public.faqs
         WHERE lower(category) = $1
         ORDER BY updated_at DESC, id DESC
@@ -110,13 +137,23 @@ function buildExplainCases(args: {
         'seq scan is acceptable for now because ILIKE substring search is still the chosen prototype behavior',
       sql: `
         EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT id, control_key, title, description, category, source_url, updated_at
+        SELECT
+          id,
+          control_key,
+          title,
+          description,
+          section,
+          category,
+          subcategory,
+          tags,
+          source_url,
+          updated_at
         FROM public.controls
         WHERE search_text ILIKE $1 ESCAPE '\\'
         ORDER BY updated_at DESC, id DESC
         LIMIT $2
       `,
-      params: ['%audit%', 3] // mirrors current contains-search semantics instead of future full-text semantics
+      params: ['%authentication%', 3] // mirrors current contains-search semantics instead of future full-text semantics
     },
     {
       name: 'faqs_search_page',
@@ -124,13 +161,22 @@ function buildExplainCases(args: {
         'seq scan is acceptable for now because ILIKE substring search is still the chosen prototype behavior',
       sql: `
         EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT id, faq_key, question, answer, category, updated_at
+        SELECT
+          id,
+          faq_key,
+          question,
+          answer,
+          section,
+          category,
+          subcategory,
+          tags,
+          updated_at
         FROM public.faqs
         WHERE search_text ILIKE $1 ESCAPE '\\'
         ORDER BY updated_at DESC, id DESC
         LIMIT $2
       `,
-      params: ['%security%', 3] // mirrors current contains-search semantics instead of future full-text semantics
+      params: ['%encryption%', 3] // mirrors current contains-search semantics instead of future full-text semantics
     }
   ];
 }

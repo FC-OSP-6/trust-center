@@ -197,6 +197,13 @@ export function resolveTaxonomy(
   }
 
   const categoryEntry = entityManifest.categories[canonicalCategory];
+
+  if (!categoryEntry) {
+    throw new Error(
+      `TAXONOMY_ERROR: missing ${entity} taxonomy entry for category "${canonicalCategory}".`
+    );
+  }
+
   const canonicalSection = categoryEntry.section;
   const sectionInput = normalizeTaxonomyLabel(input.section);
 
