@@ -16,6 +16,7 @@ import path from 'node:path'; // resolve seed data directory paths
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 import { createHash } from 'node:crypto'; // build deterministic ids + timestamps for seed-mode rows
 import {
+  assertValidTaxonomyManifest,
   buildSearchText,
   normalizeWhitespace,
   resolveTaxonomy,
@@ -107,6 +108,18 @@ function normalizeTags(tags: unknown): string[] {
   return uniq;
 }
 
+export function getSeedControlSearchText(
+  row: Pick<SeedControlRow, 'search_text'>
+): string {
+  return row.search_text; // fallback rows already store taxonomy-aware search_text, so services should reuse it instead of rebuilding it
+}
+
+export function getSeedFaqSearchText(
+  row: Pick<SeedFaqRow, 'search_text'>
+): string {
+  return row.search_text; // fallback rows already store taxonomy-aware search_text, so services should reuse it instead of rebuilding it
+}
+
 // ---------- env + fallback decision helpers ----------
 
 function isSeedFallbackEnabled(): boolean {
@@ -177,50 +190,6 @@ async function readJsonFile<T>(absolutePath: string): Promise<T> {
   return JSON.parse(raw) as T; // parse into the requested shape
 }
 
-// ---------- taxonomy manifest helpers ----------
-
-function validateTaxonomyManifest(manifest: TaxonomyManifest): void {
-  const expectedFields = ['section', 'category', 'subcategory']; // 006-B contract is intentionally compact and stable
-  const actualFields = Array.isArray(manifest.fields) ? manifest.fields : []; // tolerate malformed json long enough to throw a readable error below
-
-  if (!Number.isFinite(Number(manifest.version))) {
-    throw new Error(
-      'TAXONOMY_ERROR: fallback manifest is missing a valid numeric version.'
-    );
-  }
-
-  if (
-    actualFields.length !== expectedFields.length ||
-    actualFields.some((field, index) => field !== expectedFields[index])
-  ) {
-    throw new Error(
-      `TAXONOMY_ERROR: fallback manifest fields must be exactly [${expectedFields.join(', ')}]. Received [${actualFields.join(', ')}].`
-    );
-  }
-
-  for (const entity of ['controls', 'faqs'] as const) {
-    const categories = manifest[entity]?.categories; // inspect each entity bucket independently so errors stay readable
-    const categoryNames = categories ? Object.keys(categories) : [];
-
-    if (!categories || categoryNames.length === 0) {
-      throw new Error(
-        `TAXONOMY_ERROR: fallback manifest is missing categories for "${entity}".`
-      );
-    }
-
-    for (const categoryName of categoryNames) {
-      const entry = categories[categoryName];
-      const section = normalizeOptionalText(entry?.section);
-
-      if (!section) {
-        throw new Error(
-          `TAXONOMY_ERROR: fallback manifest category "${categoryName}" in "${entity}" is missing a valid section.`
-        );
-      }
-    }
-  }
-}
-
 // ---------- in-process parsed seed caches ----------
 
 let cachedTaxonomyManifest: TaxonomyManifest | null = null; // parsed once per process so repeated fallback reads avoid disk work
@@ -239,7 +208,7 @@ async function readTaxonomyManifest(): Promise<TaxonomyManifest> {
     }
   );
 
-  validateTaxonomyManifest(manifest); // fail fast if the fallback contract drifted from the shared manifest shape
+  assertValidTaxonomyManifest(manifest, 'fallback taxonomy.json'); // fail fast if the fallback contract drifted from the shared manifest shape
   cachedTaxonomyManifest = manifest; // store parsed manifest for future fallback reuse
   return manifest; // return the validated shared taxonomy manifest
 }

@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url'; // resolve current file location in ES
 
 import { ensureDbSchema, closeDbPool, getDbPool } from './index'; // schema runner + pool lifecycle
 
-// ----------  taxonomy contract helpers  ----------
+// ---------- taxonomy contract helpers ----------
 
 type TaxonomyEntityName = 'controls' | 'faqs'; // supported manifest entity buckets
 
@@ -42,7 +42,7 @@ export type ResolvedTaxonomy = {
   subcategory: string | null; // canonical or default subcategory
 };
 
-// ----------  normalization helpers  ----------
+// ---------- normalization helpers ----------
 
 // trim + collapse internal spaces
 export function normalizeWhitespace(value: string): string {
@@ -110,7 +110,54 @@ function findCanonicalLabel(
   return null;
 }
 
-// ----------  seed row shapes  ----------
+// ---------- taxonomy manifest validation ----------
+
+export function assertValidTaxonomyManifest(
+  manifest: TaxonomyManifest,
+  sourceLabel = 'taxonomy manifest'
+): void {
+  const expectedFields = ['section', 'category', 'subcategory']; // 006-B contract is intentionally compact and stable
+  const actualFields = Array.isArray(manifest.fields) ? manifest.fields : []; // tolerate malformed json long enough to throw a readable error below
+
+  if (!Number.isFinite(Number(manifest.version))) {
+    throw new Error(
+      `TAXONOMY_ERROR: ${sourceLabel} is missing a valid numeric version.`
+    );
+  }
+
+  if (
+    actualFields.length !== expectedFields.length ||
+    actualFields.some((field, index) => field !== expectedFields[index])
+  ) {
+    throw new Error(
+      `TAXONOMY_ERROR: ${sourceLabel} fields must be exactly [${expectedFields.join(', ')}]. Received [${actualFields.join(', ')}].`
+    );
+  }
+
+  for (const entity of ['controls', 'faqs'] as const) {
+    const categories = manifest[entity]?.categories; // inspect each entity bucket independently so errors stay readable
+    const categoryNames = categories ? Object.keys(categories) : [];
+
+    if (!categories || categoryNames.length === 0) {
+      throw new Error(
+        `TAXONOMY_ERROR: ${sourceLabel} is missing categories for "${entity}".`
+      );
+    }
+
+    for (const categoryName of categoryNames) {
+      const entry = categories[categoryName];
+      const section = normalizeTaxonomyLabel(entry?.section);
+
+      if (!section) {
+        throw new Error(
+          `TAXONOMY_ERROR: ${sourceLabel} category "${categoryName}" in "${entity}" is missing a valid section.`
+        );
+      }
+    }
+  }
+}
+
+// ---------- seed row shapes ----------
 
 export type SeedControlRow = {
   control_key: string;
@@ -139,7 +186,7 @@ export type SeedFaqRow = {
   search_text: string;
 };
 
-// ----------  load seed json  ----------
+// ---------- load seed json ----------
 
 // resolve server/db/data relative to THIS file  -->  works even when cwd changes
 function getDataDir(): string {
@@ -171,6 +218,7 @@ async function readTaxonomyManifest(): Promise<TaxonomyManifest> {
     }
   );
 
+  assertValidTaxonomyManifest(manifest, 'taxonomy.json'); // validate shared manifest structure before seed normalization begins
   cachedTaxonomyManifest = manifest;
   return manifest;
 }
@@ -252,7 +300,7 @@ export function resolveTaxonomy(
   };
 }
 
-// ----------  normalize incoming JSON  ----------
+// ---------- normalize incoming JSON ----------
 
 // normalizeControlsJson()  -->  accepts either:
 //   A) { controls: [...] }  (our normalized local file shape)
@@ -391,7 +439,7 @@ function normalizeFaqsJson(
   return rows;
 }
 
-// ----------  upsert seed (idempotent)  ----------
+// ---------- upsert seed (idempotent) ----------
 
 export async function seedControls(
   rows: SeedControlRow[]
@@ -566,7 +614,7 @@ export async function seedFaqs(
   }
 }
 
-// ----------  deterministic metrics  ----------
+// ---------- deterministic metrics ----------
 
 export async function runSeed(): Promise<void> {
   const dataDir = getDataDir();
@@ -622,11 +670,11 @@ export async function runSeed(): Promise<void> {
   };
 
   // final summary line (deterministic keys)
-  console.log('\n🌱  Seed summary');
+  console.log('\n🌱  Seed Summary');
   console.log(summary);
 
   // optional  -->  show skipped counts
-  console.log('\n🧾  Seed details');
+  console.log('\n🧾  Seed Details');
   console.log({
     controlsSkipped: controlsResult.skipped,
     faqsSkipped: faqsResult.skipped,
@@ -635,15 +683,15 @@ export async function runSeed(): Promise<void> {
   });
 }
 
-// ----------  script entrypoint (db:seed)  ----------
+// ---------- script entrypoint (db:seed) ----------
 
 // always close the pool so node exits cleanly
 async function main(): Promise<void> {
   try {
     await runSeed();
-    console.log('\n✅  seed complete');
+    console.log('\n✅  Seed Complete');
   } catch (error) {
-    console.error('\n❌  seed failed:', error);
+    console.error('\n❌  Seed Failed:', error);
     process.exitCode = 1;
   } finally {
     await closeDbPool();

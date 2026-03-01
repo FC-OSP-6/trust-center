@@ -14,6 +14,7 @@ import { buildControlsReadCacheKey } from '../cache/keys'; // normalized cache k
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import {
   getSeedControlsRows,
+  getSeedControlSearchText,
   logSeedFallback,
   shouldUseSeedFallback
 } from './seedFallback'; // centralized fallback decision + seed row loading
@@ -173,8 +174,7 @@ export async function getControlsPage(
       const seedRows = await getSeedControlsRows(); // load normalized controls seed rows from the centralized fallback module
       const filtered = filterRowsByCategorySearch(seedRows, args, {
         getCategory: row => row.category, // category source for shared in-memory filter helper
-        getSearchText: row =>
-          `${row.title} ${row.description} ${row.section} ${row.category} ${row.subcategory ?? ''} ${(row.tags ?? []).join(' ')}` // taxonomy-aware fallback search text keeps parity closer to db-backed search_text
+        getSearchText: getSeedControlSearchText // reuse the precomputed fallback search_text so services do not drift from seed normalization
       });
 
       const pageArgs = {

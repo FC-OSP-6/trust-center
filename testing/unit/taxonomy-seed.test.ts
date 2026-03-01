@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  assertValidTaxonomyManifest,
   buildSearchText,
   resolveTaxonomy,
   type TaxonomyManifest
@@ -83,6 +84,18 @@ describe('taxonomy contract + seed helpers', () => {
       category: 'Encryption',
       subcategory: 'At Rest'
     }); // inputs may vary in casing, but the resolved contract should preserve the canonical labels
+  });
+
+  it('throws a readable error when the manifest fields drift from the frozen 006-B contract', () => {
+    expect(() =>
+      assertValidTaxonomyManifest(
+        {
+          ...TEST_TAXONOMY,
+          fields: ['category', 'section']
+        },
+        'test manifest'
+      )
+    ).toThrowError(/TAXONOMY_ERROR: test manifest fields must be exactly/i); // manifest-shape drift should fail before either db seed or fallback boot can continue
   });
 
   it('throws a readable error for an unknown category', () => {

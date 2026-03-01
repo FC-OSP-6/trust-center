@@ -14,6 +14,7 @@ import { buildFaqsReadCacheKey } from '../cache/keys'; // normalized cache key b
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import {
   getSeedFaqsRows,
+  getSeedFaqSearchText,
   logSeedFallback,
   shouldUseSeedFallback
 } from './seedFallback'; // centralized fallback decision + seed row loading
@@ -168,8 +169,7 @@ export async function getFaqsPage(
       const seedRows = await getSeedFaqsRows(); // load normalized faqs seed rows from the centralized fallback module
       const filtered = filterRowsByCategorySearch(seedRows, args, {
         getCategory: row => row.category, // category source for shared in-memory filter helper
-        getSearchText: row =>
-          `${row.question} ${row.answer} ${row.section} ${row.category} ${row.subcategory ?? ''} ${(row.tags ?? []).join(' ')}` // taxonomy-aware fallback search text keeps parity closer to db-backed search_text
+        getSearchText: getSeedFaqSearchText // reuse the precomputed fallback search_text so services do not drift from seed normalization
       });
 
       const pageArgs = {

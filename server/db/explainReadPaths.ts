@@ -27,6 +27,37 @@ type ExplainCase = {
   params?: unknown[]; // optional parameter bag for the statement
 };
 
+// ---------- select list helpers ----------
+
+const CONTROLS_READ_COLUMNS = [
+  'id',
+  'control_key',
+  'title',
+  'description',
+  'section',
+  'category',
+  'subcategory',
+  'tags',
+  'source_url',
+  'updated_at'
+] as const; // keep explain select lists aligned with the live controls service read shape
+
+const FAQS_READ_COLUMNS = [
+  'id',
+  'faq_key',
+  'question',
+  'answer',
+  'section',
+  'category',
+  'subcategory',
+  'tags',
+  'updated_at'
+] as const; // keep explain select lists aligned with the live faqs service read shape
+
+function buildSelectList(columns: readonly string[]): string {
+  return columns.map(column => `          ${column}`).join(',\n'); // format columns once so repeated explain statements stay readable and consistent
+}
+
 // ---------- category probing helpers ----------
 
 async function getExistingLowercaseCategory(
@@ -55,129 +86,110 @@ function getFallbackCategory(tableName: 'controls' | 'faqs'): string {
 
 // ---------- explain case builders ----------
 
+function buildCategoryCountCase(args: {
+  name: string;
+  tableName: 'controls' | 'faqs';
+  category: string;
+}): ExplainCase {
+  return {
+    name: args.name,
+    expectation:
+      'index-friendly predicate present for lower(category) count query; planner may still choose seq scan on tiny tables',
+    sql: `
+      EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+      SELECT count(*)::int AS count
+      FROM public.${args.tableName}
+      WHERE lower(category) = $1
+    `,
+    params: [args.category] // mirrors the normalized lowercase category param used by the service layer
+  };
+}
+
+function buildCategoryPageCase(args: {
+  name: string;
+  tableName: 'controls' | 'faqs';
+  category: string;
+  columns: readonly string[];
+}): ExplainCase {
+  return {
+    name: args.name,
+    expectation:
+      'index-friendly predicate present for lower(category) page query while ORDER BY stays compatible with updated_at/id pagination',
+    sql: `
+      EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+      SELECT
+${buildSelectList(args.columns)}
+      FROM public.${args.tableName}
+      WHERE lower(category) = $1
+      ORDER BY updated_at DESC, id DESC
+      LIMIT $2
+    `,
+    params: [args.category, 3] // mirrors a small paginated page query with one-row overfetch shape
+  };
+}
+
+function buildSearchPageCase(args: {
+  name: string;
+  tableName: 'controls' | 'faqs';
+  columns: readonly string[];
+  searchTerm: string;
+}): ExplainCase {
+  return {
+    name: args.name,
+    expectation:
+      'seq scan is acceptable for now because ILIKE substring search is still the chosen prototype behavior',
+    sql: `
+      EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+      SELECT
+${buildSelectList(args.columns)}
+      FROM public.${args.tableName}
+      WHERE search_text ILIKE $1 ESCAPE '\\'
+      ORDER BY updated_at DESC, id DESC
+      LIMIT $2
+    `,
+    params: [`%${args.searchTerm}%`, 3] // mirrors current contains-search semantics instead of future full-text semantics
+  };
+}
+
 function buildExplainCases(args: {
   controlsCategory: string;
   faqsCategory: string;
 }): ExplainCase[] {
   return [
-    {
+    buildCategoryCountCase({
       name: 'controls_category_count',
-      expectation:
-        'index-friendly predicate present for lower(category) count query; planner may still choose seq scan on tiny tables',
-      sql: `
-        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT count(*)::int AS count
-        FROM public.controls
-        WHERE lower(category) = $1
-      `,
-      params: [args.controlsCategory] // mirrors the normalized lowercase category param used by the service layer
-    },
-    {
+      tableName: 'controls',
+      category: args.controlsCategory
+    }),
+    buildCategoryPageCase({
       name: 'controls_category_page',
-      expectation:
-        'index-friendly predicate present for lower(category) page query while ORDER BY stays compatible with updated_at/id pagination',
-      sql: `
-        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT
-          id,
-          control_key,
-          title,
-          description,
-          section,
-          category,
-          subcategory,
-          tags,
-          source_url,
-          updated_at
-        FROM public.controls
-        WHERE lower(category) = $1
-        ORDER BY updated_at DESC, id DESC
-        LIMIT $2
-      `,
-      params: [args.controlsCategory, 3] // mirrors a small paginated page query with one-row overfetch shape
-    },
-    {
+      tableName: 'controls',
+      category: args.controlsCategory,
+      columns: CONTROLS_READ_COLUMNS
+    }),
+    buildCategoryCountCase({
       name: 'faqs_category_count',
-      expectation:
-        'index-friendly predicate present for lower(category) count query; planner may still choose seq scan on tiny tables',
-      sql: `
-        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT count(*)::int AS count
-        FROM public.faqs
-        WHERE lower(category) = $1
-      `,
-      params: [args.faqsCategory] // mirrors the normalized lowercase category param used by the service layer
-    },
-    {
+      tableName: 'faqs',
+      category: args.faqsCategory
+    }),
+    buildCategoryPageCase({
       name: 'faqs_category_page',
-      expectation:
-        'index-friendly predicate present for lower(category) page query while ORDER BY stays compatible with updated_at/id pagination',
-      sql: `
-        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT
-          id,
-          faq_key,
-          question,
-          answer,
-          section,
-          category,
-          subcategory,
-          tags,
-          updated_at
-        FROM public.faqs
-        WHERE lower(category) = $1
-        ORDER BY updated_at DESC, id DESC
-        LIMIT $2
-      `,
-      params: [args.faqsCategory, 3] // mirrors a small paginated page query with one-row overfetch shape
-    },
-    {
+      tableName: 'faqs',
+      category: args.faqsCategory,
+      columns: FAQS_READ_COLUMNS
+    }),
+    buildSearchPageCase({
       name: 'controls_search_page',
-      expectation:
-        'seq scan is acceptable for now because ILIKE substring search is still the chosen prototype behavior',
-      sql: `
-        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT
-          id,
-          control_key,
-          title,
-          description,
-          section,
-          category,
-          subcategory,
-          tags,
-          source_url,
-          updated_at
-        FROM public.controls
-        WHERE search_text ILIKE $1 ESCAPE '\\'
-        ORDER BY updated_at DESC, id DESC
-        LIMIT $2
-      `,
-      params: ['%authentication%', 3] // mirrors current contains-search semantics instead of future full-text semantics
-    },
-    {
+      tableName: 'controls',
+      columns: CONTROLS_READ_COLUMNS,
+      searchTerm: 'authentication'
+    }),
+    buildSearchPageCase({
       name: 'faqs_search_page',
-      expectation:
-        'seq scan is acceptable for now because ILIKE substring search is still the chosen prototype behavior',
-      sql: `
-        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
-        SELECT
-          id,
-          faq_key,
-          question,
-          answer,
-          section,
-          category,
-          subcategory,
-          tags,
-          updated_at
-        FROM public.faqs
-        WHERE search_text ILIKE $1 ESCAPE '\\'
-        ORDER BY updated_at DESC, id DESC
-        LIMIT $2
-      `,
-      params: ['%encryption%', 3] // mirrors current contains-search semantics instead of future full-text semantics
-    }
+      tableName: 'faqs',
+      columns: FAQS_READ_COLUMNS,
+      searchTerm: 'encryption'
+    })
   ];
 }
 
@@ -197,8 +209,8 @@ function extractPlanLines(rows: Array<Record<string, unknown>>): string[] {
 function summarizePlan(planLines: string[]): string {
   const joined = planLines.join('\n').toLowerCase(); // make matching simple and case-insensitive
 
+  if (joined.includes('bitmap index scan')) return 'bitmap-index-scan-visible'; // bitmap index scans are still index-backed and good evidence for category probes
   if (joined.includes('index scan')) return 'index-scan-visible'; // strongest positive signal for direct index usage
-  if (joined.includes('bitmap index scan')) return 'bitmap-index-scan-visible'; // also good and index-backed
   if (joined.includes('seq scan')) return 'seq-scan-visible'; // acceptable for tiny tables or substring search cases
   return 'scan-type-not-obvious'; // fallback when postgres chooses another plan shape
 }
