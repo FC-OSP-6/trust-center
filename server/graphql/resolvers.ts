@@ -1,24 +1,27 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  GraphQL resolver orchestration layer
 
-  - Returns Relay-style connection objects: { edges, pageInfo, totalCount }
-  - Implements Query resolvers for controls and FAQs connections
-  - Validates cursor inputs and enforces pagination constraints
-  - Delegates data retrieval to service layer (DB, caching, fallback, memoization)
-  - Maps database rows into GraphQL connection structures (edges + pageInfo)
-  - Logs data source (db vs. mock) for observability
-  - Exports: resolvers
-  - Consumed by: GraphQL handler (schema execution binding)
-  - Depends on: pagination utilities, service layer, cache key builders
+  - keeps resolver responsibilities small and predictable
+  - delegates all read-path work to services
+  - validates cursors before service execution
+  - maps db/service rows into GraphQL-safe node shapes
+  - logs which source produced the data for debugging
+  - preserves the existing GraphQL contract for the frontend
+  - exposes richer taxonomy metadata for later consumers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // Shared per-request context contract
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // Cursor validation + encoding utilities
 import {
   getControlsPage,
-  type DbControlRow
-} from '../services/controlsService'; // Controls service (data retrieval + pagination logic)
-import { getFaqsPage, type DbFaqRow } from '../services/faqsService'; // FAQs service (data retrieval + pagination logic)
+  type DbControlRow,
+  type ControlsPage
+} from '../services/controlsService'; // controls read-path service owns db/cache/memo/pagination
+import {
+  getFaqsPage,
+  type DbFaqRow,
+  type FaqsPage
+} from '../services/faqsService'; // faqs read-path service owns db/cache/memo/pagination
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
 import path from 'node:path'; // resolve data folder paths
@@ -85,11 +88,13 @@ function escapeLike(value: string): string {
 
 type DataSource = 'db' | 'mock'; // service layer reports whether rows came from the real db or seed fallback
 
-/**
- * Emits structured log indicating which data source served the request.
- *
- * Used for observability during DB vs. seed fallback scenarios.
- */
+type ConnectionPage<T> = {
+  rows: T[];
+  hasNextPage: boolean;
+  endCursor: string | null;
+  totalCount: number;
+}; // shared subset used to build relay-style connection results without duplicating the final response shape
+
 function logDataSource(args: {
   requestId: string;
   resolverName: string;
@@ -403,7 +408,10 @@ function mapControlNode(row: DbControlRow) {
     controlKey: row.control_key, // db snake_case -> api camelCase
     title: row.title, // pass through title as-is
     description: row.description, // pass through description as-is
+    section: row.section, // expose broad taxonomy bucket
     category: row.category, // pass through category as-is
+    subcategory: row.subcategory, // expose finer taxonomy bucket when present
+    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
     sourceUrl: row.source_url, // db snake_case -> api camelCase
     updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
   };
@@ -415,12 +423,39 @@ function mapFaqNode(row: DbFaqRow) {
     faqKey: row.faq_key, // db snake_case -> api camelCase
     question: row.question, // pass through question as-is
     answer: row.answer, // pass through answer as-is
+    section: row.section, // expose broad taxonomy bucket
     category: row.category, // pass through category as-is
+    subcategory: row.subcategory, // expose finer taxonomy bucket when present
+    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
     updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
   };
 }
 
-// ---------- Resolver map (schema execution layer) ----------
+// ---------- connection helpers ----------
+
+function buildConnectionResult<
+  T extends { id: string; updated_at: string | Date },
+  TNode
+>(page: ConnectionPage<T>, mapNode: (row: T) => TNode) {
+  const edges = page.rows.map(row => ({
+    cursor: encodeCursor({
+      sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
+      id: row.id // id is the tie-breaker to keep ordering stable
+    }),
+    node: mapNode(row) // convert db/service row into frontend GraphQL shape
+  }));
+
+  return {
+    edges, // Relay-style edge array
+    pageInfo: {
+      hasNextPage: page.hasNextPage, // service already determined if a next page exists
+      endCursor: page.endCursor // service already computed the last cursor for this page
+    },
+    totalCount: page.totalCount // total count stays on the connection for client pagination metadata
+  };
+}
+
+// ---------- query resolvers ----------
 
 /**
  * GraphQL resolver map bound to schema fields.
@@ -454,7 +489,7 @@ export const resolvers = {
         // Fail fast on invalid cursor to avoid ambiguous pagination behavior
         throw new Error('CURSOR_ERROR: invalid after cursor'); // fail early with readable cursor error
 
-      const page = await getControlsPage(args, ctx); // Service layer handles DB access, fallback logic, pagination, and request memoization
+      const page: ControlsPage = await getControlsPage(args, ctx); // service owns db reads, filtering, pagination, cache, memo, and fallback
 
       logDataSource({
         requestId: ctx.requestId,
@@ -463,22 +498,7 @@ export const resolvers = {
         returnedCount: page.rows.length
       }); // Terminal visibility into DB vs. seed fallback behavior
 
-      const edges = page.rows.map(row => ({
-        cursor: encodeCursor({
-          sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
-          id: row.id // id is the tie-breaker to keep ordering stable
-        }),
-        node: mapControlNode(row) // convert db/service row into frontend GraphQL shape
-      }));
-
-      return {
-        edges, // Relay-style edge array
-        pageInfo: {
-          hasNextPage: page.hasNextPage, // service already determined if a next page exists
-          endCursor: page.endCursor // service already computed the last cursor for this page
-        },
-        totalCount: page.totalCount // total count stays on the connection for client pagination metadata
-      };
+      return buildConnectionResult(page, mapControlNode); // centralize relay connection shaping so controls/faqs stay symmetric
     },
 
     faqsConnection: async (
@@ -495,7 +515,7 @@ export const resolvers = {
         throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast so bad cursors never reach the service layer
       }
 
-      const page = await getFaqsPage(args, ctx); // Service layer handles DB access, fallback logic, pagination, and request memoization
+      const page: FaqsPage = await getFaqsPage(args, ctx); // service owns db reads, filtering, pagination, cache, memo, and fallback
 
       logDataSource({
         requestId: ctx.requestId,
@@ -504,22 +524,7 @@ export const resolvers = {
         returnedCount: page.rows.length
       }); // Terminal visibility into DB vs. seed fallback behavior
 
-      const edges = page.rows.map(row => ({
-        cursor: encodeCursor({
-          sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
-          id: row.id // id is the tie-breaker to keep ordering stable
-        }),
-        node: mapFaqNode(row) // convert db/service row into frontend GraphQL shape
-      }));
-
-      return {
-        edges, // Relay-style edge array
-        pageInfo: {
-          hasNextPage: page.hasNextPage, // service already determined if a next page exists
-          endCursor: page.endCursor // service already computed the last cursor for this page
-        },
-        totalCount: page.totalCount // Post-filter total count for UI pagination metadata
-      };
+      return buildConnectionResult(page, mapFaqNode); // centralize relay connection shaping so controls/faqs stay symmetric
     }
   },
   Mutation: mutationResolvers.Mutation // wire cache invalidation mutations into the executable resolver map
