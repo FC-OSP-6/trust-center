@@ -8,14 +8,14 @@
   - adds shared read cache (LRU TTL) for db-backed results across requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import fs from 'node:fs/promises'; // read seed json files when db is unavailable
-import path from 'node:path'; // resolve data folder paths
-import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
-import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
-import { buildControlsKey } from '../cache'; // deterministic memo key builder (raw args for readability)
 import { buildControlsReadCacheKey } from '../cache/keys'; // normalized cache key builder (includes auth scope)
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
+import {
+  getSeedControlsRows,
+  logSeedFallback,
+  shouldUseSeedFallback
+} from './seedFallback'; // centralized fallback decision + seed row loading
 import {
   buildAfterBoundary,
   buildCategorySearchWhere,
@@ -53,92 +53,13 @@ export type ControlsPage = {
   source: 'db' | 'mock';
 };
 
-// ---------- cache config + debug helpers ----------
+// ---------- cache config helpers ----------
 
-const CONTROLS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl for repeated UI reads while keeping data reasonably fresh
-
-function isDebugPerfEnabled(): boolean {
-  const raw = String(process.env.DEBUG_PERF ?? '').toLowerCase(); // env flags are strings
-  return raw === 'true' || raw === '1' || raw === 'yes' || raw === 'on'; // tolerate common truthy values
-}
-
-function logReadCache(
-  event: 'hit' | 'miss',
-  key: string,
-  ttlSeconds: number
-): void {
-  if (!isDebugPerfEnabled()) return; // keep logs quiet unless explicitly enabled
-  console.log(`[cache] ${event} key=${key} ttl=${ttlSeconds}s`); // single-line terminal log for quick perf checks
-}
+const CONTROLS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl keeps repeated UI reads fast while staying reasonably fresh
 
 function getAuthScopeForReadCache(ctx: GraphQLContext): string {
   if (ctx.auth.isAdmin) return 'admin'; // placeholder until real auth scopes land
   return 'public'; // current prototype reads behave as public
-}
-
-// ---------- fallback detection ----------
-
-function shouldFallbackToMock(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message : String(error); // normalize error message for matching
-
-  if (msg.includes('ENV_ERROR:')) return true; // env not set (your db layer throws ENV_ERROR: ...)
-  if (msg.toLowerCase().includes('connect')) return true; // common connection issues (mvp-safe broad match)
-  if (msg.toLowerCase().includes('does not exist')) return true; // missing table/schema during setup/demo
-
-  return false; // let non-connectivity/query bugs surface normally
-}
-
-// ---------- seed fallback helpers (db unavailable) ----------
-
-type SeedControlJson = {
-  controls: Array<{
-    control_key: string;
-    title: string;
-    description: string;
-    category: string;
-    source_url?: string | null;
-  }>;
-};
-
-function getDataDir(): string {
-  const here = path.dirname(fileURLToPath(import.meta.url)); // resolve current services directory in ESM
-  return path.resolve(here, '../db/data'); // match seed.ts data directory convention
-}
-
-function stableId(prefix: string, key: string): string {
-  const hash = createHash('sha256').update(`${prefix}:${key}`).digest('hex'); // deterministic hash for seed rows
-  return `${prefix}_${hash.slice(0, 24)}`; // short stable id string (not a real uuid, okay for seed mode)
-}
-
-let cachedSeedControls: DbControlRow[] | null = null; // memoized in-process seed rows to avoid file reads per call
-
-async function loadSeedControls(): Promise<DbControlRow[]> {
-  if (cachedSeedControls) return cachedSeedControls; // reuse parsed seed rows within the process
-
-  const dataDir = getDataDir(); // resolve seed data directory
-  const controlsPath = path.join(dataDir, 'controls.json'); // seed file path
-  const raw = await fs.readFile(controlsPath, 'utf8'); // read seed file
-  const parsed = JSON.parse(raw) as SeedControlJson; // parse json payload
-  const nowIso = new Date().toISOString(); // placeholder timestamp in seed mode
-
-  const rows: DbControlRow[] = (parsed.controls ?? []).map(c => ({
-    id: stableId('control', String(c.control_key ?? 'missing_key')), // deterministic seed id
-    control_key: String(c.control_key ?? ''), // normalize to string
-    title: String(c.title ?? ''), // normalize to string
-    description: String(c.description ?? ''), // normalize to string
-    category: String(c.category ?? 'General'), // default grouping for incomplete seed rows
-    source_url: c.source_url == null ? null : String(c.source_url), // preserve null when absent
-    updated_at: nowIso // synthetic timestamp for stable connection behavior in seed mode
-  }));
-
-  rows.sort((a, b) => {
-    const k = b.control_key.localeCompare(a.control_key); // deterministic tie order for seed rows
-    if (k !== 0) return k; // primary seed-mode ordering
-    return b.id.localeCompare(a.id); // stable tie-breaker
-  });
-
-  cachedSeedControls = rows; // cache parsed rows for reuse across requests
-  return rows; // return parsed + normalized seed rows
 }
 
 // ---------- db read path (cacheable) ----------
@@ -199,17 +120,10 @@ async function getControlsPageDbCached(
     authScope: getAuthScopeForReadCache(ctx)
   }); // normalized cross-request cache key with placeholder auth scope
 
-  const cached = ctx.cache.get(cacheKey); // probe once for debug visibility before getOrSet
-  logReadCache(
-    cached === null ? 'miss' : 'hit',
-    cacheKey,
-    CONTROLS_READ_CACHE_TTL_SECONDS
-  ); // optional cache hit/miss logs
-
   const page = await ctx.cache.getOrSet(
     cacheKey,
     CONTROLS_READ_CACHE_TTL_SECONDS,
-    async () => getControlsPageFromDb(args, ctx) // cache DB-backed result only (fallback is handled outside)
+    async () => getControlsPageFromDb(args, ctx) // only db-backed reads belong in the shared cross-request cache
   );
 
   return page as ControlsPage; // cache interface is generic/unknown-friendly, so cast to service return type
@@ -221,21 +135,31 @@ export async function getControlsPage(
   args: ControlsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<ControlsPage> {
-  const memoKey = `controlsService:getControlsPage:${buildControlsKey(args)}`; // deterministic per-request dedupe key
+  const memoKey = `controlsService:getControlsPage:${buildControlsReadCacheKey(
+    args,
+    {
+      authScope: getAuthScopeForReadCache(ctx)
+    }
+  )}`; // align memo identity with shared read-cache identity so future auth-scoped reads cannot collide
 
-  return memoizePromise(ctx.memo, memoKey, async () => {
+  return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
     try {
-      return await getControlsPageDbCached(args, ctx); // shared read cache sits inside request memo for best of both
+      return await getControlsPageDbCached(args, ctx); // request memo wraps shared read cache so one request never duplicates work
     } catch (error) {
-      if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should not be masked
+      if (!shouldUseSeedFallback(error)) throw error; // only known demo-safe failures should route into fallback mode
 
-      const msg = error instanceof Error ? error.message : String(error); // normalize error for logging
-      console.warn('[gql] controlsConnection fallback to seed json:', msg); // explicit fallback log for demos
+      const reason = error instanceof Error ? error.message : String(error); // normalize unknown errors into one loggable string
 
-      const seedRows = await loadSeedControls(); // parse/cached seed rows
+      logSeedFallback({
+        requestId: ctx.requestId, // tie fallback log to the same request trace used by gql/cache/db/data logs
+        resolverName: 'controlsConnection', // identify which resolver path fell back
+        reason // keep the db/env failure reason visible for debugging
+      });
+
+      const seedRows = await getSeedControlsRows(); // load normalized controls seed rows from the centralized fallback module
       const filtered = filterRowsByCategorySearch(seedRows, args, {
-        getCategory: r => r.category, // category source for shared filter helper
-        getSearchText: r => `${r.title} ${r.description} ${r.category}` // simple seed-mode search text
+        getCategory: row => row.category, // category source for shared in-memory filter helper
+        getSearchText: row => `${row.title} ${row.description} ${row.category}` // simple fallback search text for substring filtering
       });
 
       const pageArgs = {
@@ -243,8 +167,8 @@ export async function getControlsPage(
         ...(args.after !== undefined ? { after: args.after } : {})
       }; // omit undefined props for exactOptionalPropertyTypes
 
-      const page = pageFromRows(filtered, pageArgs); // shared in-memory paging helper
-      return { ...page, source: 'mock' }; // preserve resolver contract while signaling fallback source
+      const page = pageFromRows(filtered, pageArgs); // paginate the filtered seed rows using the same in-memory helper as before
+      return { ...page, source: 'mock' }; // preserve resolver contract while clearly signaling fallback mode
     }
   });
 }
