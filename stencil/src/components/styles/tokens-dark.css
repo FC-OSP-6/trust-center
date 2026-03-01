@@ -1,0 +1,76 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Dark mode semantic overrides for the Trust Center design system
+    - Targets :root[data-theme='dark'] — overrides --tc-* semantic tokens only
+    - Raw --color-* primitives in tokens.css are never touched here
+    - Activate:   document.documentElement.dataset.theme = 'dark'
+    - Deactivate: delete document.documentElement.dataset.theme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+:root[data-theme='dark'] {
+  /* == Surfaces == */
+  /* all light-mode surfaces invert to dark navy-based fills */
+  --tc-bg-page: var(--color-dark-bg); /* #1a1c2a — deepest page bg */
+  --tc-bg-card: var(--color-navy-primary); /* #262836 — card surface = navy */
+  --tc-bg-section: var(
+    --color-dark-surface
+  ); /* #2e3048 — elevated section fill */
+  --tc-bg-hover: var(--color-dark-hover); /* #363952 — hover fill */
+  --tc-bg-active: var(
+    --color-dark-hover
+  ); /* T.c: same as hover — flag for design review */
+
+  /* == Text == */
+  /* dark-mode text pulls from the light end of the gray scale */
+  --tc-text-primary: var(
+    --color-gray-06
+  ); /* #e5eff0 — high emphasis, 13:1 on card */
+  --tc-text-secondary: var(
+    --color-gray-04
+  ); /* #acc0c4 — medium emphasis, 8.2:1 on card */
+  --tc-text-muted: var(
+    --color-gray-03
+  ); /* #82939a — T.c: 4.3:1 on card, AA large only */
+  --tc-text-inverse: var(
+    --color-gray-01
+  ); /* dark text for any rare light surface in dark mode */
+  --tc-text-link: var(
+    --color-teal-light-accent
+  ); /* #29b0c3 — replaces dark teal, visible on dark */
+  --tc-text-link-hover: var(
+    --color-teal-light-accent
+  ); /* T.c: no distinct hover value yet — same as default */
+
+  /* == Borders == */
+  --tc-border-subtle: var(--color-dark-border); /* #3d4162 */
+  --tc-border-card: var(--color-dark-border); /* #3d4162 */
+  --tc-border-focus: var(
+    --color-teal-light-accent
+  ); /* T.c: consider dedicated focus color */
+
+  /* == Feedback == */
+  --tc-feedback-error: var(
+    --color-error-inverse
+  ); /* #f05f6f — softened red, 5.3:1 on card */
+  --tc-feedback-success: var(
+    --color-success
+  ); /* #12a88a — unchanged, adequate contrast */
+  --tc-feedback-warning: var(
+    --color-warning
+  ); /* #ffa600 — unchanged, adequate contrast */
+  --tc-feedback-info: var(
+    --color-dark-info
+  ); /* #5baaff — lightened, existing info was 2:1 */
+
+  /* == Navigation == */
+  /* nav is already dark in light mode — no overrides needed */
+  /* --tc-nav-bg, --tc-nav-text, --tc-nav-active-text, --tc-nav-accent all carry over */
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  T.c Ambiguities — defer to design review, do not resolve here:
+    - --tc-bg-active       same value as --tc-bg-hover. Needs distinct active state?
+    - --tc-text-muted      gray-03 (#82939a) is 4.3:1 on card bg. AA large only.
+    - --tc-text-link-hover no distinct dark hover value. Same as default link.
+    - --tc-text-inverse    role is ambiguous in dark mode — what surface triggers it?
+    - --tc-border-focus    shares teal-light-accent with link. Consider dedicated color.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
