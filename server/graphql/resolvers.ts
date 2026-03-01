@@ -35,11 +35,6 @@ type ConnectionPage<T> = {
   totalCount: number;
 }; // shared subset used to build relay-style connection results without duplicating the final response shape
 
-/**
- * Emits structured log indicating which data source served the request.
- *
- * Used for observability during DB vs. seed fallback scenarios.
- */
 function logDataSource(args: {
   requestId: string;
   resolverName: string;
