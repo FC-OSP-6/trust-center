@@ -35,6 +35,11 @@ type ConnectionPage<T> = {
   totalCount: number;
 }; // shared subset used to build relay-style connection results without duplicating the final response shape
 
+/**
+ * Emits structured log indicating which data source served the request.
+ *
+ * Used for observability during DB vs. seed fallback scenarios.
+ */
 function logDataSource(args: {
   requestId: string;
   resolverName: string;
@@ -103,6 +108,14 @@ function buildConnectionResult<
 
 // ---------- query resolvers ----------
 
+/**
+ * GraphQL resolver map bound to schema fields.
+ *
+ * Thin orchestration layer:
+ * - Validates arguments
+ * - Delegates data retrieval to service layer
+ * - Shapes results into GraphQL connection format
+ */
 export const resolvers = {
   Query: {
     hello: () => 'helloWorld from GraphQL!', // lightweight sanity field to prove schema wiring
