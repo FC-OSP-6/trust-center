@@ -7,8 +7,12 @@
 
 :host {
   position: fixed;
-  top: 12px;
-  right: 16px;
+  /*
+    Vertical: centers the ~27px button in the 64px aon-header band.
+    Horizontal: clears the 44px login icon (margin-right: 20px) + 12px gap.
+  */
+  top: 18px;
+  right: 76px;
   z-index: 1000;
   display: block;
 }
