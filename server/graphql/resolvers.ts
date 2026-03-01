@@ -28,6 +28,7 @@ import path from 'node:path'; // resolve data folder paths
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
 import { buildControlsKey, buildFaqsKey } from '../cache';
+import { mutationResolvers } from './mutations'; // cache invalidation mutations
 
 // ---------- Database row shapes ----------
 
