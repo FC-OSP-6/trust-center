@@ -77,7 +77,8 @@ export function getServerEnv() {
     DB_POOL_CONNECTION_TIMEOUT_MS: parseNumberEnv(
       'DB_POOL_CONNECTION_TIMEOUT_MS',
       2_000
-    )
+    ),
+    ALLOW_SEED_FALLBACK: optionalEnv('Allow_SEED_FALLBACK', 'false') === 'true'
   };
 }
 
@@ -265,6 +266,46 @@ export const query = async (text: string, params?: any[]) => {
     throw error;
   }
 };
+
+// ----------  perf / observability (prototype)  ----------
+
+type TimedQueryOptions = {
+  requestId: string;
+  enabled: boolean; // When true, logs per-request query timing
+};
+
+// createTimedQuery
+// Returns a request-scoped query function that logs execution timing when enabled.
+// Intended for per-request observability without modifying global query behavior.
+export function createTimedQuery({ requestId, enabled }: TimedQueryOptions) {
+  return async (text: string, params?: any[]) => {
+    const start = Date.now();
+    const pool = getDbPool();
+
+    try {
+      const res = await pool.query(text, params);
+      const durationMs = Date.now() - start;
+
+      if (enabled) {
+        console.log(
+          `[db] requestId=${requestId} duration=${durationMs}ms rows=${res.rowCount ?? 0}`
+        );
+      }
+
+      return res;
+    } catch (error) {
+      const durationMs = Date.now() - start;
+
+      if (enabled) {
+        console.log(
+          `[db] requestId=${requestId} ERROR duration=${durationMs}ms`
+        );
+      }
+
+      throw error;
+    }
+  };
+}
 
 // ----------  scripts (dev-only helpers)  ----------
 
