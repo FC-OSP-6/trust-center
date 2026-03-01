@@ -5,6 +5,7 @@
   - defines connection/pageInfo for pagination
   - exposes debug fields for boot/runtime verification
   - exposes admin-ready cache invalidation mutations
+  - exposes taxonomy metadata without breaking current query args
   - keeps future AI/query ideas as comments only until implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -30,7 +31,10 @@ export const typeDefs = /* GraphQL */ `
     controlKey: String!
     title: String!
     description: String!
+    section: String!
     category: String!
+    subcategory: String
+    tags: [String!]!
     sourceUrl: String
     updatedAt: String!
   }
@@ -40,7 +44,10 @@ export const typeDefs = /* GraphQL */ `
     faqKey: String!
     question: String!
     answer: String!
+    section: String!
     category: String!
+    subcategory: String
+    tags: [String!]!
     updatedAt: String!
   }
 

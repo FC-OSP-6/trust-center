@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "fields": ["section", "category", "subcategory"],
+  "controls": {
+    "categories": {
+      "Organizational Security": {
+        "section": "Governance & Assurance",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Policy & Process",
+          "Incident Response",
+          "Training & Awareness"
+        ]
+      },
+      "Access Control": {
+        "section": "Identity & Access",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Authentication",
+          "Authorization",
+          "Privileged Access"
+        ]
+      },
+      "Cloud Security": {
+        "section": "Infrastructure & Platform",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Network Security",
+          "Platform Hardening",
+          "Perimeter Defense",
+          "Regional Resilience"
+        ]
+      },
+      "Availability & Resilience": {
+        "section": "Infrastructure & Platform",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Backup & Recovery",
+          "Business Continuity",
+          "Disaster Recovery"
+        ]
+      },
+      "Data Security": {
+        "section": "Data Protection",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Encryption",
+          "Data Lifecycle",
+          "Secrets Management"
+        ]
+      },
+      "Privacy": {
+        "section": "Data Protection",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Data Handling",
+          "Retention & Deletion",
+          "Privacy Requests"
+        ]
+      },
+      "Secure Development": {
+        "section": "Engineering & Application Security",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Secure SDLC",
+          "Testing & Review",
+          "Dependency Security"
+        ]
+      },
+      "Vendor Management": {
+        "section": "Governance & Assurance",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Due Diligence",
+          "Ongoing Review",
+          "Contractual Controls"
+        ]
+      }
+    }
+  },
+  "faqs": {
+    "categories": {
+      "Access Control": {
+        "section": "Identity & Access",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Authentication",
+          "Authorization",
+          "Privileged Access"
+        ]
+      },
+      "API Security": {
+        "section": "Engineering & Application Security",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Transport Security",
+          "Abuse Protection",
+          "Service Exposure"
+        ]
+      },
+      "Architecture": {
+        "section": "Infrastructure & Platform",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Tenant Isolation",
+          "Deployment Model",
+          "Regional Design"
+        ]
+      },
+      "Availability & Resilience": {
+        "section": "Infrastructure & Platform",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Backup & Recovery",
+          "Business Continuity",
+          "Disaster Recovery"
+        ]
+      },
+      "Data": {
+        "section": "Data Protection",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Hosting & Residency",
+          "Retention & Deletion",
+          "Data Access"
+        ]
+      },
+      "Encryption": {
+        "section": "Data Protection",
+        "defaultSubcategory": "General",
+        "subcategories": ["General", "In Transit", "At Rest", "Key Management"]
+      },
+      "Incident Response": {
+        "section": "Security Operations",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Detection & Escalation",
+          "Response Process",
+          "Post-Incident Review"
+        ]
+      },
+      "Monitoring": {
+        "section": "Security Operations",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Logging & Alerts",
+          "Audit Trails",
+          "Operational Visibility"
+        ]
+      },
+      "Privacy": {
+        "section": "Data Protection",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Cookies",
+          "Data Handling",
+          "Privacy Requests"
+        ]
+      },
+      "Secure Development": {
+        "section": "Engineering & Application Security",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Secure SDLC",
+          "Testing & Review",
+          "Dependency Security"
+        ]
+      },
+      "Testing": {
+        "section": "Engineering & Application Security",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Penetration Testing",
+          "Validation Evidence",
+          "Review Cadence"
+        ]
+      },
+      "Vendor Management": {
+        "section": "Governance & Assurance",
+        "defaultSubcategory": "General",
+        "subcategories": [
+          "General",
+          "Due Diligence",
+          "Ongoing Review",
+          "Contractual Controls"
+        ]
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@
   - maps db/service rows into GraphQL-safe node shapes
   - logs which source produced the data for debugging
   - preserves the existing GraphQL contract for the frontend
+  - exposes richer taxonomy metadata for later consumers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
@@ -14,19 +15,26 @@ import { mutationResolvers } from './mutations'; // admin-ready cache invalidati
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared cursor + timestamp helpers
 import {
   getControlsPage,
-  type DbControlRow
+  type DbControlRow,
+  type ControlsPage
 } from '../services/controlsService'; // controls read-path service owns db/cache/memo/pagination
-import { getFaqsPage, type DbFaqRow } from '../services/faqsService'; // faqs read-path service owns db/cache/memo/pagination
+import {
+  getFaqsPage,
+  type DbFaqRow,
+  type FaqsPage
+} from '../services/faqsService'; // faqs read-path service owns db/cache/memo/pagination
 
 // ---------- data-source logging ----------
 
 type DataSource = 'db' | 'mock'; // service layer reports whether rows came from the real db or seed fallback
 
-/**
- * Emits structured log indicating which data source served the request.
- *
- * Used for observability during DB vs. seed fallback scenarios.
- */
+type ConnectionPage<T> = {
+  rows: T[];
+  hasNextPage: boolean;
+  endCursor: string | null;
+  totalCount: number;
+}; // shared subset used to build relay-style connection results without duplicating the final response shape
+
 function logDataSource(args: {
   requestId: string;
   resolverName: string;
@@ -46,7 +54,10 @@ function mapControlNode(row: DbControlRow) {
     controlKey: row.control_key, // db snake_case -> api camelCase
     title: row.title, // pass through title as-is
     description: row.description, // pass through description as-is
+    section: row.section, // expose broad taxonomy bucket
     category: row.category, // pass through category as-is
+    subcategory: row.subcategory, // expose finer taxonomy bucket when present
+    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
     sourceUrl: row.source_url, // db snake_case -> api camelCase
     updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
   };
@@ -58,8 +69,35 @@ function mapFaqNode(row: DbFaqRow) {
     faqKey: row.faq_key, // db snake_case -> api camelCase
     question: row.question, // pass through question as-is
     answer: row.answer, // pass through answer as-is
+    section: row.section, // expose broad taxonomy bucket
     category: row.category, // pass through category as-is
+    subcategory: row.subcategory, // expose finer taxonomy bucket when present
+    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
     updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
+  };
+}
+
+// ---------- connection helpers ----------
+
+function buildConnectionResult<
+  T extends { id: string; updated_at: string | Date },
+  TNode
+>(page: ConnectionPage<T>, mapNode: (row: T) => TNode) {
+  const edges = page.rows.map(row => ({
+    cursor: encodeCursor({
+      sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
+      id: row.id // id is the tie-breaker to keep ordering stable
+    }),
+    node: mapNode(row) // convert db/service row into frontend GraphQL shape
+  }));
+
+  return {
+    edges, // Relay-style edge array
+    pageInfo: {
+      hasNextPage: page.hasNextPage, // service already determined if a next page exists
+      endCursor: page.endCursor // service already computed the last cursor for this page
+    },
+    totalCount: page.totalCount // total count stays on the connection for client pagination metadata
   };
 }
 
@@ -97,7 +135,7 @@ export const resolvers = {
         throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast so bad cursors never reach the service layer
       }
 
-      const page = await getControlsPage(args, ctx); // service owns db reads, filtering, pagination, cache, memo, and fallback
+      const page: ControlsPage = await getControlsPage(args, ctx); // service owns db reads, filtering, pagination, cache, memo, and fallback
 
       logDataSource({
         requestId: ctx.requestId, // attach the same request trace id used by cache/db logs
@@ -106,22 +144,7 @@ export const resolvers = {
         returnedCount: page.rows.length // shows the number of rows actually returned for this page
       });
 
-      const edges = page.rows.map(row => ({
-        cursor: encodeCursor({
-          sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
-          id: row.id // id is the tie-breaker to keep ordering stable
-        }),
-        node: mapControlNode(row) // convert db/service row into frontend GraphQL shape
-      }));
-
-      return {
-        edges, // Relay-style edge array
-        pageInfo: {
-          hasNextPage: page.hasNextPage, // service already determined if a next page exists
-          endCursor: page.endCursor // service already computed the last cursor for this page
-        },
-        totalCount: page.totalCount // total count stays on the connection for client pagination metadata
-      };
+      return buildConnectionResult(page, mapControlNode); // centralize relay connection shaping so controls/faqs stay symmetric
     },
 
     faqsConnection: async (
@@ -138,7 +161,7 @@ export const resolvers = {
         throw new Error('CURSOR_ERROR: invalid after cursor'); // fail fast so bad cursors never reach the service layer
       }
 
-      const page = await getFaqsPage(args, ctx); // service owns db reads, filtering, pagination, cache, memo, and fallback
+      const page: FaqsPage = await getFaqsPage(args, ctx); // service owns db reads, filtering, pagination, cache, memo, and fallback
 
       logDataSource({
         requestId: ctx.requestId, // attach the same request trace id used by cache/db logs
@@ -147,22 +170,7 @@ export const resolvers = {
         returnedCount: page.rows.length // shows the number of rows actually returned for this page
       });
 
-      const edges = page.rows.map(row => ({
-        cursor: encodeCursor({
-          sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
-          id: row.id // id is the tie-breaker to keep ordering stable
-        }),
-        node: mapFaqNode(row) // convert db/service row into frontend GraphQL shape
-      }));
-
-      return {
-        edges, // Relay-style edge array
-        pageInfo: {
-          hasNextPage: page.hasNextPage, // service already determined if a next page exists
-          endCursor: page.endCursor // service already computed the last cursor for this page
-        },
-        totalCount: page.totalCount // total count stays on the connection for client pagination metadata
-      };
+      return buildConnectionResult(page, mapFaqNode); // centralize relay connection shaping so controls/faqs stay symmetric
     }
   },
   Mutation: mutationResolvers.Mutation // wire cache invalidation mutations into the executable resolver map
