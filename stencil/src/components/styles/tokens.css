@@ -86,6 +86,15 @@
   /* Uses: softer error indicator on dark/inverse backgrounds */
   --color-error-inverse: #f05f6f;
 
+  /* == Dark Palette Raw Values == */
+  /* Used exclusively by tokens-dark.css — not for direct component use */
+  /* Only added because existing light-mode grays cannot produce adequate contrast or surface hierarchy on dark backgrounds */
+  --color-dark-bg: #1a1c2a; /* deepest page background, below navy */
+  --color-dark-surface: #2e3048; /* elevated section and fill surfaces */
+  --color-dark-hover: #363952; /* hover and active state fills */
+  --color-dark-border: #3d4162; /* borders on dark surfaces */
+  --color-dark-info: #5baaff; /* info blue — existing #0055a8 is 2:1 on dark, unusable */
+
   /* == Typography Options == */
   /* this is the only font aon said to use everywhere */
   --font-default: Arial, sans-serif;
