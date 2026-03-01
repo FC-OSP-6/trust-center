@@ -189,3 +189,54 @@
   --subnav-row-bg-hover: var(--color-gray-08);
   --subnav-row-bg-active: var(--color-gray-07);
 }
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Dark Mode Overrides
+   Applied when [data-theme="dark"] is set on the <html> element.
+   CSS custom properties cascade into Stencil shadow DOM automatically.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+[data-theme='dark'] {
+  /* == Surface / Backgrounds == */
+  /* light backgrounds invert to dark navy-based surfaces */
+  --color-surface: #262836; /* white card surface → navy dark */
+  --color-gray-08: #1a1c2a; /* lightest product bg → deepest dark */
+  --color-gray-07: #212333; /* light section bg → dark */
+  --color-gray-06: #282b3d; /* light section bg → dark elevated */
+  --color-gray-05: #363a52; /* light border → dark border */
+  /* gray-04 (#acc0c4) unchanged — doubles as low-emphasis text AND subtle borders */
+
+  /* == Text (gray scale inverts) == */
+  /* High emphasis text on inverse backgrounds */
+  --color-gray-01: #e5eff0; /* primary text → Gray 06 value */
+  --color-gray-02: #acc0c4; /* secondary text → Gray 04 value */
+  --color-gray-03: #7a9099; /* tertiary text → adjusted mid */
+
+  /* == Primary Hues == */
+  --color-navy-primary: #e5eff0; /* navy headlines flip to light */
+  --color-teal-dark-secondary: #29b0c3; /* use light teal for links on dark bg */
+  --color-teal-dark-interaction: #1e9db0; /* hover/active teal on dark */
+  --color-teal-dark-hover: var(--color-teal-dark-interaction);
+  --color-teal-dark-active: var(--color-teal-dark-interaction);
+
+  /* == Feedback Hues == */
+  /* Error — softer inverse red for dark backgrounds */
+  --color-error: #f05f6f; /* Error Inverse */
+  --color-error-bg: #3d0f15; /* dark error background */
+  /* Warning — hue stays the same, bg darkens */
+  --color-warning-bg: #3d2800; /* dark warning background */
+  /* Success */
+  --color-success: #12a888; /* spec value */
+  --color-success-bg: #0a2e28; /* dark success background */
+  /* Information — lighten hue for contrast on dark */
+  --color-info: #5baaff;
+  --color-info-bg: #0a1e3d; /* dark info background */
+
+  /* == Card Tokens == */
+  /* card shadow adjusts for dark surfaces */
+  --card-shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4);
+
+  /* == Subnav Card Tokens == */
+  --subnav-row-bg-hover: var(--color-gray-06);
+  --subnav-row-bg-active: var(--color-gray-07);
+}
