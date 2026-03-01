@@ -11,6 +11,26 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: trust_center_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d trust_center_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/trust_center_ci
+      NODE_ENV: test
+      ALLOW_SEED_FALLBACK: false
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -18,7 +38,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
 
       - name: Install dependencies
@@ -29,6 +49,12 @@ jobs:
 
       - name: Check for line ending issues
         run: git diff --check
+
+      - name: Apply schema
+        run: npm run db:cleanapply
+
+      - name: Seed database
+        run: npm run db:seed
 
       - name: Run tests
         run: npm test -- --run

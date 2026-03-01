@@ -6,6 +6,7 @@
   - supports seed json fallback when db is unavailable (mvp resilience)
   - dedupes duplicate reads within one graphql request using request-scoped memoization
   - adds shared read cache (LRU TTL) for db-backed results across requests
+  - returns taxonomy-aware row metadata for later graphql/frontend consumers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import fs from 'node:fs/promises'; // read seed json files when db is unavailable
@@ -16,6 +17,12 @@ import type { GraphQLContext } from '../graphql/context'; // request-scoped deps
 import { buildFaqsKey } from '../cache'; // deterministic memo key builder (raw args for readability)
 import { buildFaqsReadCacheKey } from '../cache/keys'; // normalized cache key builder (includes auth scope)
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
+import {
+  getSeedFaqsRows,
+  getSeedFaqSearchText,
+  logSeedFallback,
+  shouldUseSeedFallback
+} from './seedFallback'; // centralized fallback decision + seed row loading
 import {
   buildAfterBoundary,
   buildCategorySearchWhere,
@@ -40,7 +47,10 @@ export type DbFaqRow = {
   faq_key: string; // natural key used by seed upserts
   question: string; // user-facing question
   answer: string; // user-facing answer
-  category: string; // grouping
+  section: string; // broad taxonomy bucket
+  category: string; // compatibility grouping field
+  subcategory: string | null; // finer taxonomy bucket
+  tags: string[] | null; // normalized tag list
   updated_at: string | Date; // timestamptz
 };
 
@@ -164,7 +174,16 @@ async function getFaqsPageFromDb(
   const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize count result defensively
 
   const pageSql = `
-    select id, faq_key, question, answer, category, updated_at
+    select
+      id,
+      faq_key,
+      question,
+      answer,
+      section,
+      category,
+      subcategory,
+      tags,
+      updated_at
     from public.faqs
     ${whereSql}
     ${whereSql ? '' : 'where true'}
@@ -231,8 +250,8 @@ export async function getFaqsPage(
 
       const seedRows = await loadSeedFaqs(); // parse/cached seed rows
       const filtered = filterRowsByCategorySearch(seedRows, args, {
-        getCategory: r => r.category, // category source for shared filter helper
-        getSearchText: r => `${r.question} ${r.answer} ${r.category}` // simple seed-mode search text
+        getCategory: row => row.category, // category source for shared in-memory filter helper
+        getSearchText: getSeedFaqSearchText // reuse the precomputed fallback search_text so services do not drift from seed normalization
       });
 
       const pageArgs = {
