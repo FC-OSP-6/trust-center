@@ -23,7 +23,7 @@
   justify-content: space-between;
   align-items: center;
 
-  border-top: 1px solid var(--color-gray-05);
+  border-top: 1px solid var(--tc-border-subtle);
 
   padding: 30px 20px; /* 30 vertical, 20 horizontal */
 }
@@ -54,14 +54,14 @@
 }
 
 .footer-copyright {
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
 }
 
 /* Anchor link styling (default + hover states) */
 a {
-  color: var(--color-teal-dark-secondary);
+  color: var(--tc-text-link);
 }
 
 a:hover {
-  color: var(--color-teal-dark-hover);
+  color: var(--tc-text-link-hover);
 }

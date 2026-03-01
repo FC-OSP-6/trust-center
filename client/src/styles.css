@@ -23,7 +23,7 @@
 }
 
 body {
-  background-color: var(--color-gray-08, white);
+  background-color: var(--tc-bg-page);
   margin: 0;
   padding: 0;
 }
@@ -205,8 +205,8 @@ body {
 /* ---------- ai placeholder (react wrapper; future stencil slot) ---------- */
 
 .ai-slot {
-  background: #ffffff;
-  border: 1px solid #cddbde;
+  background: var(--tc-bg-card);
+  border: 1px solid var(--tc-border-card);
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
   padding: 16px;
@@ -227,21 +227,21 @@ body {
   font-size: 18px;
   line-height: 24px;
   font-weight: 700;
-  color: #262836;
+  color: var(--tc-text-primary);
 }
 
 .ai-text {
   margin: 0;
   font-size: 14px;
   line-height: 18px;
-  color: #5d6d78;
+  color: var(--tc-text-secondary);
 }
 
 /* placeholder "chat area" intentionally sized to reserve real component space */
 .ai-body {
-  border: 1px dashed #acc0c4;
+  border: 1px dashed var(--tc-border-card);
   border-radius: 8px;
-  background: #f9fcfc;
+  background: var(--tc-bg-page);
   padding: 12px;
   min-height: clamp(200px, 34vh, 360px);
 
@@ -257,15 +257,15 @@ body {
   font-size: 12px;
   line-height: 16px;
   font-weight: 700;
-  color: #003c55;
-  background: #eef6f7;
+  color: var(--tc-text-link-hover);
+  background: var(--tc-bg-hover);
   text-transform: lowercase;
 }
 
 .ai-line {
   height: 10px;
   border-radius: 999px;
-  background: #e5eff0;
+  background: var(--tc-bg-section);
 }
 
 .ai-line.short {
@@ -276,7 +276,7 @@ body {
   margin-top: 4px;
   font-size: 12px;
   line-height: 16px;
-  color: #82939a;
+  color: var(--tc-text-muted);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

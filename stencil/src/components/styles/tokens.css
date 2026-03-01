@@ -157,7 +157,7 @@
   /* == Shared Card Tokens == */
   /* reusable card primitives for shadow-dom content containers */
   --card-border-width: 1px;
-  --card-border-color-subtle: var(--color-gray-05);
+  --card-border-color-subtle: var(--tc-border-card);
   --card-radius-md: 12px;
   --card-padding-md: 16px;
   --card-header-gap-sm: 4px;
@@ -195,6 +195,6 @@
   --subnav-row-radius: 8px;
   --subnav-row-pad-y: 10px;
   --subnav-row-pad-x: 12px;
-  --subnav-row-bg-hover: var(--color-gray-08);
-  --subnav-row-bg-active: var(--color-gray-07);
+  --subnav-row-bg-hover: var(--tc-bg-hover);
+  --subnav-row-bg-active: var(--tc-bg-active);
 }
