@@ -3,6 +3,7 @@
 
   - isolates fallback decision logic from individual services
   - loads and normalizes seed json for controls + faqs
+  - carries taxonomy-aware seed metadata for parity with db-backed reads
   - respects ALLOW_SEED_FALLBACK so demo mode is explicit
   - logs fallback usage in a request-aware structured format
   - keeps fallback data outside the shared db read cache path
@@ -20,7 +21,10 @@ export type SeedControlRow = {
   control_key: string; // natural key used by the GraphQL/API layer
   title: string; // user-facing label
   description: string; // long description
+  section: string; // broad taxonomy bucket
   category: string; // grouping used by filters/subnav
+  subcategory: string | null; // finer taxonomy bucket
+  tags: string[]; // normalized seed tags
   source_url: string | null; // optional source url
   updated_at: string; // synthetic iso timestamp for stable cursor behavior
 };
@@ -30,7 +34,10 @@ export type SeedFaqRow = {
   faq_key: string; // natural key used by the GraphQL/API layer
   question: string; // user-facing question
   answer: string; // user-facing answer
+  section: string; // broad taxonomy bucket
   category: string; // grouping used by filters/subnav
+  subcategory: string | null; // finer taxonomy bucket
+  tags: string[]; // normalized seed tags
   updated_at: string; // synthetic iso timestamp for stable cursor behavior
 };
 
@@ -41,7 +48,10 @@ type SeedControlJson = {
     control_key: string;
     title: string;
     description: string;
-    category: string;
+    section?: string;
+    category?: string;
+    subcategory?: string | null;
+    tags?: string[] | null;
     source_url?: string | null;
   }>;
 };
@@ -51,9 +61,35 @@ type SeedFaqJson = {
     faq_key: string;
     question: string;
     answer: string;
-    category: string;
+    section?: string;
+    category?: string;
+    subcategory?: string | null;
+    tags?: string[] | null;
   }>;
 };
+
+// ---------- local normalization helpers ----------
+
+function normalizeWhitespace(value: string): string {
+  return value.trim().replace(/\s+/g, ' '); // keep fallback normalization stable and simple
+}
+
+function normalizeOptionalText(value: unknown): string | null {
+  const text = normalizeWhitespace(String(value ?? '')); // collapse whitespace before null check
+  return text.length > 0 ? text : null; // avoid storing empty strings as semantic values
+}
+
+function normalizeTags(tags: unknown): string[] {
+  if (!Array.isArray(tags)) return []; // tolerate missing tags on incomplete rows
+
+  const cleaned = tags
+    .map(tag => normalizeWhitespace(String(tag ?? '')).toLowerCase()) // normalize for deterministic fallback comparisons
+    .filter(tag => tag.length > 0); // drop empty tag values
+
+  const uniq = Array.from(new Set(cleaned)); // remove duplicates before sort
+  uniq.sort((a, b) => a.localeCompare(b)); // stable tag ordering helps seed-mode parity
+  return uniq;
+}
 
 // ---------- env + fallback decision helpers ----------
 
@@ -117,7 +153,10 @@ export async function getSeedControlsRows(): Promise<SeedControlRow[]> {
     control_key: String(control.control_key ?? ''), // normalize to string
     title: String(control.title ?? ''), // normalize to string
     description: String(control.description ?? ''), // normalize to string
-    category: String(control.category ?? 'General'), // default incomplete rows into a general bucket
+    section: String(control.section ?? 'General'), // fallback should still return the richer field shape
+    category: String(control.category ?? 'General'), // preserve current grouping surface
+    subcategory: normalizeOptionalText(control.subcategory), // null keeps later GraphQL nullability straightforward
+    tags: normalizeTags(control.tags), // normalized tags keep fallback shape aligned with db-backed reads
     source_url: control.source_url == null ? null : String(control.source_url), // preserve explicit null when source url is absent
     updated_at: nowIso // synthetic iso timestamp used by pagination helpers
   }));
@@ -147,7 +186,10 @@ export async function getSeedFaqsRows(): Promise<SeedFaqRow[]> {
     faq_key: String(faq.faq_key ?? ''), // normalize to string
     question: String(faq.question ?? ''), // normalize to string
     answer: String(faq.answer ?? ''), // normalize to string
-    category: String(faq.category ?? 'General'), // default incomplete rows into a general bucket
+    section: String(faq.section ?? 'General'), // fallback should still return the richer field shape
+    category: String(faq.category ?? 'General'), // preserve current grouping surface
+    subcategory: normalizeOptionalText(faq.subcategory), // null keeps later GraphQL nullability straightforward
+    tags: normalizeTags(faq.tags), // normalized tags keep fallback shape aligned with db-backed reads
     updated_at: nowIso // synthetic iso timestamp used by pagination helpers
   }));
 
