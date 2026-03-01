@@ -79,6 +79,12 @@
   /* Surface */
   /* Uses: card backgrounds and other "paper" surfaces */
   --color-surface: #ffffff;
+  /* Uses: explicit white for high emphasis text on inverse backgrounds */
+  --color-white: #ffffff;
+
+  /* Error Inverse */
+  /* Uses: softer error indicator on dark/inverse backgrounds */
+  --color-error-inverse: #f05f6f;
 
   /* == Typography Options == */
   /* this is the only font aon said to use everywhere */
