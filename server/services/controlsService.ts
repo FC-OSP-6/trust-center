@@ -6,6 +6,7 @@
   - supports seed json fallback when db is unavailable (mvp resilience)
   - dedupes duplicate reads within one graphql request using request-scoped memoization
   - adds shared read cache (LRU TTL) for db-backed results across requests
+  - returns taxonomy-aware row metadata for later graphql/frontend consumers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
@@ -40,7 +41,10 @@ export type DbControlRow = {
   control_key: string; // natural key used by seed upserts
   title: string; // short label
   description: string; // long detail
-  category: string; // grouping
+  section: string; // broad taxonomy bucket
+  category: string; // compatibility grouping field
+  subcategory: string | null; // finer taxonomy bucket
+  tags: string[] | null; // normalized tag list
   source_url: string | null; // optional url
   updated_at: string | Date; // timestamptz
 };
@@ -88,7 +92,17 @@ async function getControlsPageFromDb(
   const totalCount = Number(countRes.rows?.[0]?.count ?? 0); // normalize count result defensively
 
   const pageSql = `
-    select id, control_key, title, description, category, source_url, updated_at
+    select
+      id,
+      control_key,
+      title,
+      description,
+      section,
+      category,
+      subcategory,
+      tags,
+      source_url,
+      updated_at
     from public.controls
     ${whereSql}
     ${whereSql ? '' : 'where true'}
@@ -159,7 +173,8 @@ export async function getControlsPage(
       const seedRows = await getSeedControlsRows(); // load normalized controls seed rows from the centralized fallback module
       const filtered = filterRowsByCategorySearch(seedRows, args, {
         getCategory: row => row.category, // category source for shared in-memory filter helper
-        getSearchText: row => `${row.title} ${row.description} ${row.category}` // simple fallback search text for substring filtering
+        getSearchText: row =>
+          `${row.title} ${row.description} ${row.section} ${row.category} ${row.subcategory ?? ''} ${(row.tags ?? []).join(' ')}` // taxonomy-aware fallback search text keeps parity closer to db-backed search_text
       });
 
       const pageArgs = {

@@ -7,6 +7,7 @@
   - maps db/service rows into GraphQL-safe node shapes
   - logs which source produced the data for debugging
   - preserves the existing GraphQL contract for the frontend
+  - exposes richer taxonomy metadata for later consumers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
@@ -46,7 +47,10 @@ function mapControlNode(row: DbControlRow) {
     controlKey: row.control_key, // db snake_case -> api camelCase
     title: row.title, // pass through title as-is
     description: row.description, // pass through description as-is
+    section: row.section, // expose broad taxonomy bucket
     category: row.category, // pass through category as-is
+    subcategory: row.subcategory, // expose finer taxonomy bucket when present
+    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
     sourceUrl: row.source_url, // db snake_case -> api camelCase
     updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
   };
@@ -58,7 +62,10 @@ function mapFaqNode(row: DbFaqRow) {
     faqKey: row.faq_key, // db snake_case -> api camelCase
     question: row.question, // pass through question as-is
     answer: row.answer, // pass through answer as-is
+    section: row.section, // expose broad taxonomy bucket
     category: row.category, // pass through category as-is
+    subcategory: row.subcategory, // expose finer taxonomy bucket when present
+    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
     updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
   };
 }

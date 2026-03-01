@@ -5,6 +5,7 @@
   - reduces schema drift between frontend api helpers and backend graphql shape
   - keeps ui-only jsx/web-component typing out of shared contracts
   - includes lightweight grouped ui shapes used by stencil renderers
+  - leaves new taxonomy metadata optional so current consumers do not break
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 export type PageInfo = {
@@ -27,6 +28,9 @@ export type Control = {
   id: string; // stable id from db or seed fallback
   title: string; // display title
   category: string; // grouping key
+  section?: string; // broad taxonomy bucket (optional for compatibility)
+  subcategory?: string | null; // fine-grained taxonomy bucket
+  tags?: string[]; // optional because existing client queries may omit it
   description?: string; // optional because some queries omit it
   sourceUrl?: string | null; // optional because some queries omit it
   updatedAt?: string; // optional because some queries omit it
@@ -39,6 +43,9 @@ export type Faq = {
   question: string; // display question
   answer: string; // display answer
   category?: string; // optional because some query selections may omit it
+  section?: string; // broad taxonomy bucket (optional for compatibility)
+  subcategory?: string | null; // fine-grained taxonomy bucket
+  tags?: string[]; // optional because some queries omit it
   updatedAt?: string; // optional because some queries omit it
   faqKey?: string; // optional because some queries omit it
 };

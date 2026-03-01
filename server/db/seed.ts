@@ -5,6 +5,7 @@
   - reads sample json data + normalizes rows
   - validates shared taxonomy contract before any db work begins
   - upserts by stable natural keys (control_key / faq_key)
+  - persists taxonomy metadata into db columns once migration 003 exists
   - prints deterministic metrics for repeatable runs (+ pagination practice)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -406,19 +407,23 @@ export async function seedControls(
           control_key,
           title,
           description,
+          section,
           category,
+          subcategory,
           source_url,
           tags,
           created_by,
           updated_by,
           search_text
         )
-        values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
         on conflict (lower(control_key)) do update
         set
           title = excluded.title,
           description = excluded.description,
+          section = excluded.section,
           category = excluded.category,
+          subcategory = excluded.subcategory,
           source_url = excluded.source_url,
           tags = excluded.tags,
           updated_by = excluded.updated_by,
@@ -427,7 +432,9 @@ export async function seedControls(
         where
           public.controls.title is distinct from excluded.title
           or public.controls.description is distinct from excluded.description
+          or public.controls.section is distinct from excluded.section
           or public.controls.category is distinct from excluded.category
+          or public.controls.subcategory is distinct from excluded.subcategory
           or public.controls.source_url is distinct from excluded.source_url
           or public.controls.tags is distinct from excluded.tags
           or public.controls.search_text is distinct from excluded.search_text
@@ -437,7 +444,9 @@ export async function seedControls(
           row.control_key,
           row.title,
           row.description,
+          row.section,
           row.category,
+          row.subcategory,
           row.source_url,
           row.tags,
           row.created_by,
@@ -487,18 +496,22 @@ export async function seedFaqs(
           faq_key,
           question,
           answer,
+          section,
           category,
+          subcategory,
           tags,
           created_by,
           updated_by,
           search_text
         )
-        values ($1,$2,$3,$4,$5,$6,$7,$8)
+        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
         on conflict (lower(faq_key)) do update
         set
           question = excluded.question,
           answer = excluded.answer,
+          section = excluded.section,
           category = excluded.category,
+          subcategory = excluded.subcategory,
           tags = excluded.tags,
           updated_by = excluded.updated_by,
           updated_at = now(),
@@ -506,7 +519,9 @@ export async function seedFaqs(
         where
           public.faqs.question is distinct from excluded.question
           or public.faqs.answer is distinct from excluded.answer
+          or public.faqs.section is distinct from excluded.section
           or public.faqs.category is distinct from excluded.category
+          or public.faqs.subcategory is distinct from excluded.subcategory
           or public.faqs.tags is distinct from excluded.tags
           or public.faqs.search_text is distinct from excluded.search_text
         returning (xmax = 0) as inserted;
@@ -515,7 +530,9 @@ export async function seedFaqs(
           row.faq_key,
           row.question,
           row.answer,
+          row.section,
           row.category,
+          row.subcategory,
           row.tags,
           row.created_by,
           row.updated_by,
