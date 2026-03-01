@@ -103,6 +103,14 @@ function buildConnectionResult<
 
 // ---------- query resolvers ----------
 
+/**
+ * GraphQL resolver map bound to schema fields.
+ *
+ * Thin orchestration layer:
+ * - Validates arguments
+ * - Delegates data retrieval to service layer
+ * - Shapes results into GraphQL connection format
+ */
 export const resolvers = {
   Query: {
     hello: () => 'helloWorld from GraphQL!', // lightweight sanity field to prove schema wiring
