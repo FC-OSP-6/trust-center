@@ -1,49 +1,72 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   theme-toggle.css
   Shadow-scoped styles for aon-theme-toggle.
+  Matches design system toggle anatomy:
+    track 52×24px, thumb 18×18px, 3px inset, 28px travel, 0.2s ease.
   Position is owned by :host — no shell layout impact.
-  All color tokens resolve from the document root.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 :host {
   position: fixed;
   /*
-    Vertical: centers the ~27px button in the 64px aon-header band.
+    Vertical: centers the 24px track in the 64px aon-header band.
     Horizontal: clears the 44px login icon (margin-right: 20px) + 12px gap.
   */
-  top: 18px;
+  top: 20px;
   right: 76px;
   z-index: 1000;
   display: block;
 }
 
+/* ---- button reset ---- */
+
 .toggle {
   display: inline-flex;
   align-items: center;
-
-  padding: 6px 14px;
-  border: 1px solid var(--tc-border-subtle);
-  border-radius: 20px;
-  background: var(--tc-bg-card);
-  color: var(--tc-text-primary);
-
-  font-family: var(--font-default);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1;
+  background: transparent;
+  border: none;
+  padding: 0;
   cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.toggle:hover {
-  background: var(--tc-bg-hover);
-  border-color: var(--tc-border-card);
 }
 
 .toggle:focus-visible {
-  outline: 2px solid var(--tc-border-focus);
-  outline-offset: 2px;
+  outline: none;
+}
+
+.toggle:focus-visible .track {
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--tc-border-focus);
+}
+
+/* ---- track ---- */
+
+.track {
+  display: block;
+  position: relative;
+  width: 52px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--color-gray-03); /* off: Gray 03 */
+  transition: background 0.2s ease;
+}
+
+.toggle.is-on .track {
+  background: var(--color-teal-dark-active); /* on: Teal Dark Active */
+}
+
+/* ---- thumb ---- */
+
+.thumb {
+  display: block;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-white);
+  transition: transform 0.2s ease;
+}
+
+.toggle.is-on .thumb {
+  transform: translateX(28px); /* 52 - 18 - 3 - 3 = 28 */
 }
