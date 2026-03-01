@@ -34,6 +34,16 @@ declare module '*.pdf' {
   export default src; // default export matches client usage
 }
 
+// ----------  custom element tags not yet in stencil-generated components.d.ts  ----------
+// Stencil regenerates HTMLElementTagNameMap on each build; entries here are
+// temporary bridges for tags added since the last build output.
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'aon-theme-toggle': HTMLElement; // aon-theme-toggle — superseded by Stencil build
+  }
+}
+
 // ----------  stencil loader typings (support both import styles during refactors)  ----------
 
 declare module '../../stencil/loader' {
