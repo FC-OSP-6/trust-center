@@ -8,11 +8,18 @@
   - logs which source produced the data for debugging
   - preserves the existing GraphQL contract for the frontend
   - exposes richer taxonomy metadata for later consumers
+  - adds a grouped overview search contract without inventing a second search engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
 import { mutationResolvers } from './mutations'; // admin-ready cache invalidation mutation hooks
-import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared cursor + timestamp helpers
+import {
+  isValidCursor,
+  encodeCursor,
+  toIso,
+  assertOverviewSearchInput,
+  clampFirst
+} from '../services/pagination'; // shared cursor + timestamp helpers + overview-search contract rules
 import {
   getControlsPage,
   type DbControlRow,
@@ -34,6 +41,11 @@ type ConnectionPage<T> = {
   endCursor: string | null;
   totalCount: number;
 }; // shared subset used to build relay-style connection results without duplicating the final response shape
+
+type OverviewSearchConnectionArgs = {
+  search: string;
+  firstPerKind?: number;
+}; // minimal grouped-search args kept small so the contract stays obvious
 
 function logDataSource(args: {
   requestId: string;
@@ -163,6 +175,56 @@ export const resolvers = {
       });
 
       return buildConnectionResult(page, mapFaqNode); // centralize relay connection shaping so controls/faqs stay symmetric
+    },
+
+    overviewSearch: async (
+      _parent: unknown,
+      args: OverviewSearchConnectionArgs,
+      ctx: GraphQLContext
+    ) => {
+      const search = assertOverviewSearchInput(args.search); // freeze shared search rules at the resolver boundary
+      const firstPerKind = clampFirst(args.firstPerKind ?? 5); // keep page sizing aligned with existing connection safety rules
+
+      const [controlsPage, faqsPage] = await Promise.all([
+        getControlsPage(
+          {
+            first: firstPerKind,
+            search
+          },
+          ctx
+        ), // reuse the existing controls read path instead of inventing a second engine
+        getFaqsPage(
+          {
+            first: firstPerKind,
+            search
+          },
+          ctx
+        ) // reuse the existing faqs read path instead of inventing a second engine
+      ]);
+
+      logDataSource({
+        requestId: ctx.requestId, // tie overview controls bucket to the same request trace
+        resolverName: 'overviewSearch.controls', // keeps grouped-search terminal logs readable
+        source: controlsPage.source, // shows whether controls bucket came from db or fallback
+        returnedCount: controlsPage.rows.length // page row count, not totalCount
+      });
+
+      logDataSource({
+        requestId: ctx.requestId, // tie overview faqs bucket to the same request trace
+        resolverName: 'overviewSearch.faqs', // keeps grouped-search terminal logs readable
+        source: faqsPage.source, // shows whether faqs bucket came from db or fallback
+        returnedCount: faqsPage.rows.length // page row count, not totalCount
+      });
+
+      const controls = buildConnectionResult(controlsPage, mapControlNode); // keep grouped payload consistent with existing connection shapes
+      const faqs = buildConnectionResult(faqsPage, mapFaqNode); // keep grouped payload consistent with existing connection shapes
+
+      return {
+        search, // echo back the normalized term so callers can verify what the backend actually used
+        controls, // grouped controls bucket for overview consumers
+        faqs, // grouped faqs bucket for overview consumers
+        totalCount: controls.totalCount + faqs.totalCount // overview total is the sum of both entity totals
+      };
     }
   },
 

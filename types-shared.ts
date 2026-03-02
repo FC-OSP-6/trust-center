@@ -53,6 +53,13 @@ export type Faq = {
 export type ControlsConnection = Connection<Control>; // typed alias for controls pages
 export type FaqsConnection = Connection<Faq>; // typed alias for faq pages
 
+export type OverviewSearchResult = {
+  search: string; // normalized search term echoed back by the backend
+  controls: ControlsConnection; // grouped controls bucket for overview search
+  faqs: FaqsConnection; // grouped faqs bucket for overview search
+  totalCount: number; // sum of controls.totalCount + faqs.totalCount
+};
+
 // ----------  grouped UI helper types (used by stencil components)  ----------
 
 export type ControlGroupItem = {
