@@ -5,6 +5,7 @@
     - express mounts graphql yoga at /graphql
     - debug/root graphql queries execute without db access
     - per-request graphql context is created (requestId + auth defaults)
+    - request headers can derive demo-grade admin auth state
     - invalid cursor validation returns a graphql error response (200 + errors[])
 
   why this is a strong first graphql integration test:
@@ -57,11 +58,16 @@ afterAll(async () => {
 
 // ---------- graphql test helper ----------
 
-async function postGraphQL<T = unknown>(query: string, variables?: unknown) {
+async function postGraphQL<T = unknown>(
+  query: string,
+  variables?: unknown,
+  headers?: Record<string, string>
+) {
   const response = await fetch(`${origin}/graphql`, {
     method: 'POST',
     headers: {
-      'content-type': 'application/json'
+      'content-type': 'application/json',
+      ...(headers ?? {})
     },
     body: JSON.stringify({
       query,
@@ -102,7 +108,7 @@ describe('graphql integration smoke', () => {
 
     expect(json.data?.hello).toBe('helloWorld from GraphQL!'); // proves schema + resolver wiring for hello
     expect(json.data?.health).toBe('OK'); // proves schema + resolver wiring for health
-    expect(json.data?.debugContext.isAdmin).toBe(false); // default auth state from createGraphQLContext
+    expect(json.data?.debugContext.isAdmin).toBe(false); // missing header should stay non-admin by default
 
     const requestId = json.data?.debugContext.requestId ?? '';
     expect(typeof requestId).toBe('string'); // requestId should be string
@@ -110,6 +116,47 @@ describe('graphql integration smoke', () => {
     expect(requestId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     ); // randomUUID() format
+  });
+
+  it('derives admin auth state from x-admin-token when ADMIN_SECRET matches', async () => {
+    const previousAdminSecret = process.env.ADMIN_SECRET; // preserve ambient env so this test does not leak state
+    process.env.ADMIN_SECRET = 'replace-me'; // demo secret used by the test request header
+
+    try {
+      const { response, json } = await postGraphQL<{
+        data?: {
+          debugContext: { requestId: string; isAdmin: boolean };
+        };
+        errors?: Array<{ message: string }>;
+      }>(
+        /* GraphQL */ `
+          query GraphqlAdminHeaderSmoke {
+            debugContext {
+              requestId
+              isAdmin
+            }
+          }
+        `,
+        undefined,
+        {
+          'x-admin-token': 'replace-me'
+        }
+      );
+
+      expect(response.status).toBe(200); // debug query should still fully succeed
+      expect(response.headers.get('content-type')).toContain(
+        'application/json'
+      ); // yoga should return json
+      expect(json.errors).toBeUndefined(); // no graphql errors expected for debug auth query
+      expect(json.data).toBeDefined(); // success payload should include data
+      expect(json.data?.debugContext.isAdmin).toBe(true); // matching header + env should elevate to demo admin
+    } finally {
+      if (previousAdminSecret === undefined) {
+        delete process.env.ADMIN_SECRET; // restore prior missing state
+      } else {
+        process.env.ADMIN_SECRET = previousAdminSecret; // restore original env value
+      }
+    }
   });
 
   it('returns a graphql error for invalid controlsConnection cursor (pre-service validation)', async () => {
@@ -145,12 +192,9 @@ describe('graphql integration smoke', () => {
     expect(response.headers.get('content-type')).toContain('application/json'); // yoga json response expected
     expect(Array.isArray(json.errors)).toBe(true); // graphql execution error should be present
 
-    // yoga may mask internal resolver error messages (e.g., "Unexpected error.")
     expect(typeof json.errors?.[0]?.message).toBe('string');
     expect((json.errors?.[0]?.message ?? '').length).toBeGreaterThan(0);
 
-    // if execution reached the field and failed there, graphql typically returns null for that field
-    // (data may be undefined depending on error handling/masking config, so keep this tolerant)
     if (
       json.data &&
       typeof json.data === 'object' &&
