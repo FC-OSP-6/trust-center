@@ -420,7 +420,7 @@ export const extRows: LinkRow[] = [
   },
   {
     label: 'Aon Newsroom',
-    href: 'https://www.aon.com/en/about/newsroom',
+    href: 'https://insights-north-america.aon.com/',
     iconSrc: External,
     iconAlt: ''
   }
