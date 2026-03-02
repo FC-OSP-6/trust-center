@@ -6,6 +6,7 @@
   - validates shared taxonomy contract before any db work begins
   - upserts by stable natural keys (control_key / faq_key)
   - persists taxonomy metadata into db columns once migration 003 exists
+  - batches seed writes per table to reduce round-trips while keeping deterministic metrics
   - prints deterministic metrics for repeatable runs (+ pagination practice)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -14,147 +15,48 @@ import path from 'node:path'; // build absolute paths for data folder
 import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
 
 import { ensureDbSchema, closeDbPool, getDbPool } from './index'; // schema runner + pool lifecycle
+import {
+  assertValidTaxonomyManifest,
+  buildSearchText,
+  normalizeWhitespace,
+  readTaxonomyManifestFile,
+  resolveTaxonomy,
+  type ResolvedTaxonomy,
+  type TaxonomyManifest
+} from '../taxonomy'; // shared taxonomy/search helpers stay separate from seed-runner orchestration
 
-// ---------- taxonomy contract helpers ----------
+export {
+  assertValidTaxonomyManifest,
+  buildSearchText,
+  normalizeWhitespace,
+  resolveTaxonomy,
+  type ResolvedTaxonomy,
+  type TaxonomyManifest
+} from '../taxonomy'; // preserve current test imports while the shared helper module becomes the real source of truth
 
-type TaxonomyEntityName = 'controls' | 'faqs'; // supported manifest entity buckets
+// ---------- key + tag normalization helpers ----------
 
-type TaxonomyCategoryEntry = {
-  section: string; // broad stable backend bucket
-  defaultSubcategory?: string | null; // fallback fine-grained bucket
-  subcategories?: string[]; // allowed subcategories for this category
-};
-
-type TaxonomyEntityManifest = {
-  categories: Record<string, TaxonomyCategoryEntry>; // canonical category map
-};
-
-export type TaxonomyManifest = {
-  version: number; // manifest version for future contract evolution
-  fields: string[]; // expected taxonomy field names
-  controls: TaxonomyEntityManifest; // controls taxonomy vocabulary
-  faqs: TaxonomyEntityManifest; // faqs taxonomy vocabulary
-};
-
-export type ResolvedTaxonomy = {
-  section: string; // canonical section resolved from the manifest
-  category: string; // canonical category label preserved for compatibility
-  subcategory: string | null; // canonical or default subcategory
-};
-
-// ---------- normalization helpers ----------
-
-// trim + collapse internal spaces
-export function normalizeWhitespace(value: string): string {
-  return value.trim().replace(/\s+/g, ' ');
-}
-
-// normalize + join + lowercase for consistent contains search
-export function buildSearchText(parts: string[]): string {
-  const normalized = parts
-    .map(p => normalizeWhitespace(String(p ?? '')))
-    .filter(p => p.length > 0);
-
-  return normalized.join(' ').toLowerCase();
-}
-
-// deterministic natural key from human text
 function stableKeyFromText(text: string): string {
   const cleaned = normalizeWhitespace(text).toLowerCase();
 
-  // keep letters / numbers / spaces only
-  const alnumSpacesOnly = cleaned.replace(/[^a-z0-9\s]/g, ' ');
-
-  // turn spaces into underscores for db-friendly natural key
+  const alnumSpacesOnly = cleaned.replace(/[^a-z0-9\s]/g, ' '); // keep letters / numbers / spaces only
   const underscored = alnumSpacesOnly
     .replace(/\s+/g, '_')
-    .replace(/^_+|_+$/g, '');
+    .replace(/^_+|_+$/g, ''); // convert normalized spaces into db-friendly underscores
 
-  // safety clamp  -->  keeps keys readable and avoids massive keys
-  return underscored.slice(0, 120);
+  return underscored.slice(0, 120); // safety clamp keeps deterministic keys readable and bounded
 }
 
-// stable tag ordering + no empties
 function normalizeTags(tags: unknown): string[] {
-  if (!Array.isArray(tags)) return [];
+  if (!Array.isArray(tags)) return []; // tolerate missing tags on incoming seed rows
 
   const cleaned = tags
-    .map(t => normalizeWhitespace(String(t ?? '')).toLowerCase())
-    .filter(t => t.length > 0);
+    .map(tag => normalizeWhitespace(String(tag ?? '')).toLowerCase())
+    .filter(tag => tag.length > 0); // normalize into deterministic lowercase tags
 
-  // deterministic  -->  sort + de-dupe
   const uniq = Array.from(new Set(cleaned));
-  uniq.sort((a, b) => a.localeCompare(b));
+  uniq.sort((a, b) => a.localeCompare(b)); // stable tag order avoids noisy reseed churn
   return uniq;
-}
-
-// normalize optional taxonomy labels without forcing empty strings into the contract
-function normalizeTaxonomyLabel(value: unknown): string | null {
-  const text = normalizeWhitespace(String(value ?? ''));
-  return text.length > 0 ? text : null;
-}
-
-// find the manifest label using case-insensitive matching while preserving canonical casing
-function findCanonicalLabel(
-  options: string[],
-  rawLabel: string
-): string | null {
-  const normalizedTarget = normalizeWhitespace(rawLabel).toLowerCase();
-
-  for (const option of options) {
-    if (normalizeWhitespace(option).toLowerCase() === normalizedTarget) {
-      return option;
-    }
-  }
-
-  return null;
-}
-
-// ---------- taxonomy manifest validation ----------
-
-export function assertValidTaxonomyManifest(
-  manifest: TaxonomyManifest,
-  sourceLabel = 'taxonomy manifest'
-): void {
-  const expectedFields = ['section', 'category', 'subcategory']; // 006-B contract is intentionally compact and stable
-  const actualFields = Array.isArray(manifest.fields) ? manifest.fields : []; // tolerate malformed json long enough to throw a readable error below
-
-  if (!Number.isFinite(Number(manifest.version))) {
-    throw new Error(
-      `TAXONOMY_ERROR: ${sourceLabel} is missing a valid numeric version.`
-    );
-  }
-
-  if (
-    actualFields.length !== expectedFields.length ||
-    actualFields.some((field, index) => field !== expectedFields[index])
-  ) {
-    throw new Error(
-      `TAXONOMY_ERROR: ${sourceLabel} fields must be exactly [${expectedFields.join(', ')}]. Received [${actualFields.join(', ')}].`
-    );
-  }
-
-  for (const entity of ['controls', 'faqs'] as const) {
-    const categories = manifest[entity]?.categories; // inspect each entity bucket independently so errors stay readable
-    const categoryNames = categories ? Object.keys(categories) : [];
-
-    if (!categories || categoryNames.length === 0) {
-      throw new Error(
-        `TAXONOMY_ERROR: ${sourceLabel} is missing categories for "${entity}".`
-      );
-    }
-
-    for (const categoryName of categoryNames) {
-      const entry = categories[categoryName];
-      const section = normalizeTaxonomyLabel(entry?.section);
-
-      if (!section) {
-        throw new Error(
-          `TAXONOMY_ERROR: ${sourceLabel} category "${categoryName}" in "${entity}" is missing a valid section.`
-        );
-      }
-    }
-  }
 }
 
 // ---------- seed row shapes ----------
@@ -188,15 +90,13 @@ export type SeedFaqRow = {
 
 // ---------- load seed json ----------
 
-// resolve server/db/data relative to THIS file  -->  works even when cwd changes
 function getDataDir(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  return path.resolve(here, 'data');
+  return path.resolve(here, 'data'); // resolve server/db/data relative to THIS file so cwd changes do not matter
 }
 
-// shared taxonomy manifest path  -->  one source of truth for controls + faqs
 function getTaxonomyPath(): string {
-  return path.join(getDataDir(), 'taxonomy.json');
+  return path.join(getDataDir(), 'taxonomy.json'); // shared taxonomy manifest lives alongside the seed json payloads
 }
 
 async function readJsonFile<T>(absolutePath: string): Promise<T> {
@@ -209,153 +109,90 @@ let cachedTaxonomyManifest: TaxonomyManifest | null = null; // cache once per pr
 async function readTaxonomyManifest(): Promise<TaxonomyManifest> {
   if (cachedTaxonomyManifest) return cachedTaxonomyManifest;
 
-  const taxonomyPath = getTaxonomyPath();
-  const manifest = await readJsonFile<TaxonomyManifest>(taxonomyPath).catch(
-    err => {
-      throw new Error(
-        `TAXONOMY_ERROR: missing taxonomy.json at ${taxonomyPath}\n${String(err)}`
-      );
-    }
-  );
+  const manifest = await readTaxonomyManifestFile(
+    getTaxonomyPath(),
+    'taxonomy.json'
+  ); // shared loader keeps seed + fallback manifest validation aligned
 
-  assertValidTaxonomyManifest(manifest, 'taxonomy.json'); // validate shared manifest structure before seed normalization begins
   cachedTaxonomyManifest = manifest;
   return manifest;
 }
 
-// resolve one row against the shared taxonomy manifest
-export function resolveTaxonomy(
-  manifest: TaxonomyManifest,
-  entity: TaxonomyEntityName,
-  input: {
-    section?: unknown;
-    category?: unknown;
-    subcategory?: unknown;
-  }
-): ResolvedTaxonomy {
-  const entityManifest = manifest[entity];
-  const categoryInput = normalizeTaxonomyLabel(input.category) ?? 'General';
-  const categoryNames = Object.keys(entityManifest.categories);
-  const canonicalCategory = findCanonicalLabel(categoryNames, categoryInput);
+// ---------- normalize incoming json ----------
 
-  if (!canonicalCategory) {
-    throw new Error(
-      `TAXONOMY_ERROR: unknown ${entity} category "${categoryInput}". Allowed categories: ${categoryNames.join(', ')}`
-    );
-  }
-
-  const categoryEntry = entityManifest.categories[canonicalCategory];
-
-  if (!categoryEntry) {
-    throw new Error(
-      `TAXONOMY_ERROR: missing ${entity} taxonomy entry for category "${canonicalCategory}".`
-    );
-  }
-
-  const canonicalSection = categoryEntry.section;
-  const sectionInput = normalizeTaxonomyLabel(input.section);
-
-  if (sectionInput) {
-    const matchedSection = findCanonicalLabel([canonicalSection], sectionInput);
-
-    if (!matchedSection) {
-      throw new Error(
-        `TAXONOMY_ERROR: invalid ${entity} section/category combo "${sectionInput}" -> "${canonicalCategory}". Expected section: ${canonicalSection}`
-      );
-    }
-  }
-
-  const allowedSubcategories = Array.isArray(categoryEntry.subcategories)
-    ? categoryEntry.subcategories
-    : [];
-  const defaultSubcategory = normalizeTaxonomyLabel(
-    categoryEntry.defaultSubcategory
-  );
-  const subcategoryInput = normalizeTaxonomyLabel(input.subcategory);
-  const nextSubcategoryInput = subcategoryInput ?? defaultSubcategory;
-
-  if (!nextSubcategoryInput) {
-    return {
-      section: canonicalSection,
-      category: canonicalCategory,
-      subcategory: null
-    };
-  }
-
-  const canonicalSubcategory = findCanonicalLabel(
-    allowedSubcategories,
-    nextSubcategoryInput
-  );
-
-  if (!canonicalSubcategory) {
-    throw new Error(
-      `TAXONOMY_ERROR: invalid ${entity} subcategory/category combo "${nextSubcategoryInput}" -> "${canonicalCategory}". Allowed subcategories: ${allowedSubcategories.join(', ')}`
-    );
-  }
-
-  return {
-    section: canonicalSection,
-    category: canonicalCategory,
-    subcategory: canonicalSubcategory
-  };
+function buildControlSearchText(args: {
+  title: string;
+  taxonomy: ResolvedTaxonomy;
+  description: string;
+  tags: string[];
+}): string {
+  return buildSearchText([
+    args.title,
+    args.taxonomy.section,
+    args.taxonomy.category,
+    args.taxonomy.subcategory ?? '',
+    args.description,
+    ...args.tags
+  ]); // one shared composition shape keeps db seed + fallback parity tight
 }
 
-// ---------- normalize incoming JSON ----------
+function buildFaqSearchText(args: {
+  question: string;
+  taxonomy: ResolvedTaxonomy;
+  answer: string;
+  tags: string[];
+}): string {
+  return buildSearchText([
+    args.question,
+    args.taxonomy.section,
+    args.taxonomy.category,
+    args.taxonomy.subcategory ?? '',
+    args.answer,
+    ...args.tags
+  ]); // one shared composition shape keeps db seed + fallback parity tight
+}
 
-// normalizeControlsJson()  -->  accepts either:
-//   A) { controls: [...] }  (our normalized local file shape)
-//   B) the old GraphQL dump: { data: { allTrustControls: { edges: [{ node: {...} }] } } }
 function normalizeControlsJson(
   input: any,
   taxonomy: TaxonomyManifest
 ): SeedControlRow[] {
   const seedUser = 'seed'; // created_by / updated_by for seed pipeline
 
-  // case A: normalized local file
-  const listA = Array.isArray(input?.controls) ? input.controls : null;
-
-  // case B: graphql dump
+  const listA = Array.isArray(input?.controls) ? input.controls : null; // case A: normalized local file
   const listB = Array.isArray(input?.data?.allTrustControls?.edges)
-    ? input.data.allTrustControls.edges.map((e: any) => e?.node).filter(Boolean)
-    : null;
+    ? input.data.allTrustControls.edges
+        .map((edge: any) => edge?.node)
+        .filter(Boolean)
+    : null; // case B: old GraphQL dump shape
 
   const items = (listA ?? listB ?? []) as any[];
 
   const rows: SeedControlRow[] = items.map(item => {
-    // required-ish fields (we accept both naming styles)
-    const title = normalizeWhitespace(String(item.title ?? item.short ?? ''));
+    const title = normalizeWhitespace(String(item.title ?? item.short ?? '')); // accept both normalized + legacy title fields
     const description = normalizeWhitespace(
       String(item.description ?? item.long ?? '')
-    );
+    ); // accept both normalized + legacy description fields
     const taxonomyFields = resolveTaxonomy(taxonomy, 'controls', {
       section: item.section,
       category: item.category,
       subcategory: item.subcategory
-    });
+    }); // shared taxonomy resolver freezes the final taxonomy shape in one place
 
-    // stable key preference order:
-    //   1) explicit control_key from normalized file
-    //   2) derived from category + title (deterministic)
-    const rawKey = String(item.control_key ?? '').trim();
-    const derivedKey = stableKeyFromText(`${taxonomyFields.category} ${title}`);
+    const rawKey = String(item.control_key ?? '').trim(); // preserve explicit natural keys whenever the seed file already provides them
+    const derivedKey = stableKeyFromText(`${taxonomyFields.category} ${title}`); // deterministic fallback for legacy/derived rows
     const control_key = normalizeWhitespace(
       rawKey.length > 0 ? rawKey : derivedKey
     );
 
     const tagsArr = normalizeTags(item.tags);
     const tags = tagsArr.length > 0 ? tagsArr : null;
-
     const source_url = item.source_url ? String(item.source_url) : null;
-
-    // search_text  -->  taxonomy-aware now so current read/search gains context immediately
-    const search_text = buildSearchText([
+    const search_text = buildControlSearchText({
       title,
-      taxonomyFields.section,
-      taxonomyFields.category,
-      taxonomyFields.subcategory ?? '',
+      taxonomy: taxonomyFields,
       description,
-      ...(tagsArr.length > 0 ? tagsArr : [])
-    ]);
+      tags: tagsArr
+    });
 
     return {
       control_key,
@@ -372,25 +209,22 @@ function normalizeControlsJson(
     };
   });
 
-  // deterministic ordering  -->  stable upsert + stable metrics
-  rows.sort((a, b) => a.control_key.localeCompare(b.control_key));
+  rows.sort((a, b) => a.control_key.localeCompare(b.control_key)); // deterministic ordering keeps payload hashing + metrics stable
   return rows;
 }
 
-// normalizeFaqsJson()  -->  accepts either:
-//   A) { faqs: [...] }  (our normalized local file shape)
-//   B) the old GraphQL dump: { data: { allTrustFaqs: { edges: [{ node: {...} }] } } }
 function normalizeFaqsJson(
   input: any,
   taxonomy: TaxonomyManifest
 ): SeedFaqRow[] {
   const seedUser = 'seed';
 
-  const listA = Array.isArray(input?.faqs) ? input.faqs : null;
-
+  const listA = Array.isArray(input?.faqs) ? input.faqs : null; // case A: normalized local file
   const listB = Array.isArray(input?.data?.allTrustFaqs?.edges)
-    ? input.data.allTrustFaqs.edges.map((e: any) => e?.node).filter(Boolean)
-    : null;
+    ? input.data.allTrustFaqs.edges
+        .map((edge: any) => edge?.node)
+        .filter(Boolean)
+    : null; // case B: old GraphQL dump shape
 
   const items = (listA ?? listB ?? []) as any[];
 
@@ -411,15 +245,12 @@ function normalizeFaqsJson(
 
     const tagsArr = normalizeTags(item.tags);
     const tags = tagsArr.length > 0 ? tagsArr : null;
-
-    const search_text = buildSearchText([
+    const search_text = buildFaqSearchText({
       question,
-      taxonomyFields.section,
-      taxonomyFields.category,
-      taxonomyFields.subcategory ?? '',
+      taxonomy: taxonomyFields,
       answer,
-      ...(tagsArr.length > 0 ? tagsArr : [])
-    ]);
+      tags: tagsArr
+    });
 
     return {
       faq_key,
@@ -435,29 +266,65 @@ function normalizeFaqsJson(
     };
   });
 
-  rows.sort((a, b) => a.faq_key.localeCompare(b.faq_key));
+  rows.sort((a, b) => a.faq_key.localeCompare(b.faq_key)); // deterministic ordering keeps payload hashing + metrics stable
   return rows;
 }
 
-// ---------- upsert seed (idempotent) ----------
+// ---------- batched upsert seed (idempotent) ----------
+
+type SeedWriteMetrics = {
+  inserted: number;
+  updated: number;
+  skipped: number;
+};
 
 export async function seedControls(
   rows: SeedControlRow[]
-): Promise<{ inserted: number; updated: number; skipped: number }> {
+): Promise<SeedWriteMetrics> {
+  if (rows.length === 0) {
+    return { inserted: 0, updated: 0, skipped: 0 }; // avoid hitting the db when the normalized controls payload is empty
+  }
+
   const pool = getDbPool();
   const client = await pool.connect();
 
-  let inserted = 0;
-  let updated = 0;
-  let skipped = 0;
-
   try {
-    // keep the whole seed deterministic  -->  one transaction for controls
-    await client.query('begin');
+    await client.query('begin'); // keep the whole controls seed deterministic within one transaction
 
-    for (const row of rows) {
-      const res = await client.query<{ inserted: boolean }>(
-        `
+    const res = await client.query<{
+      inserted: string | number;
+      updated: string | number;
+      skipped: string | number;
+    }>(
+      `
+      with input_rows as (
+        select
+          control_key,
+          title,
+          description,
+          section,
+          category,
+          subcategory,
+          source_url,
+          tags,
+          created_by,
+          updated_by,
+          search_text
+        from jsonb_to_recordset($1::jsonb) as rows(
+          control_key text,
+          title text,
+          description text,
+          section text,
+          category text,
+          subcategory text,
+          source_url text,
+          tags text[],
+          created_by text,
+          updated_by text,
+          search_text text
+        )
+      ),
+      upserted as (
         insert into public.controls (
           control_key,
           title,
@@ -471,7 +338,19 @@ export async function seedControls(
           updated_by,
           search_text
         )
-        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        select
+          control_key,
+          title,
+          description,
+          section,
+          category,
+          subcategory,
+          source_url,
+          tags,
+          created_by,
+          updated_by,
+          search_text
+        from input_rows
         on conflict (lower(control_key)) do update
         set
           title = excluded.title,
@@ -493,36 +372,25 @@ export async function seedControls(
           or public.controls.source_url is distinct from excluded.source_url
           or public.controls.tags is distinct from excluded.tags
           or public.controls.search_text is distinct from excluded.search_text
-        returning (xmax = 0) as inserted;
-        `,
-        [
-          row.control_key,
-          row.title,
-          row.description,
-          row.section,
-          row.category,
-          row.subcategory,
-          row.source_url,
-          row.tags,
-          row.created_by,
-          row.updated_by,
-          row.search_text
-        ]
-      );
-
-      // rowCount 0  -->  conflict happened but WHERE was false (unchanged row)
-      if (res.rowCount === 0) {
-        skipped += 1;
-        continue;
-      }
-
-      // inserted flag tells us insert vs update for deterministic metrics
-      if (res.rows[0]?.inserted) inserted += 1;
-      else updated += 1;
-    }
+        returning (xmax = 0) as inserted
+      )
+      select
+        coalesce(count(*) filter (where inserted), 0)::int as inserted,
+        coalesce(count(*) filter (where not inserted), 0)::int as updated,
+        greatest((select count(*) from input_rows) - count(*), 0)::int as skipped
+      from upserted;
+      `,
+      [JSON.stringify(rows)]
+    );
 
     await client.query('commit');
-    return { inserted, updated, skipped };
+
+    const metrics = res.rows[0];
+    return {
+      inserted: Number(metrics?.inserted ?? 0),
+      updated: Number(metrics?.updated ?? 0),
+      skipped: Number(metrics?.skipped ?? 0)
+    };
   } catch (error) {
     await client.query('rollback');
     throw error;
@@ -531,22 +399,49 @@ export async function seedControls(
   }
 }
 
-export async function seedFaqs(
-  rows: SeedFaqRow[]
-): Promise<{ inserted: number; updated: number; skipped: number }> {
+export async function seedFaqs(rows: SeedFaqRow[]): Promise<SeedWriteMetrics> {
+  if (rows.length === 0) {
+    return { inserted: 0, updated: 0, skipped: 0 }; // avoid hitting the db when the normalized faqs payload is empty
+  }
+
   const pool = getDbPool();
   const client = await pool.connect();
 
-  let inserted = 0;
-  let updated = 0;
-  let skipped = 0;
-
   try {
-    await client.query('begin');
+    await client.query('begin'); // keep the whole faqs seed deterministic within one transaction
 
-    for (const row of rows) {
-      const res = await client.query<{ inserted: boolean }>(
-        `
+    const res = await client.query<{
+      inserted: string | number;
+      updated: string | number;
+      skipped: string | number;
+    }>(
+      `
+      with input_rows as (
+        select
+          faq_key,
+          question,
+          answer,
+          section,
+          category,
+          subcategory,
+          tags,
+          created_by,
+          updated_by,
+          search_text
+        from jsonb_to_recordset($1::jsonb) as rows(
+          faq_key text,
+          question text,
+          answer text,
+          section text,
+          category text,
+          subcategory text,
+          tags text[],
+          created_by text,
+          updated_by text,
+          search_text text
+        )
+      ),
+      upserted as (
         insert into public.faqs (
           faq_key,
           question,
@@ -559,7 +454,18 @@ export async function seedFaqs(
           updated_by,
           search_text
         )
-        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        select
+          faq_key,
+          question,
+          answer,
+          section,
+          category,
+          subcategory,
+          tags,
+          created_by,
+          updated_by,
+          search_text
+        from input_rows
         on conflict (lower(faq_key)) do update
         set
           question = excluded.question,
@@ -579,33 +485,25 @@ export async function seedFaqs(
           or public.faqs.subcategory is distinct from excluded.subcategory
           or public.faqs.tags is distinct from excluded.tags
           or public.faqs.search_text is distinct from excluded.search_text
-        returning (xmax = 0) as inserted;
-        `,
-        [
-          row.faq_key,
-          row.question,
-          row.answer,
-          row.section,
-          row.category,
-          row.subcategory,
-          row.tags,
-          row.created_by,
-          row.updated_by,
-          row.search_text
-        ]
-      );
-
-      if (res.rowCount === 0) {
-        skipped += 1;
-        continue;
-      }
-
-      if (res.rows[0]?.inserted) inserted += 1;
-      else updated += 1;
-    }
+        returning (xmax = 0) as inserted
+      )
+      select
+        coalesce(count(*) filter (where inserted), 0)::int as inserted,
+        coalesce(count(*) filter (where not inserted), 0)::int as updated,
+        greatest((select count(*) from input_rows) - count(*), 0)::int as skipped
+      from upserted;
+      `,
+      [JSON.stringify(rows)]
+    );
 
     await client.query('commit');
-    return { inserted, updated, skipped };
+
+    const metrics = res.rows[0];
+    return {
+      inserted: Number(metrics?.inserted ?? 0),
+      updated: Number(metrics?.updated ?? 0),
+      skipped: Number(metrics?.skipped ?? 0)
+    };
   } catch (error) {
     await client.query('rollback');
     throw error;
@@ -618,13 +516,10 @@ export async function seedFaqs(
 
 export async function runSeed(): Promise<void> {
   const dataDir = getDataDir();
-
-  // controls json path  -->  single source of truth
-  const controlsPath = path.join(dataDir, 'controls.json');
+  const controlsPath = path.join(dataDir, 'controls.json'); // controls json path  -->  single source of truth
   const faqsPath = path.join(dataDir, 'faqs.json');
   const taxonomyManifest = await readTaxonomyManifest(); // taxonomy must validate before any db work begins
 
-  // load json (error if missing)
   const controlsRaw = await readJsonFile<any>(controlsPath).catch(err => {
     throw new Error(
       `SEED_ERROR: missing controls.json at ${controlsPath}\n${String(err)}`
@@ -637,17 +532,14 @@ export async function runSeed(): Promise<void> {
     );
   });
 
-  // normalize into stable internal row shapes
-  const controlRows = normalizeControlsJson(controlsRaw, taxonomyManifest);
+  const controlRows = normalizeControlsJson(controlsRaw, taxonomyManifest); // normalize into stable internal row shapes
   const faqRows = normalizeFaqsJson(faqsRaw, taxonomyManifest);
 
   await ensureDbSchema(); // schema runs after taxonomy validation so bad labels fail fast
 
-  // upsert in deterministic order  -->  controls then faqs
-  const controlsResult = await seedControls(controlRows);
-  const faqsResult = await seedFaqs(faqRows);
+  const controlsResult = await seedControls(controlRows); // batched deterministic write for controls
+  const faqsResult = await seedFaqs(faqRows); // batched deterministic write for faqs
 
-  // totals after  -->  verification uses these
   const pool = getDbPool();
   const controlsCountRes = await pool.query<{ count: string }>(
     'select count(*)::text as count from public.controls;'
@@ -659,7 +551,6 @@ export async function runSeed(): Promise<void> {
   const totalControlsAfter = Number(controlsCountRes.rows[0]?.count ?? '0');
   const totalFaqsAfter = Number(faqsCountRes.rows[0]?.count ?? '0');
 
-  // required verification keys
   const summary = {
     controlsInserted: controlsResult.inserted,
     controlsUpdated: controlsResult.updated,
@@ -667,14 +558,12 @@ export async function runSeed(): Promise<void> {
     faqsUpdated: faqsResult.updated,
     totalControlsAfter,
     totalFaqsAfter
-  };
+  }; // required verification keys
 
-  // final summary line (deterministic keys)
-  console.log('\n🌱  Seed Summary');
+  console.log('\n🌱  Seed Summary'); // final summary line (deterministic keys)
   console.log(summary);
 
-  // optional  -->  show skipped counts
-  console.log('\n🧾  Seed Details');
+  console.log('\n🧾  Seed Details'); // optional  -->  show skipped counts
   console.log({
     controlsSkipped: controlsResult.skipped,
     faqsSkipped: faqsResult.skipped,
@@ -685,7 +574,6 @@ export async function runSeed(): Promise<void> {
 
 // ---------- script entrypoint (db:seed) ----------
 
-// always close the pool so node exits cleanly
 async function main(): Promise<void> {
   try {
     await runSeed();
@@ -694,13 +582,12 @@ async function main(): Promise<void> {
     console.error('\n❌  Seed Failed:', error);
     process.exitCode = 1;
   } finally {
-    await closeDbPool();
+    await closeDbPool(); // always close the pool so node exits cleanly
   }
 }
 
-// entrypoint guard  -->  tsx server/db/seed.ts should run main()
 const isDirectRun =
   process.argv[1]?.endsWith('server/db/seed.ts') ||
-  process.argv[1]?.endsWith('server\\db\\seed.ts');
+  process.argv[1]?.endsWith('server\\db\\seed.ts'); // entrypoint guard  -->  tsx server/db/seed.ts should run main()
 
 if (isDirectRun) main();
