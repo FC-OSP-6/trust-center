@@ -79,6 +79,21 @@
   /* Surface */
   /* Uses: card backgrounds and other "paper" surfaces */
   --color-surface: #ffffff;
+  /* Uses: explicit white for high emphasis text on inverse backgrounds */
+  --color-white: #ffffff;
+
+  /* Error Inverse */
+  /* Uses: softer error indicator on dark/inverse backgrounds */
+  --color-error-inverse: #f05f6f;
+
+  /* == Dark Palette Raw Values == */
+  /* Used exclusively by tokens-dark.css — not for direct component use */
+  /* Only added because existing light-mode grays cannot produce adequate contrast or surface hierarchy on dark backgrounds */
+  --color-dark-bg: #1a1c2a; /* deepest page background, below navy */
+  --color-dark-surface: #2e3048; /* elevated section and fill surfaces */
+  --color-dark-hover: #363952; /* hover and active state fills */
+  --color-dark-border: #3d4162; /* borders on dark surfaces */
+  --color-dark-info: #5baaff; /* info blue — existing #0055a8 is 2:1 on dark, unusable */
 
   /* == Typography Options == */
   /* this is the only font aon said to use everywhere */
@@ -142,7 +157,7 @@
   /* == Shared Card Tokens == */
   /* reusable card primitives for shadow-dom content containers */
   --card-border-width: 1px;
-  --card-border-color-subtle: var(--color-gray-05);
+  --card-border-color-subtle: var(--tc-border-card);
   --card-radius-md: 12px;
   --card-padding-md: 16px;
   --card-header-gap-sm: 4px;
@@ -180,6 +195,6 @@
   --subnav-row-radius: 8px;
   --subnav-row-pad-y: 10px;
   --subnav-row-pad-x: 12px;
-  --subnav-row-bg-hover: var(--color-gray-08);
-  --subnav-row-bg-active: var(--color-gray-07);
+  --subnav-row-bg-hover: var(--tc-bg-hover);
+  --subnav-row-bg-active: var(--tc-bg-active);
 }

@@ -23,10 +23,10 @@
   justify-content: space-between; /* push cta to the right */
   align-items: center; /* vertically center rows on wider screens */
   gap: 16px; /* space between text and cta */
-  border: 1px solid var(--color-gray-05); /* subtle card border */
+  border: 1px solid var(--tc-border-subtle); /* subtle card border */
   border-radius: 8px; /* rounded corners */
   padding: 20px; /* internal spacing */
-  background-color: var(--color-gray-06); /* muted callout surface */
+  background-color: var(--tc-bg-section); /* muted callout surface */
   margin: 20px 0; /* vertical spacing without forcing side margins */
 }
 
@@ -40,7 +40,7 @@
 
 .blue-card-title {
   margin: 0; /* reset heading default margin */
-  color: var(--color-navy-primary); /* heading color */
+  color: var(--tc-text-primary); /* heading color */
   font-weight: var(--font-weight-bold); /* emphasized heading */
   font-size: var(--font-size-large); /* tokenized size */
   line-height: var(--line-height-large); /* tokenized line height */
@@ -48,7 +48,7 @@
 
 .blue-card-description {
   margin: 0; /* reset paragraph margin */
-  color: var(--color-gray-01); /* muted body text */
+  color: var(--tc-text-primary); /* muted body text */
   font-weight: var(--font-weight-regular); /* normal body weight */
   font-size: var(--font-size-medium); /* tokenized size */
   line-height: var(--line-height-medium); /* tokenized line height */
@@ -65,8 +65,8 @@
   padding: 12px 14px; /* button padding */
   border-radius: 4px; /* rounded button corners */
   border: 1px solid transparent; /* border for focus/hover transitions */
-  background-color: var(--color-teal-dark-secondary); /* primary cta color */
-  color: var(--color-gray-06); /* cta text color */
+  background-color: var(--tc-text-link); /* primary cta color */
+  color: var(--tc-text-inverse); /* cta text color */
   text-decoration: none; /* remove underline */
   font-weight: var(--font-weight-regular); /* readable emphasis */
   font-size: var(--font-size-medium); /* tokenized size */
@@ -75,12 +75,12 @@
 }
 
 .blue-card-button:hover {
-  background-color: var(--color-teal-dark-hover); /* hover state */
+  background-color: var(--tc-text-link-hover); /* hover state */
   text-decoration: none; /* keep button look on hover */
 }
 
 .blue-card-button:focus-visible {
-  outline: 2px solid var(--color-teal-dark-secondary); /* keyboard focus ring */
+  outline: 2px solid var(--tc-border-focus); /* keyboard focus ring */
   outline-offset: 2px; /* separate outline from button edge */
 }
 

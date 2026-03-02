@@ -5,6 +5,8 @@
   - defines connection/pageInfo for pagination
   - exposes debug fields for boot/runtime verification
   - exposes admin-ready cache invalidation mutations
+  - exposes taxonomy metadata without breaking current query args
+  - adds a grouped overview search contract for later frontend consumers
   - keeps future AI/query ideas as comments only until implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -30,7 +32,10 @@ export const typeDefs = /* GraphQL */ `
     controlKey: String!
     title: String!
     description: String!
+    section: String!
     category: String!
+    subcategory: String
+    tags: [String!]!
     sourceUrl: String
     updatedAt: String!
   }
@@ -40,7 +45,10 @@ export const typeDefs = /* GraphQL */ `
     faqKey: String!
     question: String!
     answer: String!
+    section: String!
     category: String!
+    subcategory: String
+    tags: [String!]!
     updatedAt: String!
   }
 
@@ -65,6 +73,13 @@ export const typeDefs = /* GraphQL */ `
   type FaqConnection {
     edges: [FaqEdge!]!
     pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
+  type OverviewSearchResult {
+    search: String!
+    controls: ControlConnection!
+    faqs: FaqConnection!
     totalCount: Int!
   }
 
@@ -98,6 +113,12 @@ export const typeDefs = /* GraphQL */ `
       category: String
       search: String
     ): FaqConnection!
+
+    # grouped overview search  -->  small backend contract for the overview page
+    overviewSearch(
+      search: String!
+      firstPerKind: Int = 5
+    ): OverviewSearchResult!
   }
 
   # ----------  root mutation  ----------

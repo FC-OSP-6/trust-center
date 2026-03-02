@@ -1,145 +1,1965 @@
 {
   "faqs": [
     {
-      "faq_key": "faq_api_protection_measures",
-      "question": "What API protection measures are implemented for services?",
-      "answer": "API traffic is protected using layered controls including WAF protections, rate limiting, authentication, authorization, and monitoring aligned to common web threat models (e.g., OWASP Top 10).",
+      "faq_key": "access_control_authentication_how_managed",
+      "question": "How does CyQu manage authentication within access control?",
+      "answer": "CyQu manages authentication through documented controls, assigned ownership, and recurring review processes that align with its identity & access program.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authentication",
+      "tags": [
+        "access",
+        "authentication",
+        "control",
+        "identity",
+        "ownership",
+        "process",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "access_control_authentication_what_evidence",
+      "question": "What evidence supports authentication practices in access control?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how authentication practices support access control assurance objectives.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authentication",
+      "tags": [
+        "access",
+        "assurance",
+        "authentication",
+        "control",
+        "evidence",
+        "identity",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "access_control_authorization_how_managed",
+      "question": "How does CyQu manage authorization within access control?",
+      "answer": "CyQu manages authorization through documented controls, assigned ownership, and recurring review processes that align with its identity & access program.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authorization",
+      "tags": [
+        "access",
+        "authorization",
+        "control",
+        "identity",
+        "ownership",
+        "process",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "access_control_authorization_what_evidence",
+      "question": "What evidence supports authorization practices in access control?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how authorization practices support access control assurance objectives.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authorization",
+      "tags": [
+        "access",
+        "assurance",
+        "authorization",
+        "control",
+        "evidence",
+        "identity",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "access_control_general_how_managed",
+      "question": "How does CyQu manage general within access control?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its identity & access program.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": [
+        "access",
+        "control",
+        "general",
+        "identity",
+        "ownership",
+        "process",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "access_control_general_what_evidence",
+      "question": "What evidence supports general practices in access control?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support access control assurance objectives.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": [
+        "access",
+        "assurance",
+        "control",
+        "evidence",
+        "general",
+        "identity",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "access_control_privileged_access_how_managed",
+      "question": "How does CyQu manage privileged access within access control?",
+      "answer": "CyQu manages privileged access through documented controls, assigned ownership, and recurring review processes that align with its identity & access program.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Privileged Access",
+      "tags": [
+        "access",
+        "control",
+        "identity",
+        "ownership",
+        "privileged",
+        "process",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "access_control_privileged_access_what_evidence",
+      "question": "What evidence supports privileged access practices in access control?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how privileged access practices support access control assurance objectives.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Privileged Access",
+      "tags": [
+        "access",
+        "assurance",
+        "control",
+        "evidence",
+        "identity",
+        "privileged",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "api_security_abuse_protection_how_managed",
+      "question": "How does CyQu manage abuse protection within api security?",
+      "answer": "CyQu manages abuse protection through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
       "category": "API Security",
-      "tags": ["api", "waf", "rate-limiting", "owasp"]
+      "subcategory": "Abuse Protection",
+      "tags": [
+        "abuse",
+        "api",
+        "application",
+        "engineering",
+        "ownership",
+        "process",
+        "protection",
+        "review",
+        "security"
+      ]
     },
     {
-      "faq_key": "faq_tenant_segregation",
-      "question": "How are tenants segregated in third-party infrastructure?",
-      "answer": "Tenants are isolated using access control boundaries and environment segmentation patterns that prevent cross-tenant access and support regional hosting requirements where applicable.",
+      "faq_key": "api_security_abuse_protection_what_evidence",
+      "question": "What evidence supports abuse protection practices in api security?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how abuse protection practices support api security assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "Abuse Protection",
+      "tags": [
+        "abuse",
+        "api",
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "protection",
+        "records",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "api_security_general_how_managed",
+      "question": "How does CyQu manage general within api security?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "General",
+      "tags": [
+        "api",
+        "application",
+        "engineering",
+        "general",
+        "ownership",
+        "process",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "api_security_general_how_reviewed",
+      "question": "How is general reviewed over time?",
+      "answer": "CyQu reviews general through periodic checks, operational review cadences, and issue follow-up processes appropriate to the surrounding engineering & application security function.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "General",
+      "tags": [
+        "api",
+        "application",
+        "cadence",
+        "engineering",
+        "follow-up",
+        "general",
+        "periodic-review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "api_security_general_what_evidence",
+      "question": "What evidence supports general practices in api security?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support api security assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "General",
+      "tags": [
+        "api",
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "general",
+        "records",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "api_security_service_exposure_how_managed",
+      "question": "How does CyQu manage service exposure within api security?",
+      "answer": "CyQu manages service exposure through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "Service Exposure",
+      "tags": [
+        "api",
+        "application",
+        "engineering",
+        "exposure",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "service"
+      ]
+    },
+    {
+      "faq_key": "api_security_service_exposure_what_evidence",
+      "question": "What evidence supports service exposure practices in api security?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how service exposure practices support api security assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "Service Exposure",
+      "tags": [
+        "api",
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "exposure",
+        "records",
+        "security",
+        "service"
+      ]
+    },
+    {
+      "faq_key": "api_security_transport_security_how_managed",
+      "question": "How does CyQu manage transport security within api security?",
+      "answer": "CyQu manages transport security through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "Transport Security",
+      "tags": [
+        "api",
+        "application",
+        "engineering",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "transport"
+      ]
+    },
+    {
+      "faq_key": "api_security_transport_security_what_evidence",
+      "question": "What evidence supports transport security practices in api security?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how transport security practices support api security assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "Transport Security",
+      "tags": [
+        "api",
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "records",
+        "security",
+        "transport"
+      ]
+    },
+    {
+      "faq_key": "architecture_deployment_model_how_managed",
+      "question": "How does CyQu manage deployment model within architecture?",
+      "answer": "CyQu manages deployment model through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
       "category": "Architecture",
-      "tags": ["tenancy", "segregation", "isolation"]
+      "subcategory": "Deployment Model",
+      "tags": [
+        "architecture",
+        "deployment",
+        "infrastructure",
+        "model",
+        "ownership",
+        "platform",
+        "process",
+        "review"
+      ]
     },
     {
-      "faq_key": "faq_security_incidents_history",
-      "question": "Have there been any serious security incidents involving the hosting environment?",
-      "answer": "No major security incidents have been reported that materially impacted the hosted application environment for this product.",
-      "category": "Incident Response",
-      "tags": ["incidents", "reporting"]
+      "faq_key": "architecture_deployment_model_what_evidence",
+      "question": "What evidence supports deployment model practices in architecture?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how deployment model practices support architecture assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "Deployment Model",
+      "tags": [
+        "architecture",
+        "assurance",
+        "deployment",
+        "evidence",
+        "infrastructure",
+        "model",
+        "platform",
+        "records"
+      ]
     },
     {
-      "faq_key": "faq_cookies_usage",
-      "question": "Does the software require cookies?",
-      "answer": "Cookies are limited to those required for application functionality (e.g., authentication/session) and operational monitoring. Tracking cookies are not used for advertising purposes.",
-      "category": "Privacy",
-      "tags": ["cookies", "privacy", "auth"]
+      "faq_key": "architecture_general_how_managed",
+      "question": "How does CyQu manage general within architecture?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "General",
+      "tags": [
+        "architecture",
+        "general",
+        "infrastructure",
+        "ownership",
+        "platform",
+        "process",
+        "review"
+      ]
     },
     {
-      "faq_key": "faq_security_monitoring_soc",
-      "question": "What security monitoring capabilities exist (e.g., SOC coverage)?",
-      "answer": "Security logs and alerts are monitored to support detection and incident response, with defined procedures for triage and escalation.",
-      "category": "Monitoring",
-      "tags": ["monitoring", "logging", "soc"]
+      "faq_key": "architecture_general_how_reviewed",
+      "question": "How is general reviewed over time?",
+      "answer": "CyQu reviews general through periodic checks, operational review cadences, and issue follow-up processes appropriate to the surrounding infrastructure & platform function.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "General",
+      "tags": [
+        "architecture",
+        "cadence",
+        "follow-up",
+        "general",
+        "infrastructure",
+        "periodic-review",
+        "platform"
+      ]
     },
-
     {
-      "faq_key": "faq_data_hosting_location",
-      "question": "Where is customer data hosted?",
-      "answer": "Customer data is hosted in cloud infrastructure, with region selection and residency considerations applied based on contractual and operational requirements.",
+      "faq_key": "architecture_general_what_evidence",
+      "question": "What evidence supports general practices in architecture?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support architecture assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "General",
+      "tags": [
+        "architecture",
+        "assurance",
+        "evidence",
+        "general",
+        "infrastructure",
+        "platform",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "architecture_regional_design_how_managed",
+      "question": "How does CyQu manage regional design within architecture?",
+      "answer": "CyQu manages regional design through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "Regional Design",
+      "tags": [
+        "architecture",
+        "design",
+        "infrastructure",
+        "ownership",
+        "platform",
+        "process",
+        "regional",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "architecture_regional_design_what_evidence",
+      "question": "What evidence supports regional design practices in architecture?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how regional design practices support architecture assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "Regional Design",
+      "tags": [
+        "architecture",
+        "assurance",
+        "design",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "records",
+        "regional"
+      ]
+    },
+    {
+      "faq_key": "architecture_tenant_isolation_how_managed",
+      "question": "How does CyQu manage tenant isolation within architecture?",
+      "answer": "CyQu manages tenant isolation through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "Tenant Isolation",
+      "tags": [
+        "architecture",
+        "infrastructure",
+        "isolation",
+        "ownership",
+        "platform",
+        "process",
+        "review",
+        "tenant"
+      ]
+    },
+    {
+      "faq_key": "architecture_tenant_isolation_what_evidence",
+      "question": "What evidence supports tenant isolation practices in architecture?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how tenant isolation practices support architecture assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "Tenant Isolation",
+      "tags": [
+        "architecture",
+        "assurance",
+        "evidence",
+        "infrastructure",
+        "isolation",
+        "platform",
+        "records",
+        "tenant"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_backup_recovery_how_managed",
+      "question": "How does CyQu manage backup & recovery within availability & resilience?",
+      "answer": "CyQu manages backup & recovery through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Backup & Recovery",
+      "tags": [
+        "availability",
+        "backup",
+        "infrastructure",
+        "ownership",
+        "platform",
+        "process",
+        "recovery",
+        "resilience",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_backup_recovery_what_evidence",
+      "question": "What evidence supports backup & recovery practices in availability & resilience?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how backup & recovery practices support availability & resilience assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Backup & Recovery",
+      "tags": [
+        "assurance",
+        "availability",
+        "backup",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "records",
+        "recovery",
+        "resilience"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_business_continuity_how_managed",
+      "question": "How does CyQu manage business continuity within availability & resilience?",
+      "answer": "CyQu manages business continuity through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Business Continuity",
+      "tags": [
+        "availability",
+        "business",
+        "continuity",
+        "infrastructure",
+        "ownership",
+        "platform",
+        "process",
+        "resilience",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_business_continuity_what_evidence",
+      "question": "What evidence supports business continuity practices in availability & resilience?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how business continuity practices support availability & resilience assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Business Continuity",
+      "tags": [
+        "assurance",
+        "availability",
+        "business",
+        "continuity",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "records",
+        "resilience"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_disaster_recovery_how_managed",
+      "question": "How does CyQu manage disaster recovery within availability & resilience?",
+      "answer": "CyQu manages disaster recovery through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Disaster Recovery",
+      "tags": [
+        "availability",
+        "disaster",
+        "infrastructure",
+        "ownership",
+        "platform",
+        "process",
+        "recovery",
+        "resilience",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_disaster_recovery_what_evidence",
+      "question": "What evidence supports disaster recovery practices in availability & resilience?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how disaster recovery practices support availability & resilience assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Disaster Recovery",
+      "tags": [
+        "assurance",
+        "availability",
+        "disaster",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "records",
+        "recovery",
+        "resilience"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_general_how_managed",
+      "question": "How does CyQu manage general within availability & resilience?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its infrastructure & platform program.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "General",
+      "tags": [
+        "availability",
+        "general",
+        "infrastructure",
+        "ownership",
+        "platform",
+        "process",
+        "resilience",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "availability_resilience_general_what_evidence",
+      "question": "What evidence supports general practices in availability & resilience?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support availability & resilience assurance objectives.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "availability",
+        "evidence",
+        "general",
+        "infrastructure",
+        "platform",
+        "records",
+        "resilience"
+      ]
+    },
+    {
+      "faq_key": "data_data_access_how_managed",
+      "question": "How does CyQu manage data access within data?",
+      "answer": "CyQu manages data access through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
       "category": "Data",
-      "tags": ["hosting", "regions", "residency"]
+      "subcategory": "Data Access",
+      "tags": ["access", "data", "ownership", "process", "protection", "review"]
     },
     {
-      "faq_key": "faq_encryption_in_transit",
-      "question": "How is data encrypted in transit?",
-      "answer": "Transport encryption uses modern TLS configurations to protect data as it moves between clients, services, and dependencies.",
-      "category": "Encryption",
-      "tags": ["tls", "encryption"]
+      "faq_key": "data_data_access_what_evidence",
+      "question": "What evidence supports data access practices in data?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how data access practices support data assurance objectives.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "Data Access",
+      "tags": [
+        "access",
+        "assurance",
+        "data",
+        "evidence",
+        "protection",
+        "records"
+      ]
     },
     {
-      "faq_key": "faq_encryption_at_rest",
-      "question": "How is data encrypted at rest?",
-      "answer": "Stored data is encrypted at rest using industry standard mechanisms provided by managed services or platform controls, depending on the storage layer.",
+      "faq_key": "data_general_how_managed",
+      "question": "How does CyQu manage general within data?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "general",
+        "ownership",
+        "process",
+        "protection",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "data_general_how_reviewed",
+      "question": "How is general reviewed over time?",
+      "answer": "CyQu reviews general through periodic checks, operational review cadences, and issue follow-up processes appropriate to the surrounding data protection function.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "General",
+      "tags": [
+        "cadence",
+        "data",
+        "follow-up",
+        "general",
+        "periodic-review",
+        "protection"
+      ]
+    },
+    {
+      "faq_key": "data_general_what_evidence",
+      "question": "What evidence supports general practices in data?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support data assurance objectives.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "data",
+        "evidence",
+        "general",
+        "protection",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "data_hosting_residency_how_managed",
+      "question": "How does CyQu manage hosting & residency within data?",
+      "answer": "CyQu manages hosting & residency through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "Hosting & Residency",
+      "tags": [
+        "data",
+        "hosting",
+        "ownership",
+        "process",
+        "protection",
+        "residency",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "data_hosting_residency_what_evidence",
+      "question": "What evidence supports hosting & residency practices in data?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how hosting & residency practices support data assurance objectives.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "Hosting & Residency",
+      "tags": [
+        "assurance",
+        "data",
+        "evidence",
+        "hosting",
+        "protection",
+        "records",
+        "residency"
+      ]
+    },
+    {
+      "faq_key": "data_retention_deletion_how_managed",
+      "question": "How does CyQu manage retention & deletion within data?",
+      "answer": "CyQu manages retention & deletion through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "Retention & Deletion",
+      "tags": [
+        "data",
+        "deletion",
+        "ownership",
+        "process",
+        "protection",
+        "retention",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "data_retention_deletion_what_evidence",
+      "question": "What evidence supports retention & deletion practices in data?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how retention & deletion practices support data assurance objectives.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "Retention & Deletion",
+      "tags": [
+        "assurance",
+        "data",
+        "deletion",
+        "evidence",
+        "protection",
+        "records",
+        "retention"
+      ]
+    },
+    {
+      "faq_key": "encryption_at_rest_how_managed",
+      "question": "How does CyQu manage at rest within encryption?",
+      "answer": "CyQu manages at rest through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
       "category": "Encryption",
-      "tags": ["encryption", "storage"]
+      "subcategory": "At Rest",
+      "tags": [
+        "at",
+        "data",
+        "encryption",
+        "ownership",
+        "process",
+        "protection",
+        "rest",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "encryption_at_rest_what_evidence",
+      "question": "What evidence supports at rest practices in encryption?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how at rest practices support encryption assurance objectives.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "At Rest",
+      "tags": [
+        "assurance",
+        "at",
+        "data",
+        "encryption",
+        "evidence",
+        "protection",
+        "records",
+        "rest"
+      ]
+    },
+    {
+      "faq_key": "encryption_general_how_managed",
+      "question": "How does CyQu manage general within encryption?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "encryption",
+        "general",
+        "ownership",
+        "process",
+        "protection",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "encryption_general_what_evidence",
+      "question": "What evidence supports general practices in encryption?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support encryption assurance objectives.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "data",
+        "encryption",
+        "evidence",
+        "general",
+        "protection",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "encryption_in_transit_how_managed",
+      "question": "How does CyQu manage in transit within encryption?",
+      "answer": "CyQu manages in transit through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "In Transit",
+      "tags": [
+        "data",
+        "encryption",
+        "in",
+        "ownership",
+        "process",
+        "protection",
+        "review",
+        "transit"
+      ]
+    },
+    {
+      "faq_key": "encryption_in_transit_what_evidence",
+      "question": "What evidence supports in transit practices in encryption?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how in transit practices support encryption assurance objectives.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "In Transit",
+      "tags": [
+        "assurance",
+        "data",
+        "encryption",
+        "evidence",
+        "in",
+        "protection",
+        "records",
+        "transit"
+      ]
+    },
+    {
+      "faq_key": "encryption_key_management_how_managed",
+      "question": "How does CyQu manage key management within encryption?",
+      "answer": "CyQu manages key management through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "Key Management",
+      "tags": [
+        "data",
+        "encryption",
+        "key",
+        "management",
+        "ownership",
+        "process",
+        "protection",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "encryption_key_management_what_evidence",
+      "question": "What evidence supports key management practices in encryption?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how key management practices support encryption assurance objectives.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "Key Management",
+      "tags": [
+        "assurance",
+        "data",
+        "encryption",
+        "evidence",
+        "key",
+        "management",
+        "protection",
+        "records"
+      ]
     },
     {
       "faq_key": "faq_access_control_model",
       "question": "What access control model is used?",
       "answer": "Access is granted based on role and least privilege principles, with review processes to ensure access remains appropriate over time.",
+      "section": "Identity & Access",
       "category": "Access Control",
-      "tags": ["rbac", "least-privilege", "iam"]
+      "subcategory": "General",
+      "tags": ["iam", "least-privilege", "rbac"]
     },
     {
-      "faq_key": "faq_mfa_requirement",
-      "question": "Is multi-factor authentication (MFA) required?",
-      "answer": "MFA is required for privileged accounts and is strongly encouraged or enforced for high-risk actions depending on environment and policy.",
-      "category": "Access Control",
-      "tags": ["mfa", "authentication"]
-    },
-    {
-      "faq_key": "faq_vulnerability_scanning",
-      "question": "Do you perform vulnerability scanning?",
-      "answer": "Automated scanning is used to identify vulnerabilities during development and prior to release, with remediation workflows for identified issues.",
-      "category": "Secure Development",
-      "tags": ["sast", "scanning", "vuln-management"]
-    },
-    {
-      "faq_key": "faq_code_review_policy",
-      "question": "Are code reviews required?",
-      "answer": "Yes. Code changes go through peer review to improve quality and reduce security and reliability risks.",
-      "category": "Secure Development",
-      "tags": ["code-review", "quality"]
-    },
-    {
-      "faq_key": "faq_pentest_frequency",
-      "question": "How often do you conduct penetration tests?",
-      "answer": "Penetration testing is performed periodically, including external assessments where appropriate, and findings are tracked through remediation.",
-      "category": "Testing",
-      "tags": ["pentest", "assurance"]
+      "faq_key": "faq_api_protection_measures",
+      "question": "What API protection measures are implemented for services?",
+      "answer": "API traffic is protected using layered controls including WAF protections, rate limiting, authentication, authorization, and monitoring aligned to common web threat models (e.g., OWASP Top 10).",
+      "section": "Engineering & Application Security",
+      "category": "API Security",
+      "subcategory": "General",
+      "tags": ["api", "owasp", "rate-limiting", "waf"]
     },
     {
       "faq_key": "faq_backup_restore_testing",
       "question": "Do you test backups and restores?",
       "answer": "Backups are performed and restore procedures are tested to validate recoverability and support continuity objectives.",
+      "section": "Infrastructure & Platform",
       "category": "Availability & Resilience",
-      "tags": ["backups", "restore", "dr"]
+      "subcategory": "General",
+      "tags": ["backups", "dr", "restore"]
     },
     {
-      "faq_key": "faq_logging_retention",
-      "question": "How long are logs retained?",
-      "answer": "Log retention varies by system and compliance requirements. Retention periods are defined to balance operational needs and governance requirements.",
-      "category": "Monitoring",
-      "tags": ["logging", "retention"]
+      "faq_key": "faq_code_review_policy",
+      "question": "Are code reviews required?",
+      "answer": "Yes. Code changes go through peer review to improve quality and reduce security and reliability risks.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["code-review", "quality"]
     },
     {
-      "faq_key": "faq_data_retention_policy",
-      "question": "What is your data retention policy?",
-      "answer": "Data is retained only as long as needed for legitimate business purposes and contractual obligations, with deletion workflows where applicable.",
+      "faq_key": "faq_cookies_usage",
+      "question": "Does the software require cookies?",
+      "answer": "Cookies are limited to those required for application functionality (e.g., authentication/session) and operational monitoring. Tracking cookies are not used for advertising purposes.",
+      "section": "Data Protection",
       "category": "Privacy",
-      "tags": ["retention", "deletion", "privacy"]
+      "subcategory": "General",
+      "tags": ["auth", "cookies", "privacy"]
     },
     {
       "faq_key": "faq_customer_data_deletion",
       "question": "Can customers request deletion of their data?",
       "answer": "Yes. Requests are handled through documented workflows aligned to contractual requirements and applicable privacy obligations.",
+      "section": "Data Protection",
       "category": "Privacy",
+      "subcategory": "General",
       "tags": ["deletion", "privacy", "requests"]
     },
     {
-      "faq_key": "faq_uptime_expectations",
-      "question": "What are the uptime expectations for the service?",
-      "answer": "Availability targets depend on the hosting tier and deployment configuration; monitoring and incident response processes support availability goals.",
-      "category": "Availability & Resilience",
-      "tags": ["uptime", "availability"]
+      "faq_key": "faq_data_hosting_location",
+      "question": "Where is customer data hosted?",
+      "answer": "Customer data is hosted in cloud infrastructure, with region selection and residency considerations applied based on contractual and operational requirements.",
+      "section": "Data Protection",
+      "category": "Data",
+      "subcategory": "General",
+      "tags": ["hosting", "regions", "residency"]
+    },
+    {
+      "faq_key": "faq_data_retention_policy",
+      "question": "What is your data retention policy?",
+      "answer": "Data is retained only as long as needed for legitimate business purposes and contractual obligations, with deletion workflows where applicable.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": ["deletion", "privacy", "retention"]
+    },
+    {
+      "faq_key": "faq_encryption_at_rest",
+      "question": "How is data encrypted at rest?",
+      "answer": "Stored data is encrypted at rest using industry standard mechanisms provided by managed services or platform controls, depending on the storage layer.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "General",
+      "tags": ["encryption", "storage"]
+    },
+    {
+      "faq_key": "faq_encryption_in_transit",
+      "question": "How is data encrypted in transit?",
+      "answer": "Transport encryption uses modern TLS configurations to protect data as it moves between clients, services, and dependencies.",
+      "section": "Data Protection",
+      "category": "Encryption",
+      "subcategory": "General",
+      "tags": ["encryption", "tls"]
+    },
+    {
+      "faq_key": "faq_logging_retention",
+      "question": "How long are logs retained?",
+      "answer": "Log retention varies by system and compliance requirements. Retention periods are defined to balance operational needs and governance requirements.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "General",
+      "tags": ["logging", "retention"]
+    },
+    {
+      "faq_key": "faq_mfa_requirement",
+      "question": "Is multi-factor authentication (MFA) required?",
+      "answer": "MFA is required for privileged accounts and is strongly encouraged or enforced for high-risk actions depending on environment and policy.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": ["authentication", "mfa"]
+    },
+    {
+      "faq_key": "faq_pentest_frequency",
+      "question": "How often do you conduct penetration tests?",
+      "answer": "Penetration testing is performed periodically, including external assessments where appropriate, and findings are tracked through remediation.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "General",
+      "tags": ["assurance", "pentest"]
+    },
+    {
+      "faq_key": "faq_security_incidents_history",
+      "question": "Have there been any serious security incidents involving the hosting environment?",
+      "answer": "No major security incidents have been reported that materially impacted the hosted application environment for this product.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "General",
+      "tags": ["incidents", "reporting"]
+    },
+    {
+      "faq_key": "faq_security_monitoring_soc",
+      "question": "What security monitoring capabilities exist (e.g., SOC coverage)?",
+      "answer": "Security logs and alerts are monitored to support detection and incident response, with defined procedures for triage and escalation.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "General",
+      "tags": ["logging", "monitoring", "soc"]
     },
     {
       "faq_key": "faq_support_incident_escalation",
       "question": "How are incidents escalated?",
       "answer": "Incidents follow defined triage and escalation steps, including roles, severity definitions, communication patterns, and post-incident review.",
+      "section": "Security Operations",
       "category": "Incident Response",
-      "tags": ["irp", "escalation", "process"]
+      "subcategory": "General",
+      "tags": ["escalation", "irp", "process"]
+    },
+    {
+      "faq_key": "faq_tenant_segregation",
+      "question": "How are tenants segregated in third-party infrastructure?",
+      "answer": "Tenants are isolated using access control boundaries and environment segmentation patterns that prevent cross-tenant access and support regional hosting requirements where applicable.",
+      "section": "Infrastructure & Platform",
+      "category": "Architecture",
+      "subcategory": "General",
+      "tags": ["isolation", "segregation", "tenancy"]
+    },
+    {
+      "faq_key": "faq_uptime_expectations",
+      "question": "What are the uptime expectations for the service?",
+      "answer": "Availability targets depend on the hosting tier and deployment configuration; monitoring and incident response processes support availability goals.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "General",
+      "tags": ["availability", "uptime"]
     },
     {
       "faq_key": "faq_vendor_security_review",
       "question": "Do you review vendor security before onboarding third parties?",
       "answer": "Yes. Vendors are evaluated for security posture and contractual requirements prior to integration, with periodic reassessment for higher-risk vendors.",
+      "section": "Governance & Assurance",
       "category": "Vendor Management",
-      "tags": ["vendors", "due-diligence"]
+      "subcategory": "General",
+      "tags": ["due-diligence", "vendors"]
+    },
+    {
+      "faq_key": "faq_vulnerability_scanning",
+      "question": "Do you perform vulnerability scanning?",
+      "answer": "Automated scanning is used to identify vulnerabilities during development and prior to release, with remediation workflows for identified issues.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["sast", "scanning", "vuln-management"]
+    },
+    {
+      "faq_key": "incident_response_detection_escalation_how_managed",
+      "question": "How does CyQu manage detection & escalation within incident response?",
+      "answer": "CyQu manages detection & escalation through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "Detection & Escalation",
+      "tags": [
+        "detection",
+        "escalation",
+        "incident",
+        "operations",
+        "ownership",
+        "process",
+        "response",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_detection_escalation_what_evidence",
+      "question": "What evidence supports detection & escalation practices in incident response?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how detection & escalation practices support incident response assurance objectives.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "Detection & Escalation",
+      "tags": [
+        "assurance",
+        "detection",
+        "escalation",
+        "evidence",
+        "incident",
+        "operations",
+        "records",
+        "response",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_general_how_managed",
+      "question": "How does CyQu manage general within incident response?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "General",
+      "tags": [
+        "general",
+        "incident",
+        "operations",
+        "ownership",
+        "process",
+        "response",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_general_what_evidence",
+      "question": "What evidence supports general practices in incident response?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support incident response assurance objectives.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "evidence",
+        "general",
+        "incident",
+        "operations",
+        "records",
+        "response",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_post_incident_review_how_managed",
+      "question": "How does CyQu manage post-incident review within incident response?",
+      "answer": "CyQu manages post-incident review through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "Post-Incident Review",
+      "tags": [
+        "incident",
+        "operations",
+        "ownership",
+        "post",
+        "process",
+        "response",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_post_incident_review_what_evidence",
+      "question": "What evidence supports post-incident review practices in incident response?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how post-incident review practices support incident response assurance objectives.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "Post-Incident Review",
+      "tags": [
+        "assurance",
+        "evidence",
+        "incident",
+        "operations",
+        "post",
+        "records",
+        "response",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_response_process_how_managed",
+      "question": "How does CyQu manage response process within incident response?",
+      "answer": "CyQu manages response process through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "Response Process",
+      "tags": [
+        "incident",
+        "operations",
+        "ownership",
+        "process",
+        "response",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "incident_response_response_process_what_evidence",
+      "question": "What evidence supports response process practices in incident response?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how response process practices support incident response assurance objectives.",
+      "section": "Security Operations",
+      "category": "Incident Response",
+      "subcategory": "Response Process",
+      "tags": [
+        "assurance",
+        "evidence",
+        "incident",
+        "operations",
+        "process",
+        "records",
+        "response",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "monitoring_audit_trails_how_managed",
+      "question": "How does CyQu manage audit trails within monitoring?",
+      "answer": "CyQu manages audit trails through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "Audit Trails",
+      "tags": [
+        "audit",
+        "monitoring",
+        "operations",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "trails"
+      ]
+    },
+    {
+      "faq_key": "monitoring_audit_trails_what_evidence",
+      "question": "What evidence supports audit trails practices in monitoring?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how audit trails practices support monitoring assurance objectives.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "Audit Trails",
+      "tags": [
+        "assurance",
+        "audit",
+        "evidence",
+        "monitoring",
+        "operations",
+        "records",
+        "security",
+        "trails"
+      ]
+    },
+    {
+      "faq_key": "monitoring_general_how_managed",
+      "question": "How does CyQu manage general within monitoring?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "General",
+      "tags": [
+        "general",
+        "monitoring",
+        "operations",
+        "ownership",
+        "process",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "monitoring_general_what_evidence",
+      "question": "What evidence supports general practices in monitoring?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support monitoring assurance objectives.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "evidence",
+        "general",
+        "monitoring",
+        "operations",
+        "records",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "monitoring_logging_alerts_how_managed",
+      "question": "How does CyQu manage logging & alerts within monitoring?",
+      "answer": "CyQu manages logging & alerts through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "Logging & Alerts",
+      "tags": [
+        "alerts",
+        "logging",
+        "monitoring",
+        "operations",
+        "ownership",
+        "process",
+        "review",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "monitoring_logging_alerts_what_evidence",
+      "question": "What evidence supports logging & alerts practices in monitoring?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how logging & alerts practices support monitoring assurance objectives.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "Logging & Alerts",
+      "tags": [
+        "alerts",
+        "assurance",
+        "evidence",
+        "logging",
+        "monitoring",
+        "operations",
+        "records",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "monitoring_operational_visibility_how_managed",
+      "question": "How does CyQu manage operational visibility within monitoring?",
+      "answer": "CyQu manages operational visibility through documented controls, assigned ownership, and recurring review processes that align with its security operations program.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "Operational Visibility",
+      "tags": [
+        "monitoring",
+        "operational",
+        "operations",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "visibility"
+      ]
+    },
+    {
+      "faq_key": "monitoring_operational_visibility_what_evidence",
+      "question": "What evidence supports operational visibility practices in monitoring?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how operational visibility practices support monitoring assurance objectives.",
+      "section": "Security Operations",
+      "category": "Monitoring",
+      "subcategory": "Operational Visibility",
+      "tags": [
+        "assurance",
+        "evidence",
+        "monitoring",
+        "operational",
+        "operations",
+        "records",
+        "security",
+        "visibility"
+      ]
+    },
+    {
+      "faq_key": "privacy_cookies_how_managed",
+      "question": "How does CyQu manage cookies within privacy?",
+      "answer": "CyQu manages cookies through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Cookies",
+      "tags": [
+        "cookies",
+        "data",
+        "ownership",
+        "privacy",
+        "process",
+        "protection",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "privacy_cookies_what_evidence",
+      "question": "What evidence supports cookies practices in privacy?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how cookies practices support privacy assurance objectives.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Cookies",
+      "tags": [
+        "assurance",
+        "cookies",
+        "data",
+        "evidence",
+        "privacy",
+        "protection",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "privacy_data_handling_how_managed",
+      "question": "How does CyQu manage data handling within privacy?",
+      "answer": "CyQu manages data handling through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Data Handling",
+      "tags": [
+        "data",
+        "handling",
+        "ownership",
+        "privacy",
+        "process",
+        "protection",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "privacy_data_handling_what_evidence",
+      "question": "What evidence supports data handling practices in privacy?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how data handling practices support privacy assurance objectives.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Data Handling",
+      "tags": [
+        "assurance",
+        "data",
+        "evidence",
+        "handling",
+        "privacy",
+        "protection",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "privacy_general_how_managed",
+      "question": "How does CyQu manage general within privacy?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "general",
+        "ownership",
+        "privacy",
+        "process",
+        "protection",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "privacy_general_what_evidence",
+      "question": "What evidence supports general practices in privacy?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support privacy assurance objectives.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "data",
+        "evidence",
+        "general",
+        "privacy",
+        "protection",
+        "records"
+      ]
+    },
+    {
+      "faq_key": "privacy_privacy_requests_how_managed",
+      "question": "How does CyQu manage privacy requests within privacy?",
+      "answer": "CyQu manages privacy requests through documented controls, assigned ownership, and recurring review processes that align with its data protection program.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Privacy Requests",
+      "tags": [
+        "data",
+        "ownership",
+        "privacy",
+        "process",
+        "protection",
+        "requests",
+        "review"
+      ]
+    },
+    {
+      "faq_key": "secure_development_dependency_security_how_managed",
+      "question": "How does CyQu manage dependency security within secure development?",
+      "answer": "CyQu manages dependency security through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Dependency Security",
+      "tags": [
+        "application",
+        "dependency",
+        "development",
+        "engineering",
+        "ownership",
+        "process",
+        "review",
+        "secure",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "secure_development_dependency_security_what_evidence",
+      "question": "What evidence supports dependency security practices in secure development?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how dependency security practices support secure development assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Dependency Security",
+      "tags": [
+        "application",
+        "assurance",
+        "dependency",
+        "development",
+        "engineering",
+        "evidence",
+        "records",
+        "secure",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "secure_development_general_how_managed",
+      "question": "How does CyQu manage general within secure development?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "development",
+        "engineering",
+        "general",
+        "ownership",
+        "process",
+        "review",
+        "secure",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "secure_development_general_what_evidence",
+      "question": "What evidence supports general practices in secure development?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support secure development assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "assurance",
+        "development",
+        "engineering",
+        "evidence",
+        "general",
+        "records",
+        "secure",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "secure_development_secure_sdlc_how_managed",
+      "question": "How does CyQu manage secure sdlc within secure development?",
+      "answer": "CyQu manages secure sdlc through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Secure SDLC",
+      "tags": [
+        "application",
+        "development",
+        "engineering",
+        "ownership",
+        "process",
+        "review",
+        "sdlc",
+        "secure",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "secure_development_secure_sdlc_what_evidence",
+      "question": "What evidence supports secure sdlc practices in secure development?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how secure sdlc practices support secure development assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Secure SDLC",
+      "tags": [
+        "application",
+        "assurance",
+        "development",
+        "engineering",
+        "evidence",
+        "records",
+        "sdlc",
+        "secure",
+        "security"
+      ]
+    },
+    {
+      "faq_key": "secure_development_testing_review_how_managed",
+      "question": "How does CyQu manage testing & review within secure development?",
+      "answer": "CyQu manages testing & review through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Testing & Review",
+      "tags": [
+        "application",
+        "development",
+        "engineering",
+        "ownership",
+        "process",
+        "review",
+        "secure",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "secure_development_testing_review_what_evidence",
+      "question": "What evidence supports testing & review practices in secure development?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how testing & review practices support secure development assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Testing & Review",
+      "tags": [
+        "application",
+        "assurance",
+        "development",
+        "engineering",
+        "evidence",
+        "records",
+        "review",
+        "secure",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_general_how_managed",
+      "question": "How does CyQu manage general within testing?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "engineering",
+        "general",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_general_how_reviewed",
+      "question": "How is general reviewed over time?",
+      "answer": "CyQu reviews general through periodic checks, operational review cadences, and issue follow-up processes appropriate to the surrounding engineering & application security function.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "cadence",
+        "engineering",
+        "follow-up",
+        "general",
+        "periodic-review",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_general_what_evidence",
+      "question": "What evidence supports general practices in testing?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support testing assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "general",
+        "records",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_penetration_testing_how_managed",
+      "question": "How does CyQu manage penetration testing within testing?",
+      "answer": "CyQu manages penetration testing through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "Penetration Testing",
+      "tags": [
+        "application",
+        "engineering",
+        "ownership",
+        "penetration",
+        "process",
+        "review",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_penetration_testing_what_evidence",
+      "question": "What evidence supports penetration testing practices in testing?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how penetration testing practices support testing assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "Penetration Testing",
+      "tags": [
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "penetration",
+        "records",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_review_cadence_how_managed",
+      "question": "How does CyQu manage review cadence within testing?",
+      "answer": "CyQu manages review cadence through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "Review Cadence",
+      "tags": [
+        "application",
+        "cadence",
+        "engineering",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_review_cadence_what_evidence",
+      "question": "What evidence supports review cadence practices in testing?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how review cadence practices support testing assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "Review Cadence",
+      "tags": [
+        "application",
+        "assurance",
+        "cadence",
+        "engineering",
+        "evidence",
+        "records",
+        "review",
+        "security",
+        "testing"
+      ]
+    },
+    {
+      "faq_key": "testing_validation_evidence_how_managed",
+      "question": "How does CyQu manage validation evidence within testing?",
+      "answer": "CyQu manages validation evidence through documented controls, assigned ownership, and recurring review processes that align with its engineering & application security program.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "Validation Evidence",
+      "tags": [
+        "application",
+        "engineering",
+        "evidence",
+        "ownership",
+        "process",
+        "review",
+        "security",
+        "testing",
+        "validation"
+      ]
+    },
+    {
+      "faq_key": "testing_validation_evidence_what_evidence",
+      "question": "What evidence supports validation evidence practices in testing?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how validation evidence practices support testing assurance objectives.",
+      "section": "Engineering & Application Security",
+      "category": "Testing",
+      "subcategory": "Validation Evidence",
+      "tags": [
+        "application",
+        "assurance",
+        "engineering",
+        "evidence",
+        "records",
+        "security",
+        "testing",
+        "validation"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_contractual_controls_how_managed",
+      "question": "How does CyQu manage contractual controls within vendor management?",
+      "answer": "CyQu manages contractual controls through documented controls, assigned ownership, and recurring review processes that align with its governance & assurance program.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Contractual Controls",
+      "tags": [
+        "assurance",
+        "contractual",
+        "controls",
+        "governance",
+        "management",
+        "ownership",
+        "process",
+        "review",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_contractual_controls_what_evidence",
+      "question": "What evidence supports contractual controls practices in vendor management?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how contractual controls practices support vendor management assurance objectives.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Contractual Controls",
+      "tags": [
+        "assurance",
+        "contractual",
+        "controls",
+        "evidence",
+        "governance",
+        "management",
+        "records",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_due_diligence_how_managed",
+      "question": "How does CyQu manage due diligence within vendor management?",
+      "answer": "CyQu manages due diligence through documented controls, assigned ownership, and recurring review processes that align with its governance & assurance program.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Due Diligence",
+      "tags": [
+        "assurance",
+        "diligence",
+        "due",
+        "governance",
+        "management",
+        "ownership",
+        "process",
+        "review",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_due_diligence_what_evidence",
+      "question": "What evidence supports due diligence practices in vendor management?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how due diligence practices support vendor management assurance objectives.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Due Diligence",
+      "tags": [
+        "assurance",
+        "diligence",
+        "due",
+        "evidence",
+        "governance",
+        "management",
+        "records",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_general_how_managed",
+      "question": "How does CyQu manage general within vendor management?",
+      "answer": "CyQu manages general through documented controls, assigned ownership, and recurring review processes that align with its governance & assurance program.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "general",
+        "governance",
+        "management",
+        "ownership",
+        "process",
+        "review",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_general_how_reviewed",
+      "question": "How is general reviewed over time?",
+      "answer": "CyQu reviews general through periodic checks, operational review cadences, and issue follow-up processes appropriate to the surrounding governance & assurance function.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "cadence",
+        "follow-up",
+        "general",
+        "governance",
+        "management",
+        "periodic-review",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_general_what_evidence",
+      "question": "What evidence supports general practices in vendor management?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how general practices support vendor management assurance objectives.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "evidence",
+        "general",
+        "governance",
+        "management",
+        "records",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_ongoing_review_how_managed",
+      "question": "How does CyQu manage ongoing review within vendor management?",
+      "answer": "CyQu manages ongoing review through documented controls, assigned ownership, and recurring review processes that align with its governance & assurance program.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Ongoing Review",
+      "tags": [
+        "assurance",
+        "governance",
+        "management",
+        "ongoing",
+        "ownership",
+        "process",
+        "review",
+        "vendor"
+      ]
+    },
+    {
+      "faq_key": "vendor_management_ongoing_review_what_evidence",
+      "question": "What evidence supports ongoing review practices in vendor management?",
+      "answer": "Evidence may include documented procedures, review records, configuration evidence, tickets, or logs that demonstrate how ongoing review practices support vendor management assurance objectives.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Ongoing Review",
+      "tags": [
+        "assurance",
+        "evidence",
+        "governance",
+        "management",
+        "ongoing",
+        "records",
+        "review",
+        "vendor"
+      ]
     }
   ]
 }

@@ -15,8 +15,8 @@
 /* local component tokens  --> safe since used only here */
 :host {
   --expansion-card-radius: 8px;
-  --expansion-card-border: var(--color-gray-05);
-  --expansion-card-bg: var(--color-surface);
+  --expansion-card-border: var(--tc-border-card);
+  --expansion-card-bg: var(--tc-bg-card);
 }
 
 .wrap {
@@ -50,21 +50,21 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);
-  color: var(--color-navy-primary);
+  color: var(--tc-text-primary);
 }
 
 .tile-meta {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
 }
 
 .tile-subtitle {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
 }
 
 /* grouped mode wrapper */
@@ -89,18 +89,18 @@
 
 /* notice rows (loading/empty/error) */
 .notice {
-  border: 1px solid var(--color-gray-05);
+  border: 1px solid var(--tc-border-card);
   border-radius: var(--expansion-card-radius);
-  background: var(--color-surface);
+  background: var(--tc-bg-card);
   padding: var(--default-local-spacing);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
 }
 
 .notice.is-error {
-  border-color: var(--color-error);
-  color: var(--color-error);
+  border-color: var(--tc-feedback-error);
+  color: var(--tc-feedback-error);
 }
 
 .notice-detail {
@@ -110,7 +110,7 @@
     'Courier New', monospace;
   font-size: 12px;
   line-height: 16px;
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
 }
 
 /* card */
@@ -133,7 +133,7 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);
-  color: var(--color-navy-primary);
+  color: var(--tc-text-primary);
 }
 
 .toggle {
@@ -144,12 +144,12 @@
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
-  color: var(--color-teal-dark-secondary);
+  color: var(--tc-text-link);
   text-decoration: var(--link-decoration-default);
 }
 
 .toggle:hover {
-  color: var(--color-teal-dark-hover);
+  color: var(--tc-text-link-hover);
   text-decoration: var(--link-decoration-hover);
 }
 
@@ -186,18 +186,18 @@
   height: 10px;
   border-radius: 999px;
   margin-top: 4px;
-  background: var(--color-success);
+  background: var(--tc-feedback-success);
 }
 
 .text {
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
 }
 
 .more {
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   padding-left: 28px;

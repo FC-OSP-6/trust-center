@@ -26,8 +26,8 @@
 /* Main navbar container - horizontal layout with white background */
 .navbar {
   display: flex;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e5e5;
+  background-color: var(--tc-bg-card);
+  border-bottom: 1px solid var(--tc-border-subtle);
   width: 100%;
   padding: 0px;
   padding-left: 20px;
@@ -40,7 +40,7 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  color: var(--color-gray-02, #5d6d78);
+  color: var(--tc-text-secondary);
   /* Gray text by default */
   text-decoration: none;
   padding: 16px 24px;
@@ -51,15 +51,15 @@
 
 /* Hover state - light background + red text + red underline */
 .nav-item:hover {
-  background-color: var(--color-gray-07, #eef6f7);
-  color: #b80012;
-  border-bottom-color: #b80012;
+  background-color: var(--tc-bg-hover);
+  color: #b80012; /* brand-fixed: Aon nav hover red, not themeable */
+  border-bottom-color: #b80012; /* brand-fixed: Aon nav hover red, not themeable */
 }
 
 /* Active state - current page indicator with bold navy text */
 .nav-item.active {
-  color: var(--color-navy-primary, #262836);
-  border-bottom-color: var(--color-navy-primary, #262836);
+  color: var(--tc-text-primary);
+  border-bottom-color: var(--tc-text-primary);
   font-weight: 700;
 }
 
