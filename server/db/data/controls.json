@@ -1,163 +1,1417 @@
 {
   "controls": [
     {
-      "control_key": "organizational_irp_documented",
-      "title": "CyQu has an incident response plan (IRP) in place",
-      "description": "CyQu maintains a documented incident response plan describing processes and responsibilities for identifying, responding to, and learning from security incidents.",
-      "category": "Organizational Security",
-      "tags": ["incident-response", "irp", "policy"],
-      "source_url": null
-    },
-    {
-      "control_key": "cloud_regions_multi_region",
-      "title": "Data is divided between multiple AWS regions",
-      "description": "CyQu data is divided between multiple AWS regions to support resiliency and regional operations where applicable.",
-      "category": "Cloud Security",
-      "tags": ["aws", "resilience", "regions"],
-      "source_url": null
-    },
-    {
-      "control_key": "cloud_private_vpc_subnet",
-      "title": "All compute runs within a private VPC and subnet",
-      "description": "Compute resources run in private networks to reduce exposure and enforce controlled ingress and egress.",
-      "category": "Cloud Security",
-      "tags": ["network", "vpc", "isolation"],
-      "source_url": null
-    },
-    {
-      "control_key": "cloud_logs_monitored_24_7",
-      "title": "Logs are monitored 24/7",
-      "description": "Security and audit logs are monitored continuously to support detection, triage, and incident response.",
-      "category": "Cloud Security",
-      "tags": ["logging", "monitoring", "soc"],
-      "source_url": null
-    },
-    {
-      "control_key": "cloud_waf_in_front_of_api",
-      "title": "The API sits behind a WAF",
-      "description": "A Web Application Firewall (WAF) is used to filter and monitor HTTP requests and reduce exposure to common attacks.",
-      "category": "Cloud Security",
-      "tags": ["waf", "api-security", "owasp"],
-      "source_url": null
-    },
-    {
-      "control_key": "cloud_external_pentest_yearly",
-      "title": "CyQu receives a yearly external pentest",
-      "description": "Third-party security firms conduct periodic penetration tests to identify and remediate vulnerabilities.",
-      "category": "Cloud Security",
-      "tags": ["pentest", "assurance", "vulnerability-management"],
-      "source_url": null
-    },
-    {
-      "control_key": "secure_by_design_default",
-      "title": "CyQu is secure by design and by default",
-      "description": "Security best practices are incorporated into design and development workflows as a default expectation.",
-      "category": "Secure Development",
-      "tags": ["secure-development", "sdlc"],
-      "source_url": null
-    },
-    {
-      "control_key": "data_encrypted_in_transit",
-      "title": "Data is encrypted in transit",
-      "description": "TLS 1.2+ is used to encrypt data in transit.",
-      "category": "Data Security",
-      "tags": ["tls", "encryption"],
-      "source_url": null
-    },
-    {
-      "control_key": "data_encrypted_at_rest",
-      "title": "Data is encrypted at rest",
-      "description": "Data at rest is protected using industry standard encryption (e.g., AES-256 where applicable).",
-      "category": "Data Security",
-      "tags": ["encryption", "aes-256", "storage"],
-      "source_url": null
-    },
-    {
-      "control_key": "device_fde_and_disposal",
-      "title": "Company laptops are encrypted and disposed of securely",
-      "description": "Endpoints use full disk encryption and follow secure wipe and/or destruction procedures at end of life.",
-      "category": "Data Security",
-      "tags": ["endpoint", "fde", "asset-management"],
-      "source_url": null
-    },
-    {
-      "control_key": "secure_dev_training_required",
-      "title": "Engineers receive secure development training",
-      "description": "Secure development training covers topics like threat modeling, secure coding, and vulnerability management.",
-      "category": "Secure Development",
-      "tags": ["training", "secure-coding"],
-      "source_url": null
-    },
-    {
-      "control_key": "secure_code_reviews_required",
-      "title": "Code reviews are conducted for all changes",
-      "description": "Peer review is required to reduce defects and identify security issues before changes ship.",
-      "category": "Secure Development",
-      "tags": ["code-review", "quality"],
-      "source_url": null
-    },
-    {
-      "control_key": "secure_sast_scanning",
-      "title": "The application is regularly scanned for vulnerabilities",
-      "description": "Automated scanning (e.g., SAST) is used to detect issues early in the development lifecycle.",
-      "category": "Secure Development",
-      "tags": ["sast", "scanning", "ci"],
-      "source_url": null
-    },
-    {
-      "control_key": "deployments_via_ci",
-      "title": "Software is deployed via an automated CI system",
-      "description": "Automated pipelines support repeatable builds and controlled releases.",
-      "category": "Secure Development",
-      "tags": ["ci-cd", "automation"],
-      "source_url": null
-    },
-    {
-      "control_key": "org_background_checks",
-      "title": "Background checks are conducted for job applicants",
-      "description": "Pre-employment screening is performed for applicable roles to reduce insider risk.",
-      "category": "Organizational Security",
-      "tags": ["hr", "screening", "insider-risk"],
-      "source_url": null
-    },
-    {
-      "control_key": "org_policies_framework_based",
-      "title": "Security policies are based on recognized frameworks",
-      "description": "Policies and standards align to recognized security frameworks (e.g., NIST / ISO) where applicable.",
-      "category": "Organizational Security",
-      "tags": ["nist", "iso", "governance"],
-      "source_url": null
-    },
-
-    {
-      "control_key": "access_mfa_enforced",
-      "title": "Multi-factor authentication (MFA) is enforced",
-      "description": "MFA is required for privileged access and high-risk operations to reduce account takeover risk.",
+      "control_key": "access_control_authentication_documented_standard",
+      "title": "Authentication standard is documented and reviewed",
+      "description": "CyQu maintains documented authentication standards within its identity & access program to support consistent access control control execution, audit readiness, and evidence collection.",
+      "section": "Identity & Access",
       "category": "Access Control",
-      "tags": ["mfa", "iam"],
+      "subcategory": "Authentication",
+      "tags": [
+        "access",
+        "authentication",
+        "control",
+        "documented",
+        "evidence",
+        "identity",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_authentication_evidence_retained",
+      "title": "Evidence is retained for authentication reviews",
+      "description": "Evidence associated with authentication reviews is retained to support internal validation, customer assurance responses, and repeatable access control control verification.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authentication",
+      "tags": [
+        "access",
+        "authentication",
+        "control",
+        "evidence",
+        "identity",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_authentication_ownership_defined",
+      "title": "Ownership is defined for authentication activities",
+      "description": "CyQu assigns clear ownership for authentication activities so operational, engineering, and assurance responsibilities remain traceable across the identity & access lifecycle.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authentication",
+      "tags": [
+        "access",
+        "accountability",
+        "authentication",
+        "control",
+        "identity",
+        "operations",
+        "ownership"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_authorization_documented_standard",
+      "title": "Authorization standard is documented and reviewed",
+      "description": "CyQu maintains documented authorization standards within its identity & access program to support consistent access control control execution, audit readiness, and evidence collection.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authorization",
+      "tags": [
+        "access",
+        "authorization",
+        "control",
+        "documented",
+        "evidence",
+        "identity",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_authorization_evidence_retained",
+      "title": "Evidence is retained for authorization reviews",
+      "description": "Evidence associated with authorization reviews is retained to support internal validation, customer assurance responses, and repeatable access control control verification.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authorization",
+      "tags": [
+        "access",
+        "authorization",
+        "control",
+        "evidence",
+        "identity",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_authorization_ownership_defined",
+      "title": "Ownership is defined for authorization activities",
+      "description": "CyQu assigns clear ownership for authorization activities so operational, engineering, and assurance responsibilities remain traceable across the identity & access lifecycle.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Authorization",
+      "tags": [
+        "access",
+        "accountability",
+        "authorization",
+        "control",
+        "identity",
+        "operations",
+        "ownership"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its identity & access program to support consistent access control control execution, audit readiness, and evidence collection.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": [
+        "access",
+        "control",
+        "documented",
+        "evidence",
+        "general",
+        "identity",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable access control control verification.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": [
+        "access",
+        "control",
+        "evidence",
+        "general",
+        "identity",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the identity & access lifecycle.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": [
+        "access",
+        "accountability",
+        "control",
+        "general",
+        "identity",
+        "operations",
+        "ownership"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_privileged_access_documented_standard",
+      "title": "Privileged Access standard is documented and reviewed",
+      "description": "CyQu maintains documented privileged access standards within its identity & access program to support consistent access control control execution, audit readiness, and evidence collection.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Privileged Access",
+      "tags": [
+        "access",
+        "control",
+        "documented",
+        "evidence",
+        "identity",
+        "privileged",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "access_control_privileged_access_ownership_defined",
+      "title": "Ownership is defined for privileged access activities",
+      "description": "CyQu assigns clear ownership for privileged access activities so operational, engineering, and assurance responsibilities remain traceable across the identity & access lifecycle.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "Privileged Access",
+      "tags": [
+        "access",
+        "accountability",
+        "control",
+        "identity",
+        "operations",
+        "ownership",
+        "privileged"
+      ],
       "source_url": null
     },
     {
       "control_key": "access_least_privilege",
       "title": "Least privilege access is enforced",
       "description": "Access is limited to what users and services need to do their job, with periodic review of permissions.",
+      "section": "Identity & Access",
       "category": "Access Control",
+      "subcategory": "General",
       "tags": ["least-privilege", "rbac"],
+      "source_url": null
+    },
+    {
+      "control_key": "access_mfa_enforced",
+      "title": "Multi-factor authentication (MFA) is enforced",
+      "description": "MFA is required for privileged access and high-risk operations to reduce account takeover risk.",
+      "section": "Identity & Access",
+      "category": "Access Control",
+      "subcategory": "General",
+      "tags": ["iam", "mfa"],
       "source_url": null
     },
     {
       "control_key": "access_reviews_quarterly",
       "title": "Access reviews are performed periodically",
       "description": "Access rights are reviewed to ensure permissions remain appropriate as roles and systems change.",
+      "section": "Identity & Access",
       "category": "Access Control",
+      "subcategory": "General",
       "tags": ["access-review", "governance"],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_backup_recovery_documented_standard",
+      "title": "Backup & Recovery standard is documented and reviewed",
+      "description": "CyQu maintains documented backup & recovery standards within its infrastructure & platform program to support consistent availability & resilience control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Backup & Recovery",
+      "tags": [
+        "availability",
+        "backup",
+        "documented",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "recovery",
+        "resilience",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_backup_recovery_evidence_retained",
+      "title": "Evidence is retained for backup & recovery reviews",
+      "description": "Evidence associated with backup & recovery reviews is retained to support internal validation, customer assurance responses, and repeatable availability & resilience control verification.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Backup & Recovery",
+      "tags": [
+        "availability",
+        "backup",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "recovery",
+        "resilience",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_backup_recovery_ownership_defined",
+      "title": "Ownership is defined for backup & recovery activities",
+      "description": "CyQu assigns clear ownership for backup & recovery activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Backup & Recovery",
+      "tags": [
+        "accountability",
+        "availability",
+        "backup",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "platform",
+        "recovery",
+        "resilience"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_business_continuity_documented_standard",
+      "title": "Business Continuity standard is documented and reviewed",
+      "description": "CyQu maintains documented business continuity standards within its infrastructure & platform program to support consistent availability & resilience control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Business Continuity",
+      "tags": [
+        "availability",
+        "business",
+        "continuity",
+        "documented",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "resilience",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_business_continuity_evidence_retained",
+      "title": "Evidence is retained for business continuity reviews",
+      "description": "Evidence associated with business continuity reviews is retained to support internal validation, customer assurance responses, and repeatable availability & resilience control verification.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Business Continuity",
+      "tags": [
+        "availability",
+        "business",
+        "continuity",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "resilience",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_business_continuity_ownership_defined",
+      "title": "Ownership is defined for business continuity activities",
+      "description": "CyQu assigns clear ownership for business continuity activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Business Continuity",
+      "tags": [
+        "accountability",
+        "availability",
+        "business",
+        "continuity",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "platform",
+        "resilience"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_disaster_recovery_documented_standard",
+      "title": "Disaster Recovery standard is documented and reviewed",
+      "description": "CyQu maintains documented disaster recovery standards within its infrastructure & platform program to support consistent availability & resilience control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Disaster Recovery",
+      "tags": [
+        "availability",
+        "disaster",
+        "documented",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "recovery",
+        "resilience",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_disaster_recovery_evidence_retained",
+      "title": "Evidence is retained for disaster recovery reviews",
+      "description": "Evidence associated with disaster recovery reviews is retained to support internal validation, customer assurance responses, and repeatable availability & resilience control verification.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Disaster Recovery",
+      "tags": [
+        "availability",
+        "disaster",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "recovery",
+        "resilience",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_disaster_recovery_ownership_defined",
+      "title": "Ownership is defined for disaster recovery activities",
+      "description": "CyQu assigns clear ownership for disaster recovery activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "Disaster Recovery",
+      "tags": [
+        "accountability",
+        "availability",
+        "disaster",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "platform",
+        "recovery",
+        "resilience"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its infrastructure & platform program to support consistent availability & resilience control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "General",
+      "tags": [
+        "availability",
+        "documented",
+        "evidence",
+        "general",
+        "infrastructure",
+        "platform",
+        "resilience",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable availability & resilience control verification.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "General",
+      "tags": [
+        "availability",
+        "evidence",
+        "general",
+        "infrastructure",
+        "platform",
+        "resilience",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "availability_resilience_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Availability & Resilience",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "availability",
+        "general",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "platform",
+        "resilience"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_external_pentest_yearly",
+      "title": "CyQu receives a yearly external pentest",
+      "description": "Third-party security firms conduct periodic penetration tests to identify and remediate vulnerabilities.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": ["assurance", "pentest", "vulnerability-management"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_logs_monitored_24_7",
+      "title": "Logs are monitored 24/7",
+      "description": "Security and audit logs are monitored continuously to support detection, triage, and incident response.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": ["logging", "monitoring", "soc"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_private_vpc_subnet",
+      "title": "All compute runs within a private VPC and subnet",
+      "description": "Compute resources run in private networks to reduce exposure and enforce controlled ingress and egress.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": ["isolation", "network", "vpc"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_regions_multi_region",
+      "title": "Data is divided between multiple AWS regions",
+      "description": "CyQu data is divided between multiple AWS regions to support resiliency and regional operations where applicable.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": ["aws", "regions", "resilience"],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its infrastructure & platform program to support consistent cloud security control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": [
+        "cloud",
+        "documented",
+        "evidence",
+        "general",
+        "infrastructure",
+        "platform",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "cloud",
+        "general",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "platform",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_network_security_documented_standard",
+      "title": "Network Security standard is documented and reviewed",
+      "description": "CyQu maintains documented network security standards within its infrastructure & platform program to support consistent cloud security control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Network Security",
+      "tags": [
+        "cloud",
+        "documented",
+        "evidence",
+        "infrastructure",
+        "network",
+        "platform",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_network_security_ownership_defined",
+      "title": "Ownership is defined for network security activities",
+      "description": "CyQu assigns clear ownership for network security activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Network Security",
+      "tags": [
+        "accountability",
+        "cloud",
+        "infrastructure",
+        "network",
+        "operations",
+        "ownership",
+        "platform",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_perimeter_defense_documented_standard",
+      "title": "Perimeter Defense standard is documented and reviewed",
+      "description": "CyQu maintains documented perimeter defense standards within its infrastructure & platform program to support consistent cloud security control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Perimeter Defense",
+      "tags": [
+        "cloud",
+        "defense",
+        "documented",
+        "evidence",
+        "infrastructure",
+        "perimeter",
+        "platform",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_perimeter_defense_ownership_defined",
+      "title": "Ownership is defined for perimeter defense activities",
+      "description": "CyQu assigns clear ownership for perimeter defense activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Perimeter Defense",
+      "tags": [
+        "accountability",
+        "cloud",
+        "defense",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "perimeter",
+        "platform",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_platform_hardening_documented_standard",
+      "title": "Platform Hardening standard is documented and reviewed",
+      "description": "CyQu maintains documented platform hardening standards within its infrastructure & platform program to support consistent cloud security control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Platform Hardening",
+      "tags": [
+        "cloud",
+        "documented",
+        "evidence",
+        "hardening",
+        "infrastructure",
+        "platform",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_platform_hardening_ownership_defined",
+      "title": "Ownership is defined for platform hardening activities",
+      "description": "CyQu assigns clear ownership for platform hardening activities so operational, engineering, and assurance responsibilities remain traceable across the infrastructure & platform lifecycle.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Platform Hardening",
+      "tags": [
+        "accountability",
+        "cloud",
+        "hardening",
+        "infrastructure",
+        "operations",
+        "ownership",
+        "platform",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_security_regional_resilience_documented_standard",
+      "title": "Regional Resilience standard is documented and reviewed",
+      "description": "CyQu maintains documented regional resilience standards within its infrastructure & platform program to support consistent cloud security control execution, audit readiness, and evidence collection.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "Regional Resilience",
+      "tags": [
+        "cloud",
+        "documented",
+        "evidence",
+        "infrastructure",
+        "platform",
+        "regional",
+        "resilience",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "cloud_waf_in_front_of_api",
+      "title": "The API sits behind a WAF",
+      "description": "A Web Application Firewall (WAF) is used to filter and monitor HTTP requests and reduce exposure to common attacks.",
+      "section": "Infrastructure & Platform",
+      "category": "Cloud Security",
+      "subcategory": "General",
+      "tags": ["api-security", "owasp", "waf"],
+      "source_url": null
+    },
+    {
+      "control_key": "data_encrypted_at_rest",
+      "title": "Data is encrypted at rest",
+      "description": "Data at rest is protected using industry standard encryption (e.g., AES-256 where applicable).",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "General",
+      "tags": ["aes-256", "encryption", "storage"],
+      "source_url": null
+    },
+    {
+      "control_key": "data_encrypted_in_transit",
+      "title": "Data is encrypted in transit",
+      "description": "TLS 1.2+ is used to encrypt data in transit.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "General",
+      "tags": ["encryption", "tls"],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_data_lifecycle_documented_standard",
+      "title": "Data Lifecycle standard is documented and reviewed",
+      "description": "CyQu maintains documented data lifecycle standards within its data protection program to support consistent data security control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Data Lifecycle",
+      "tags": [
+        "data",
+        "documented",
+        "evidence",
+        "lifecycle",
+        "protection",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_data_lifecycle_ownership_defined",
+      "title": "Ownership is defined for data lifecycle activities",
+      "description": "CyQu assigns clear ownership for data lifecycle activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Data Lifecycle",
+      "tags": [
+        "accountability",
+        "data",
+        "lifecycle",
+        "operations",
+        "ownership",
+        "protection",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_encryption_documented_standard",
+      "title": "Encryption standard is documented and reviewed",
+      "description": "CyQu maintains documented encryption standards within its data protection program to support consistent data security control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Encryption",
+      "tags": [
+        "data",
+        "documented",
+        "encryption",
+        "evidence",
+        "protection",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_encryption_evidence_retained",
+      "title": "Evidence is retained for encryption reviews",
+      "description": "Evidence associated with encryption reviews is retained to support internal validation, customer assurance responses, and repeatable data security control verification.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Encryption",
+      "tags": [
+        "data",
+        "encryption",
+        "evidence",
+        "protection",
+        "review",
+        "security",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_encryption_ownership_defined",
+      "title": "Ownership is defined for encryption activities",
+      "description": "CyQu assigns clear ownership for encryption activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Encryption",
+      "tags": [
+        "accountability",
+        "data",
+        "encryption",
+        "operations",
+        "ownership",
+        "protection",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its data protection program to support consistent data security control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "documented",
+        "evidence",
+        "general",
+        "protection",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable data security control verification.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "evidence",
+        "general",
+        "protection",
+        "review",
+        "security",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "data",
+        "general",
+        "operations",
+        "ownership",
+        "protection",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_secrets_management_documented_standard",
+      "title": "Secrets Management standard is documented and reviewed",
+      "description": "CyQu maintains documented secrets management standards within its data protection program to support consistent data security control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Secrets Management",
+      "tags": [
+        "data",
+        "documented",
+        "evidence",
+        "management",
+        "protection",
+        "reviewed",
+        "secrets",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "data_security_secrets_management_ownership_defined",
+      "title": "Ownership is defined for secrets management activities",
+      "description": "CyQu assigns clear ownership for secrets management activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "Secrets Management",
+      "tags": [
+        "accountability",
+        "data",
+        "management",
+        "operations",
+        "ownership",
+        "protection",
+        "secrets",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "deployments_via_ci",
+      "title": "Software is deployed via an automated CI system",
+      "description": "Automated pipelines support repeatable builds and controlled releases.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["automation", "ci-cd"],
+      "source_url": null
+    },
+    {
+      "control_key": "device_fde_and_disposal",
+      "title": "Company laptops are encrypted and disposed of securely",
+      "description": "Endpoints use full disk encryption and follow secure wipe and/or destruction procedures at end of life.",
+      "section": "Data Protection",
+      "category": "Data Security",
+      "subcategory": "General",
+      "tags": ["asset-management", "endpoint", "fde"],
+      "source_url": null
+    },
+    {
+      "control_key": "org_background_checks",
+      "title": "Background checks are conducted for job applicants",
+      "description": "Pre-employment screening is performed for applicable roles to reduce insider risk.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "General",
+      "tags": ["hr", "insider-risk", "screening"],
+      "source_url": null
+    },
+    {
+      "control_key": "org_policies_framework_based",
+      "title": "Security policies are based on recognized frameworks",
+      "description": "Policies and standards align to recognized security frameworks (e.g., NIST / ISO) where applicable.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "General",
+      "tags": ["governance", "iso", "nist"],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_irp_documented",
+      "title": "CyQu has an incident response plan (IRP) in place",
+      "description": "CyQu maintains a documented incident response plan describing processes and responsibilities for identifying, responding to, and learning from security incidents.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "General",
+      "tags": ["incident-response", "irp", "policy"],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its governance & assurance program to support consistent organizational security control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "documented",
+        "evidence",
+        "general",
+        "governance",
+        "organizational",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable organizational security control verification.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "evidence",
+        "general",
+        "governance",
+        "organizational",
+        "review",
+        "security",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "assurance",
+        "general",
+        "governance",
+        "operations",
+        "organizational",
+        "ownership",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_incident_response_documented_standard",
+      "title": "Incident Response standard is documented and reviewed",
+      "description": "CyQu maintains documented incident response standards within its governance & assurance program to support consistent organizational security control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Incident Response",
+      "tags": [
+        "assurance",
+        "documented",
+        "evidence",
+        "governance",
+        "incident",
+        "organizational",
+        "response",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_incident_response_evidence_retained",
+      "title": "Evidence is retained for incident response reviews",
+      "description": "Evidence associated with incident response reviews is retained to support internal validation, customer assurance responses, and repeatable organizational security control verification.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Incident Response",
+      "tags": [
+        "assurance",
+        "evidence",
+        "governance",
+        "incident",
+        "organizational",
+        "response",
+        "review",
+        "security",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_incident_response_ownership_defined",
+      "title": "Ownership is defined for incident response activities",
+      "description": "CyQu assigns clear ownership for incident response activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Incident Response",
+      "tags": [
+        "accountability",
+        "assurance",
+        "governance",
+        "incident",
+        "operations",
+        "organizational",
+        "ownership",
+        "response",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_policy_process_documented_standard",
+      "title": "Policy & Process standard is documented and reviewed",
+      "description": "CyQu maintains documented policy & process standards within its governance & assurance program to support consistent organizational security control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Policy & Process",
+      "tags": [
+        "assurance",
+        "documented",
+        "evidence",
+        "governance",
+        "organizational",
+        "policy",
+        "process",
+        "reviewed",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_policy_process_evidence_retained",
+      "title": "Evidence is retained for policy & process reviews",
+      "description": "Evidence associated with policy & process reviews is retained to support internal validation, customer assurance responses, and repeatable organizational security control verification.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Policy & Process",
+      "tags": [
+        "assurance",
+        "evidence",
+        "governance",
+        "organizational",
+        "policy",
+        "process",
+        "review",
+        "security",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_policy_process_ownership_defined",
+      "title": "Ownership is defined for policy & process activities",
+      "description": "CyQu assigns clear ownership for policy & process activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Policy & Process",
+      "tags": [
+        "accountability",
+        "assurance",
+        "governance",
+        "operations",
+        "organizational",
+        "ownership",
+        "policy",
+        "process",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_training_awareness_documented_standard",
+      "title": "Training & Awareness standard is documented and reviewed",
+      "description": "CyQu maintains documented training & awareness standards within its governance & assurance program to support consistent organizational security control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Training & Awareness",
+      "tags": [
+        "assurance",
+        "awareness",
+        "documented",
+        "evidence",
+        "governance",
+        "organizational",
+        "reviewed",
+        "security",
+        "training"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "organizational_security_training_awareness_ownership_defined",
+      "title": "Ownership is defined for training & awareness activities",
+      "description": "CyQu assigns clear ownership for training & awareness activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Organizational Security",
+      "subcategory": "Training & Awareness",
+      "tags": [
+        "accountability",
+        "assurance",
+        "awareness",
+        "governance",
+        "operations",
+        "organizational",
+        "ownership",
+        "security",
+        "training"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_data_handling_documented_standard",
+      "title": "Data Handling standard is documented and reviewed",
+      "description": "CyQu maintains documented data handling standards within its data protection program to support consistent privacy control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Data Handling",
+      "tags": [
+        "data",
+        "documented",
+        "evidence",
+        "handling",
+        "privacy",
+        "protection",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_data_handling_evidence_retained",
+      "title": "Evidence is retained for data handling reviews",
+      "description": "Evidence associated with data handling reviews is retained to support internal validation, customer assurance responses, and repeatable privacy control verification.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Data Handling",
+      "tags": [
+        "data",
+        "evidence",
+        "handling",
+        "privacy",
+        "protection",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_data_handling_ownership_defined",
+      "title": "Ownership is defined for data handling activities",
+      "description": "CyQu assigns clear ownership for data handling activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Data Handling",
+      "tags": [
+        "accountability",
+        "data",
+        "handling",
+        "operations",
+        "ownership",
+        "privacy",
+        "protection"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_data_minimization",
+      "title": "Data minimization is practiced",
+      "description": "Only necessary data is collected and retained for as long as needed for legitimate business purposes.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": ["data-minimization", "privacy", "retention"],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its data protection program to support consistent privacy control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "documented",
+        "evidence",
+        "general",
+        "privacy",
+        "protection",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable privacy control verification.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "evidence",
+        "general",
+        "privacy",
+        "protection",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_general_exceptions_managed",
+      "title": "Exceptions are tracked for general controls",
+      "description": "CyQu tracks exceptions related to general controls through documented workflows that support approval, remediation, and follow-up within the data protection program.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": [
+        "data",
+        "exceptions",
+        "general",
+        "privacy",
+        "protection",
+        "remediation",
+        "workflow"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "data",
+        "general",
+        "operations",
+        "ownership",
+        "privacy",
+        "protection"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_privacy_requests_documented_standard",
+      "title": "Privacy Requests standard is documented and reviewed",
+      "description": "CyQu maintains documented privacy requests standards within its data protection program to support consistent privacy control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Privacy Requests",
+      "tags": [
+        "data",
+        "documented",
+        "evidence",
+        "privacy",
+        "protection",
+        "requests",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_privacy_requests_evidence_retained",
+      "title": "Eidence is retained for privacy requests reviews",
+      "description": "Evidence associated with privacy requests reviews is retained to support internal validation, customer assurance responses, and repeatable privacy control verification.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Privacy Requests",
+      "tags": [
+        "data",
+        "evidence",
+        "privacy",
+        "protection",
+        "requests",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_privacy_requests_ownership_defined",
+      "title": "Ownership is defined for privacy requests activities",
+      "description": "CyQu assigns clear ownership for privacy requests activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Privacy Requests",
+      "tags": [
+        "accountability",
+        "data",
+        "operations",
+        "ownership",
+        "privacy",
+        "protection",
+        "requests"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_retention_deletion_documented_standard",
+      "title": "Retention & Deletion standard is documented and reviewed",
+      "description": "CyQu maintains documented retention & deletion standards within its data protection program to support consistent privacy control execution, audit readiness, and evidence collection.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Retention & Deletion",
+      "tags": [
+        "data",
+        "deletion",
+        "documented",
+        "evidence",
+        "privacy",
+        "protection",
+        "retention",
+        "reviewed"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_retention_deletion_evidence_retained",
+      "title": "Evidence is retained for retention & deletion reviews",
+      "description": "Evidence associated with retention & deletion reviews is retained to support internal validation, customer assurance responses, and repeatable privacy control verification.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Retention & Deletion",
+      "tags": [
+        "data",
+        "deletion",
+        "evidence",
+        "privacy",
+        "protection",
+        "retention",
+        "review",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "privacy_retention_deletion_ownership_defined",
+      "title": "Ownership is defined for retention & deletion activities",
+      "description": "CyQu assigns clear ownership for retention & deletion activities so operational, engineering, and assurance responsibilities remain traceable across the data protection lifecycle.",
+      "section": "Data Protection",
+      "category": "Privacy",
+      "subcategory": "Retention & Deletion",
+      "tags": [
+        "accountability",
+        "data",
+        "deletion",
+        "operations",
+        "ownership",
+        "privacy",
+        "protection",
+        "retention"
+      ],
       "source_url": null
     },
     {
       "control_key": "resilience_backups_tested",
       "title": "Backups are performed and periodically tested",
       "description": "Backups support recovery objectives and are tested to validate restore procedures.",
+      "section": "Infrastructure & Platform",
       "category": "Availability & Resilience",
+      "subcategory": "General",
       "tags": ["backups", "dr"],
       "source_url": null
     },
@@ -165,32 +1419,507 @@
       "control_key": "resilience_bcp_documented",
       "title": "Business continuity procedures are documented",
       "description": "Continuity and recovery procedures support planned response to disruptions and incidents.",
+      "section": "Infrastructure & Platform",
       "category": "Availability & Resilience",
-      "tags": ["bcp", "dr", "continuity"],
-      "source_url": null
-    },
-    {
-      "control_key": "privacy_data_minimization",
-      "title": "Data minimization is practiced",
-      "description": "Only necessary data is collected and retained for as long as needed for legitimate business purposes.",
-      "category": "Privacy",
-      "tags": ["privacy", "data-minimization", "retention"],
-      "source_url": null
-    },
-    {
-      "control_key": "vendor_due_diligence",
-      "title": "Vendor security due diligence is performed",
-      "description": "Third parties are evaluated for security risk and contractual requirements before integration.",
-      "category": "Vendor Management",
-      "tags": ["vendors", "due-diligence"],
+      "subcategory": "General",
+      "tags": ["bcp", "continuity", "dr"],
       "source_url": null
     },
     {
       "control_key": "secrets_management_rotation",
       "title": "Secrets are managed and rotated",
       "description": "Secrets are stored in secure systems and rotated based on risk and operational needs.",
+      "section": "Data Protection",
       "category": "Data Security",
-      "tags": ["secrets", "rotation"],
+      "subcategory": "General",
+      "tags": ["rotation", "secrets"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_by_design_default",
+      "title": "CyQu is secure by design and by default",
+      "description": "Security best practices are incorporated into design and development workflows as a default expectation.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["sdlc", "secure-development"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_code_reviews_required",
+      "title": "Code reviews are conducted for all changes",
+      "description": "Peer review is required to reduce defects and identify security issues before changes ship.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["code-review", "quality"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_dev_training_required",
+      "title": "Engineers receive secure development training",
+      "description": "Secure development training covers topics like threat modeling, secure coding, and vulnerability management.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["secure-coding", "training"],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_dependency_security_documented_standard",
+      "title": "Dependency Security standard is documented and reviewed",
+      "description": "CyQu maintains documented dependency security standards within its engineering & application security program to support consistent secure development control execution, audit readiness, and evidence collection.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Dependency Security",
+      "tags": [
+        "application",
+        "dependency",
+        "development",
+        "documented",
+        "engineering",
+        "evidence",
+        "reviewed",
+        "secure",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_dependency_security_ownership_defined",
+      "title": "Ownership is defined for dependency security activities",
+      "description": "CyQu assigns clear ownership for dependency security activities so operational, engineering, and assurance responsibilities remain traceable across the engineering & application security lifecycle.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Dependency Security",
+      "tags": [
+        "accountability",
+        "application",
+        "dependency",
+        "development",
+        "engineering",
+        "operations",
+        "ownership",
+        "secure",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its engineering & application security program to support consistent secure development control execution, audit readiness, and evidence collection.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "development",
+        "documented",
+        "engineering",
+        "evidence",
+        "general",
+        "reviewed",
+        "secure",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable secure development control verification.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": [
+        "application",
+        "development",
+        "engineering",
+        "evidence",
+        "general",
+        "review",
+        "secure",
+        "security",
+        "validation"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the engineering & application security lifecycle.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "application",
+        "development",
+        "engineering",
+        "general",
+        "operations",
+        "ownership",
+        "secure",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_secure_sdlc_documented_standard",
+      "title": "Secure SDLC standard is documented and reviewed",
+      "description": "CyQu maintains documented secure sdlc standards within its engineering & application security program to support consistent secure development control execution, audit readiness, and evidence collection.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Secure SDLC",
+      "tags": [
+        "application",
+        "development",
+        "documented",
+        "engineering",
+        "evidence",
+        "reviewed",
+        "sdlc",
+        "secure",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_secure_sdlc_ownership_defined",
+      "title": "Ownership is defined for secure sdlc activities",
+      "description": "CyQu assigns clear ownership for secure sdlc activities so operational, engineering, and assurance responsibilities remain traceable across the engineering & application security lifecycle.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Secure SDLC",
+      "tags": [
+        "accountability",
+        "application",
+        "development",
+        "engineering",
+        "operations",
+        "ownership",
+        "sdlc",
+        "secure",
+        "security"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_testing_review_documented_standard",
+      "title": "Testing & Review standard is documented and reviewed",
+      "description": "CyQu maintains documented testing & review standards within its engineering & application security program to support consistent secure development control execution, audit readiness, and evidence collection.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Testing & Review",
+      "tags": [
+        "application",
+        "development",
+        "documented",
+        "engineering",
+        "evidence",
+        "review",
+        "reviewed",
+        "secure",
+        "security",
+        "testing"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_development_testing_review_ownership_defined",
+      "title": "Ownership is defined for testing & review activities",
+      "description": "CyQu assigns clear ownership for testing & review activities so operational, engineering, and assurance responsibilities remain traceable across the engineering & application security lifecycle.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "Testing & Review",
+      "tags": [
+        "accountability",
+        "application",
+        "development",
+        "engineering",
+        "operations",
+        "ownership",
+        "review",
+        "secure",
+        "security",
+        "testing"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "secure_sast_scanning",
+      "title": "The application is regularly scanned for vulnerabilities",
+      "description": "Automated scanning (e.g., SAST) is used to detect issues early in the development lifecycle.",
+      "section": "Engineering & Application Security",
+      "category": "Secure Development",
+      "subcategory": "General",
+      "tags": ["ci", "sast", "scanning"],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_due_diligence",
+      "title": "Vendor security due diligence is performed",
+      "description": "Third parties are evaluated for security risk and contractual requirements before integration.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": ["due-diligence", "vendors"],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_contractual_controls_documented_standard",
+      "title": "Contractual Controls standard is documented and reviewed",
+      "description": "CyQu maintains documented contractual controls standards within its governance & assurance program to support consistent vendor management control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Contractual Controls",
+      "tags": [
+        "assurance",
+        "contractual",
+        "controls",
+        "documented",
+        "evidence",
+        "governance",
+        "management",
+        "reviewed",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_contractual_controls_evidence_retained",
+      "title": "Evidence is retained for contractual controls reviews",
+      "description": "Evidence associated with contractual controls reviews is retained to support internal validation, customer assurance responses, and repeatable vendor management control verification.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Contractual Controls",
+      "tags": [
+        "assurance",
+        "contractual",
+        "controls",
+        "evidence",
+        "governance",
+        "management",
+        "review",
+        "validation",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_contractual_controls_ownership_defined",
+      "title": "Ownership is defined for contractual controls activities",
+      "description": "CyQu assigns clear ownership for contractual controls activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Contractual Controls",
+      "tags": [
+        "accountability",
+        "assurance",
+        "contractual",
+        "controls",
+        "governance",
+        "management",
+        "operations",
+        "ownership",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_due_diligence_documented_standard",
+      "title": "Due Diligence standard is documented and reviewed",
+      "description": "CyQu maintains documented due diligence standards within its governance & assurance program to support consistent vendor management control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Due Diligence",
+      "tags": [
+        "assurance",
+        "diligence",
+        "documented",
+        "due",
+        "evidence",
+        "governance",
+        "management",
+        "reviewed",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_due_diligence_evidence_retained",
+      "title": "Evidence is retained for due diligence reviews",
+      "description": "Evidence associated with due diligence reviews is retained to support internal validation, customer assurance responses, and repeatable vendor management control verification.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Due Diligence",
+      "tags": [
+        "assurance",
+        "diligence",
+        "due",
+        "evidence",
+        "governance",
+        "management",
+        "review",
+        "validation",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_due_diligence_ownership_defined",
+      "title": "Ownership is defined for due diligence activities",
+      "description": "CyQu assigns clear ownership for due diligence activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Due Diligence",
+      "tags": [
+        "accountability",
+        "assurance",
+        "diligence",
+        "due",
+        "governance",
+        "management",
+        "operations",
+        "ownership",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_general_documented_standard",
+      "title": "General standard is documented and reviewed",
+      "description": "CyQu maintains documented general standards within its governance & assurance program to support consistent vendor management control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "documented",
+        "evidence",
+        "general",
+        "governance",
+        "management",
+        "reviewed",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_general_evidence_retained",
+      "title": "Evidence is retained for general reviews",
+      "description": "Evidence associated with general reviews is retained to support internal validation, customer assurance responses, and repeatable vendor management control verification.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "evidence",
+        "general",
+        "governance",
+        "management",
+        "review",
+        "validation",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_general_exceptions_managed",
+      "title": "Exceptions are tracked for general controls",
+      "description": "CyQu tracks exceptions related to general controls through documented workflows that support approval, remediation, and follow-up within the governance & assurance program.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "assurance",
+        "exceptions",
+        "general",
+        "governance",
+        "management",
+        "remediation",
+        "vendor",
+        "workflow"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_general_ownership_defined",
+      "title": "Ownership is defined for general activities",
+      "description": "CyQu assigns clear ownership for general activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "General",
+      "tags": [
+        "accountability",
+        "assurance",
+        "general",
+        "governance",
+        "management",
+        "operations",
+        "ownership",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_ongoing_review_documented_standard",
+      "title": "Ongoing Review standard is documented and reviewed",
+      "description": "CyQu maintains documented ongoing review standards within its governance & assurance program to support consistent vendor management control execution, audit readiness, and evidence collection.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Ongoing Review",
+      "tags": [
+        "assurance",
+        "documented",
+        "evidence",
+        "governance",
+        "management",
+        "ongoing",
+        "review",
+        "reviewed",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_ongoing_review_evidence_retained",
+      "title": "Evvidence is retained for ongoing review reviews",
+      "description": "Evidence associated with ongoing review reviews is retained to support internal validation, customer assurance responses, and repeatable vendor management control verification.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Ongoing Review",
+      "tags": [
+        "assurance",
+        "evidence",
+        "governance",
+        "management",
+        "ongoing",
+        "review",
+        "validation",
+        "vendor"
+      ],
+      "source_url": null
+    },
+    {
+      "control_key": "vendor_management_ongoing_review_ownership_defined",
+      "title": "Ownership is defined for ongoing review activities",
+      "description": "CyQu assigns clear ownership for ongoing review activities so operational, engineering, and assurance responsibilities remain traceable across the governance & assurance lifecycle.",
+      "section": "Governance & Assurance",
+      "category": "Vendor Management",
+      "subcategory": "Ongoing Review",
+      "tags": [
+        "accountability",
+        "assurance",
+        "governance",
+        "management",
+        "ongoing",
+        "operations",
+        "ownership",
+        "review",
+        "vendor"
+      ],
       "source_url": null
     }
   ]
