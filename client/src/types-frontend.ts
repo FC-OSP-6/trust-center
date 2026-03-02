@@ -17,7 +17,10 @@ export type {
   Edge,
   Connection,
   ControlsConnection,
-  FaqsConnection
+  FaqsConnection,
+  ConnectionQueryArgs,
+  OverviewSearchQueryArgs,
+  OverviewSearchResult
 } from '../../types-shared'; // shared node + connection contracts should have exactly one source of truth
 
 // ---------- reusable link-card item types (react composition) ----------
@@ -142,6 +145,10 @@ type AonSubnavCardProps = HtmlElProps & {
   'empty-text'?: string; // optional empty state text
 };
 
+type AonThemeToggleProps = HtmlElProps & {
+  theme?: 'light' | 'dark' | string; // current stencil prop is optional and reflected internally
+};
+
 interface AonStencilIntrinsicElements {
   'aon-link-card': AonLinkCardProps;
   'aon-expansion-card': AonExpansionCardProps;
@@ -151,6 +158,7 @@ interface AonStencilIntrinsicElements {
   'aon-title': AonTitleProps;
   'aon-navbar': AonNavbarProps;
   'aon-footer': AonFooterProps;
+  'aon-theme-toggle': AonThemeToggleProps;
 
   'aon-control-card': AonControlCardProps;
   'aon-faq-card': AonFaqCardProps;
