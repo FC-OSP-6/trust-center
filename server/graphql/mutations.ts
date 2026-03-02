@@ -1,19 +1,35 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  TL;DR  -->  admin-ready cache invalidation mutations
+  TL;DR  -->  admin mutation resolvers
 
-  - exposes safe GraphQL mutation hooks for read-cache invalidation
-  - keeps invalidation callable before real admin writes exist
-  - preserves the future write pattern: write db first, then invalidate reads
-  - allows local verification in non-production while auth is still a stub
-  - returns structured mutation results so GraphiQL checks are easy to verify
+  - keeps mutation resolvers thin and service-first
+  - preserves admin/local-dev auth gating in one place
+  - exposes safe cache invalidation hooks for pre-write verification
+  - adds controls/faqs CRUD mutations that delegate to service-layer writes
+  - returns mapped node payloads and readable delete results for GraphiQL verification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared GraphQL context contract
 import { invalidateControls, invalidateFaqs } from '../cache/invalidation'; // domain-level invalidation helpers
+import {
+  createControl,
+  updateControl,
+  deleteControl
+} from '../services/controlsService'; // controls write methods live in the service layer
+import { createFaq, updateFaq, deleteFaq } from '../services/faqsService'; // faq write methods live in the service layer
+import {
+  type CreateControlInput,
+  type UpdateControlInput,
+  type CreateFaqInput,
+  type UpdateFaqInput
+} from '../services/validation'; // shared write input contracts align resolver/service boundaries
+import { mapControlNode, mapFaqNode } from './nodeMappers'; // shared db-row -> graphql-node mappers
 
 // ---------- local mutation context ----------
 
-type MutationContext = Pick<GraphQLContext, 'cache' | 'requestId' | 'auth'>; // only the fields this file actually needs
+type MutationContext = Pick<
+  GraphQLContext,
+  'cache' | 'requestId' | 'auth' | 'db'
+>; // only the fields this file actually needs
 
 type InvalidationScope = 'controls' | 'faqs'; // supported invalidation domains
 
@@ -24,18 +40,19 @@ type InvalidationResult = {
   requestId: string; // request trace id for terminal correlation
 };
 
-// ---------- constants ----------
-
-const CONTROLS_LIST_PREFIX = 'controls:list:'; // list-read prefix for controls cache keys
-const FAQS_LIST_PREFIX = 'faqs:list:'; // list-read prefix for faqs cache keys
+type DeleteResult = {
+  ok: boolean; // success flag for GraphQL clients and GraphiQL smoke tests
+  id: string; // deleted record id
+  requestId: string; // request trace id for terminal correlation
+};
 
 // ---------- helpers ----------
 
-function assertAdminOrLocalDev(ctx: MutationContext): void {
-  const isLocalDev = process.env.NODE_ENV !== 'production'; // local dev has no real auth yet, so allow verification outside production
+export function assertAdminOrLocalDev(ctx: MutationContext): void {
+  const isLocalDev = process.env.NODE_ENV !== 'production'; // local dev still allows GraphiQL mutation verification without real auth plumbing
 
   if (!ctx.auth.isAdmin && !isLocalDev) {
-    throw new Error('FORBIDDEN: admin only'); // production still requires real admin auth
+    throw new Error('FORBIDDEN: admin only'); // production requires request-derived admin auth
   }
 }
 
@@ -62,6 +79,17 @@ function buildInvalidationResult(args: {
   };
 }
 
+function buildDeleteResult(args: {
+  requestId: string;
+  id: string;
+}): DeleteResult {
+  return {
+    ok: true, // delete completed successfully
+    id: args.id, // deleted row id
+    requestId: args.requestId // trace id for GraphiQL-to-terminal matching
+  };
+}
+
 // ---------- mutation resolvers ----------
 
 export const mutationResolvers = {
@@ -73,18 +101,18 @@ export const mutationResolvers = {
     ): Promise<InvalidationResult> => {
       assertAdminOrLocalDev(ctx); // allow local verification now while keeping production restricted
 
-      invalidateControls(ctx.cache); // clear all cached controls list reads
+      const invalidatedPrefix = invalidateControls(ctx.cache); // clear all cached controls list reads
 
       logInvalidation({
         requestId: ctx.requestId, // tie invalidation log to this GraphQL request
         scope: 'controls', // domain being invalidated
-        prefix: CONTROLS_LIST_PREFIX // exact prefix used by cache invalidation
+        prefix: invalidatedPrefix // exact prefix used by cache invalidation
       });
 
       return buildInvalidationResult({
         requestId: ctx.requestId, // echo request id back to GraphQL client
         scope: 'controls', // mutation invalidated controls reads
-        invalidatedPrefix: CONTROLS_LIST_PREFIX // return exact prefix for easy verification
+        invalidatedPrefix // return exact prefix for easy verification
       });
     },
 
@@ -95,25 +123,85 @@ export const mutationResolvers = {
     ): Promise<InvalidationResult> => {
       assertAdminOrLocalDev(ctx); // allow local verification now while keeping production restricted
 
-      invalidateFaqs(ctx.cache); // clear all cached faq list reads
+      const invalidatedPrefix = invalidateFaqs(ctx.cache); // clear all cached faq list reads
 
       logInvalidation({
         requestId: ctx.requestId, // tie invalidation log to this GraphQL request
         scope: 'faqs', // domain being invalidated
-        prefix: FAQS_LIST_PREFIX // exact prefix used by cache invalidation
+        prefix: invalidatedPrefix // exact prefix used by cache invalidation
       });
 
       return buildInvalidationResult({
         requestId: ctx.requestId, // echo request id back to GraphQL client
         scope: 'faqs', // mutation invalidated faq reads
-        invalidatedPrefix: FAQS_LIST_PREFIX // return exact prefix for easy verification
+        invalidatedPrefix // return exact prefix for easy verification
       });
+    },
+
+    adminCreateControl: async (
+      _parent: unknown,
+      args: { input: CreateControlInput },
+      ctx: GraphQLContext
+    ) => {
+      assertAdminOrLocalDev(ctx); // auth stays at the resolver boundary
+      const row = await createControl(args.input, ctx); // service validates, writes, recomputes search_text, and invalidates
+      return mapControlNode(row); // GraphQL node mapping stays centralized and symmetric
+    },
+
+    adminUpdateControl: async (
+      _parent: unknown,
+      args: { id: string; input: UpdateControlInput },
+      ctx: GraphQLContext
+    ) => {
+      assertAdminOrLocalDev(ctx); // auth stays at the resolver boundary
+      const row = await updateControl(args.id, args.input, ctx); // service validates, writes, recomputes search_text, and invalidates
+      return mapControlNode(row); // GraphQL node mapping stays centralized and symmetric
+    },
+
+    adminDeleteControl: async (
+      _parent: unknown,
+      args: { id: string },
+      ctx: GraphQLContext
+    ): Promise<DeleteResult> => {
+      assertAdminOrLocalDev(ctx); // auth stays at the resolver boundary
+      const deleted = await deleteControl(args.id, ctx); // service deletes and invalidates
+      return buildDeleteResult({
+        requestId: ctx.requestId,
+        id: deleted.id
+      }); // delete payload stays tiny and reviewer-friendly
+    },
+
+    adminCreateFaq: async (
+      _parent: unknown,
+      args: { input: CreateFaqInput },
+      ctx: GraphQLContext
+    ) => {
+      assertAdminOrLocalDev(ctx); // auth stays at the resolver boundary
+      const row = await createFaq(args.input, ctx); // service validates, writes, recomputes search_text, and invalidates
+      return mapFaqNode(row); // GraphQL node mapping stays centralized and symmetric
+    },
+
+    adminUpdateFaq: async (
+      _parent: unknown,
+      args: { id: string; input: UpdateFaqInput },
+      ctx: GraphQLContext
+    ) => {
+      assertAdminOrLocalDev(ctx); // auth stays at the resolver boundary
+      const row = await updateFaq(args.id, args.input, ctx); // service validates, writes, recomputes search_text, and invalidates
+      return mapFaqNode(row); // GraphQL node mapping stays centralized and symmetric
+    },
+
+    adminDeleteFaq: async (
+      _parent: unknown,
+      args: { id: string },
+      ctx: GraphQLContext
+    ): Promise<DeleteResult> => {
+      assertAdminOrLocalDev(ctx); // auth stays at the resolver boundary
+      const deleted = await deleteFaq(args.id, ctx); // service deletes and invalidates
+      return buildDeleteResult({
+        requestId: ctx.requestId,
+        id: deleted.id
+      }); // delete payload stays tiny and reviewer-friendly
     }
   }
 };
-
-// ---------- future admin-write notes ----------
-
-// future admin writes should follow this order: validate auth -> write db -> invalidate reads -> return payload
-// future controls writes should call invalidateControls(ctx.cache) only after the db write succeeds
-// future faq writes should call invalidateFaqs(ctx.cache) only after the db write succeeds
