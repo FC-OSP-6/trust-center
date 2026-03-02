@@ -1,12 +1,19 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  deterministic cache key builders
 
-  - builds consistent string keys from query args (e.g. "controls:list:first=10:category=SOC2")
+  - builds consistent string keys from query args (e.g. "controls:list:first=10:category=soc2")
   - same args always produce the same key — that's what "deterministic" means
   - different args produce different keys — prevents cross-talk between results
   - undefined args are omitted so "no filter" and "filter not passed" are the same key
-  - adds normalized read-cache keys (clamped first + normalized text + auth scope)
+  - reuses shared pagination/search normalization so equivalent inputs collapse to one canonical key
+  - adds overview-search key builders for request-scoped grouped-search memoization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+import {
+  clampFirst,
+  normalizeSearchInput,
+  normalizeText
+} from '../services/pagination'; // reuse shared input normalization so cache identity matches live search semantics
 
 // ---------- public types ----------
 
@@ -16,7 +23,13 @@ export type ListArgs = {
   first?: number; // how many items per page
   after?: string; // pagination cursor — points to where the last page ended
   category?: string; // filter by category (e.g. "SOC2", "Privacy")
-  search?: string; // full-text search term
+  search?: string; // substring search term
+};
+
+// OverviewSearchKeyArgs mirrors the grouped overview search contract
+export type OverviewSearchKeyArgs = {
+  search: string; // normalized overview search term
+  firstPerKind?: number; // per-entity visible row cap
 };
 
 // options for shared read-cache keys  -->  auth scope is included so future admin/private reads do not collide with public reads
@@ -34,6 +47,20 @@ export function buildControlsKey(args: ListArgs): string {
 // public key builder for faqs queries — delegates to the shared helper
 export function buildFaqsKey(args: ListArgs): string {
   return buildListKey('faqs', args); // prefix "faqs" so keys never clash with controls
+}
+
+// public key builder for grouped overview search — normalized for request-scoped memo identity
+export function buildOverviewSearchKey(args: OverviewSearchKeyArgs): string {
+  const normalizedArgs = normalizeOverviewSearchArgsForKey(args); // canonical grouped-search arg shape
+  const parts: string[] = ['overview-search:list']; // separate prefix keeps grouped-search keys grep-friendly
+
+  parts.push(`search=${normalizedArgs.search}`); // overview search always includes a normalized search term
+
+  if (normalizedArgs.firstPerKind !== undefined) {
+    parts.push(`firstPerKind=${normalizedArgs.firstPerKind}`); // per-kind page size changes the grouped result shape
+  }
+
+  return parts.join(':'); // readable deterministic grouped-search key
 }
 
 // ---------- public key builders (normalized read-cache keys) ----------
@@ -97,14 +124,12 @@ function buildReadCacheKey(
   return parts.join(':');
 }
 
-// ---------- normalization helpers (read-cache only) ----------
-
-const READ_KEY_MAX_PAGE_SIZE = 50; // keep aligned with pagination clamp to avoid equivalent-input cache misses
+// ---------- normalization helpers (shared key identity) ----------
 
 function normalizeListArgsForReadCache(args: ListArgs): ListArgs {
   const out: ListArgs = {}; // build normalized arg bag while omitting undefined fields
 
-  if (args.first !== undefined) out.first = clampFirstForReadKey(args.first); // mirror pagination clamp behavior
+  if (args.first !== undefined) out.first = clampFirst(args.first); // mirror live pagination clamp behavior
 
   if (args.after !== undefined) {
     const afterTrimmed = String(args.after).trim(); // trim accidental whitespace around opaque cursor
@@ -112,26 +137,38 @@ function normalizeListArgsForReadCache(args: ListArgs): ListArgs {
   }
 
   if (args.category !== undefined) {
-    const normalizedCategory = normalizeTextForReadKey(args.category); // trim + collapse spaces + lowercase
+    const normalizedCategory = normalizeCategoryForKey(args.category); // trim + collapse spaces + lowercase
     if (normalizedCategory !== '') out.category = normalizedCategory; // omit empty category filters
   }
 
   if (args.search !== undefined) {
-    const normalizedSearch = normalizeTextForReadKey(args.search); // trim + collapse spaces + lowercase
-    if (normalizedSearch !== '') out.search = normalizedSearch; // omit empty search filters
+    const normalizedSearch = normalizeSearchForKey(args.search); // reuse shared search normalization before lowering for key stability
+    if (normalizedSearch !== undefined) out.search = normalizedSearch; // omit empty search filters
   }
 
   return out; // deterministic normalized args for shared read-cache keys
 }
 
-function clampFirstForReadKey(first: number): number {
-  if (!Number.isFinite(first)) return 10; // mirror pagination default for invalid values
-  if (first <= 0) return 10; // mirror pagination default for non-positive values
-  return Math.min(first, READ_KEY_MAX_PAGE_SIZE); // mirror pagination max clamp
+function normalizeOverviewSearchArgsForKey(
+  args: OverviewSearchKeyArgs
+): Required<OverviewSearchKeyArgs> {
+  const search = normalizeSearchForKey(args.search) ?? ''; // grouped-search callers should already validate, but keep the key builder defensive
+  const firstPerKind = clampFirst(args.firstPerKind ?? 5); // align grouped-search key identity with live page size clamp
+
+  return {
+    search,
+    firstPerKind
+  }; // canonical grouped-search args for deterministic memo identity
 }
 
-function normalizeTextForReadKey(value: string): string {
-  return String(value).trim().replace(/\s+/g, ' ').toLowerCase(); // canonical text form for stable key output
+function normalizeCategoryForKey(value: string): string {
+  const normalized = normalizeText(String(value)); // trim + collapse internal spaces
+  return normalized === '' ? '' : normalized.toLowerCase(); // case-insensitive key identity
+}
+
+function normalizeSearchForKey(value: string): string | undefined {
+  const normalized = normalizeSearchInput(String(value)); // shared search normalization omits blank/whitespace-only input
+  return normalized ? normalized.toLowerCase() : undefined; // case-insensitive key identity for current substring search semantics
 }
 
 function normalizeAuthScope(value: string | undefined): string {

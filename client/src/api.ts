@@ -3,6 +3,7 @@
 
   - sends typed graphql requests through /graphql
   - provides one generic connection page fetch helper (controls + faqs)
+  - provides one grouped overview-search fetch helper for 006E consumers
   - adds cache + in-flight dedupe to reduce duplicate requests
   - exports convenience wrappers + compatibility aliases for existing callsites
   - keeps react pages thin while preserving typed data access
@@ -10,6 +11,15 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { ControlsConnection, FaqsConnection } from './types-frontend';
+
+// ----------  shared result types  ----------
+
+type OverviewSearchResult = {
+  search: string; // normalized search term echoed back by the backend
+  controls: ControlsConnection; // grouped controls bucket for overview search
+  faqs: FaqsConnection; // grouped faqs bucket for overview search
+  totalCount: number; // sum of controls.totalCount + faqs.totalCount
+};
 
 // ----------  GraphQL transport types  ----------
 
@@ -45,6 +55,12 @@ type FetchAllConnectionArgs = {
   maxPages?: number; // client-side safety cap
 };
 
+type FetchOverviewSearchArgs = {
+  search: string; // required overview search term
+  firstPerKind?: number; // optional per-kind visible row cap
+  ttlMs?: number; // optional cache ttl override
+};
+
 type FetchVars = {
   first: number; // always required by graphql query
   after?: string; // present only when defined
@@ -52,11 +68,17 @@ type FetchVars = {
   search?: string; // present only when defined
 }; // exactOptionalPropertyTypes-safe shape
 
+type OverviewSearchVars = {
+  search: string; // required grouped overview search term
+  firstPerKind?: number; // optional grouped result cap
+}; // exactOptionalPropertyTypes-safe shape
+
 // ----------  shared constants  ----------
 
 const GRAPHQL_URL = '/graphql'; // relative path works with dev proxy + production host
 const DEFAULT_TTL_MS = 30_000; // small ttl reduces spammy refetches while staying fresh
 const DEFAULT_PAGE_SIZE = 25; // default single-page fetch size
+const DEFAULT_OVERVIEW_PAGE_SIZE = 5; // mirrors backend overviewSearch default
 const MAX_PAGE_SIZE = 50; // mirrors backend clamp / resolver safety
 const DEFAULT_MAX_PAGES = 25; // safety cap for "fetch all" pagination
 
@@ -172,6 +194,58 @@ export const FAQS_CONNECTION_QUERY = /* GraphQL */ `
   }
 `;
 
+export const OVERVIEW_SEARCH_QUERY = /* GraphQL */ `
+  query OverviewSearch($search: String!, $firstPerKind: Int) {
+    overviewSearch(search: $search, firstPerKind: $firstPerKind) {
+      search
+      totalCount
+      controls {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            controlKey
+            title
+            description
+            section
+            category
+            subcategory
+            tags
+            sourceUrl
+            updatedAt
+          }
+        }
+      }
+      faqs {
+        totalCount
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            faqKey
+            question
+            answer
+            section
+            category
+            subcategory
+            tags
+            updatedAt
+          }
+        }
+      }
+    }
+  }
+`;
+
 // ----------  response wrapper maps  ----------
 
 type ControlsConnectionData = {
@@ -180,6 +254,10 @@ type ControlsConnectionData = {
 
 type FaqsConnectionData = {
   faqsConnection: FaqsConnection; // root field for faqs query
+};
+
+type OverviewSearchData = {
+  overviewSearch: OverviewSearchResult; // root field for grouped overview search
 };
 
 type ConnectionKind = 'controls' | 'faqs'; // supported connection families
@@ -206,7 +284,7 @@ type CacheEntry<T> = {
   expiresAt: number; // epoch milliseconds expiration time
 };
 
-const pageCache = new Map<string, CacheEntry<unknown>>(); // response cache keyed by kind + vars
+const pageCache = new Map<string, CacheEntry<unknown>>(); // response cache keyed by request kind + vars
 const inFlight = new Map<string, Promise<unknown>>(); // dedupe concurrent identical requests
 
 function getNowMs(): number {
@@ -241,6 +319,33 @@ function setCached<T>(key: string, value: T, ttlMs: number) {
   });
 }
 
+async function getOrCreateCached<T>(
+  cacheKey: string,
+  ttlMs: number,
+  factory: () => Promise<T>
+): Promise<T> {
+  const cached = getCached<T>(cacheKey); // fast-path cache read
+
+  if (cached) return cached; // return cached response immediately
+
+  const pending = inFlight.get(cacheKey) as Promise<T> | undefined; // check in-flight dedupe map
+  if (pending) return pending; // share pending identical request
+
+  const requestPromise = (async () => {
+    const value = await factory(); // run actual request once
+    setCached(cacheKey, value, ttlMs); // cache successful result
+    return value; // return typed payload
+  })();
+
+  inFlight.set(cacheKey, requestPromise); // register before await to dedupe races
+
+  try {
+    return await requestPromise; // resolve shared promise
+  } finally {
+    inFlight.delete(cacheKey); // cleanup regardless of success/failure
+  }
+}
+
 export function clearApiCache() {
   pageCache.clear(); // clear cached payloads
   inFlight.clear(); // clear pending promise references
@@ -267,14 +372,13 @@ function clampPositiveInt(value: number | undefined, fallback: number): number {
 function normalizeText(value: string | undefined): string | undefined {
   if (value == null) return undefined; // preserve omitted semantics
 
-  const trimmed = value.trim(); // normalize whitespace-only input
+  const normalized = String(value).trim().replace(/\s+/g, ' '); // trim + collapse internal whitespace so FE request identity matches backend normalization more closely
+  if (normalized === '') return undefined; // omit empty strings
 
-  if (trimmed === '') return undefined; // omit empty strings
-
-  return trimmed; // valid normalized text
+  return normalized; // valid normalized text
 }
 
-// ----------  variable builder (exactOptionalPropertyTypes-safe)  ----------
+// ----------  variable builders (exactOptionalPropertyTypes-safe)  ----------
 
 function buildFetchVars(args: FetchConnectionArgs): FetchVars {
   const vars: FetchVars = {
@@ -292,7 +396,23 @@ function buildFetchVars(args: FetchConnectionArgs): FetchVars {
   return vars; // exactOptionalPropertyTypes-safe object
 }
 
-function stableKey(kind: ConnectionKind, vars: FetchVars): string {
+function buildOverviewSearchVars(
+  args: FetchOverviewSearchArgs
+): OverviewSearchVars {
+  const search = normalizeText(args.search); // trim + collapse whitespace before sending the request
+  if (!search) {
+    throw new Error(
+      'INPUT_ERROR: overview search requires a non-empty search term'
+    ); // fail fast on blank searches so the UI does not spam the backend
+  }
+
+  return {
+    search, // required overview search term
+    firstPerKind: clampPageSize(args.firstPerKind, DEFAULT_OVERVIEW_PAGE_SIZE) // keep FE request size aligned with backend clamp/default behavior
+  };
+}
+
+function stableRequestKey(kind: string, vars: Record<string, unknown>): string {
   return `${kind}:${JSON.stringify(vars)}`; // deterministic enough because key insertion order is controlled
 }
 
@@ -304,19 +424,9 @@ export async function fetchConnectionPage<K extends ConnectionKind>(
 ): Promise<ConnectionByKind[K]> {
   const vars = buildFetchVars(args); // normalized graphql variables
   const ttlMs = getTtlMs(args.ttlMs); // normalized cache ttl
-  const cacheKey = stableKey(kind, vars); // request identity for cache + dedupe
+  const cacheKey = stableRequestKey(kind, vars); // request identity for cache + dedupe
 
-  const cached = getCached<ConnectionByKind[K]>(cacheKey); // fast path cache read
-
-  if (cached) return cached; // return cached response immediately
-
-  const pending = inFlight.get(cacheKey) as
-    | Promise<ConnectionByKind[K]>
-    | undefined; // check dedupe map
-
-  if (pending) return pending; // share in-flight request promise
-
-  const requestPromise = (async (): Promise<ConnectionByKind[K]> => {
+  return getOrCreateCached(cacheKey, ttlMs, async () => {
     const query = QUERY_BY_KIND[kind]; // choose query document for current kind
 
     const res = await graphqlFetch<QueryDataByKind[K], FetchVars>({
@@ -325,25 +435,32 @@ export async function fetchConnectionPage<K extends ConnectionKind>(
     });
 
     if (kind === 'controls') {
-      const value = (res.data as QueryDataByKind['controls'])
+      return (res.data as QueryDataByKind['controls'])
         .controlsConnection as ConnectionByKind[K]; // extract controls root field
-      setCached(cacheKey, value, ttlMs); // cache successful result
-      return value; // typed controls connection
     }
 
-    const value = (res.data as QueryDataByKind['faqs'])
+    return (res.data as QueryDataByKind['faqs'])
       .faqsConnection as ConnectionByKind[K]; // extract faqs root field
-    setCached(cacheKey, value, ttlMs); // cache successful result
-    return value; // typed faqs connection
-  })();
+  });
+}
 
-  inFlight.set(cacheKey, requestPromise); // register before await to dedupe races
+// ----------  overview search fetch ----------
 
-  try {
-    return await requestPromise; // resolve shared promise
-  } finally {
-    inFlight.delete(cacheKey); // cleanup regardless of success/failure
-  }
+export async function fetchOverviewSearch(
+  args: FetchOverviewSearchArgs
+): Promise<OverviewSearchResult> {
+  const vars = buildOverviewSearchVars(args); // normalized overview-search variables
+  const ttlMs = getTtlMs(args.ttlMs); // normalized cache ttl
+  const cacheKey = stableRequestKey('overview-search', vars); // grouped-search identity for cache + dedupe
+
+  return getOrCreateCached(cacheKey, ttlMs, async () => {
+    const res = await graphqlFetch<OverviewSearchData, OverviewSearchVars>({
+      query: OVERVIEW_SEARCH_QUERY, // grouped overview-search graphql document
+      variables: vars // normalized overview-search variables
+    });
+
+    return res.data.overviewSearch; // extract grouped overview-search payload
+  });
 }
 
 // ----------  convenience wrappers (single page)  ----------

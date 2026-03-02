@@ -5,10 +5,11 @@
   - reuses existing entity read services instead of inventing a second search engine
   - validates + normalizes the overview search term once at the service boundary
   - dedupes duplicate overview-search calls within one graphql request
-  - keeps fallback behavior aligned automatically by delegating to existing services
+  - intentionally stays request-scoped only for now because underlying entity reads already own shared cross-request caching + invalidation domains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
+import { buildOverviewSearchKey } from '../cache/keys'; // deterministic grouped-search key builder for request memo identity
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
 import { assertOverviewSearchInput, clampFirst } from './pagination'; // shared search contract + page size safety
 import { getControlsPage, type ControlsPage } from './controlsService'; // existing controls read path stays the single source of truth
@@ -28,17 +29,16 @@ export type OverviewSearchPage = {
   totalCount: number; // sum of controls + faqs total counts
 };
 
-// ---------- memo key helpers ----------
+// ---------- normalization helpers ----------
 
-function buildOverviewMemoKey(args: {
+function normalizeOverviewArgs(args: OverviewSearchArgs): {
   search: string;
   firstPerKind: number;
-}): string {
-  return [
-    'searchService:getOverviewSearch', // stable service prefix keeps request memo keys grep-friendly
-    `search=${args.search.toLowerCase()}`, // case-insensitive search semantics should dedupe equivalent terms
-    `firstPerKind=${args.firstPerKind}` // per-kind size changes the grouped result shape
-  ].join(':'); // readable deterministic memo key for one graphql request
+} {
+  const search = assertOverviewSearchInput(args.search); // freeze shared overview-search rules once
+  const firstPerKind = clampFirst(args.firstPerKind ?? 5); // clamp once so grouped reads and memo identity stay aligned
+
+  return { search, firstPerKind }; // normalized grouped-search inputs
 }
 
 // ---------- main read path ----------
@@ -47,34 +47,29 @@ export async function getOverviewSearch(
   args: OverviewSearchArgs,
   ctx: GraphQLContext
 ): Promise<OverviewSearchPage> {
-  const search = assertOverviewSearchInput(args.search); // freeze shared overview search rules once at the service boundary
-  const firstPerKind = clampFirst(args.firstPerKind ?? 5); // keep grouped reads aligned with existing page-size safety rules
-
-  const memoKey = buildOverviewMemoKey({
-    search,
-    firstPerKind
-  }); // request-scoped memo key for duplicate overview searches inside one graphql request
+  const normalized = normalizeOverviewArgs(args); // compute one normalized grouped-search shape for this call
+  const memoKey = buildOverviewSearchKey(normalized); // deterministic request-scoped identity for duplicate overview searches
 
   return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
     const [controlsPage, faqsPage] = await Promise.all([
       getControlsPage(
         {
-          first: firstPerKind,
-          search
+          first: normalized.firstPerKind,
+          search: normalized.search
         },
         ctx
       ), // controls bucket reuses the existing controls read path with shared db/cache/fallback behavior
       getFaqsPage(
         {
-          first: firstPerKind,
-          search
+          first: normalized.firstPerKind,
+          search: normalized.search
         },
         ctx
       ) // faqs bucket reuses the existing faqs read path with shared db/cache/fallback behavior
     ]);
 
     return {
-      search, // echo the normalized search term so graphql can return what the backend actually used
+      search: normalized.search, // echo the normalized search term so graphql can return what the backend actually used
       controlsPage, // grouped controls bucket stays in raw service shape until the resolver maps it
       faqsPage, // grouped faqs bucket stays in raw service shape until the resolver maps it
       totalCount: controlsPage.totalCount + faqsPage.totalCount // grouped total remains deterministic and reviewer-friendly
