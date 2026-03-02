@@ -76,6 +76,30 @@ function buildConnectionResult<
   };
 }
 
+// ---------- connection helper ----------
+
+function buildConnectionResult<
+  T extends { id: string; updated_at: string | Date },
+  TNode
+>(page: ConnectionPage<T>, mapNode: (row: T) => TNode) {
+  const edges = page.rows.map(row => ({
+    cursor: encodeCursor({
+      sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
+      id: row.id // id is the tie-breaker to keep ordering stable
+    }),
+    node: mapNode(row) // convert db/service row into frontend GraphQL shape
+  }));
+
+  return {
+    edges, // Relay-style edge array
+    pageInfo: {
+      hasNextPage: page.hasNextPage, // service already determined if a next page exists
+      endCursor: page.endCursor // service already computed the last cursor for this page
+    },
+    totalCount: page.totalCount // total count stays on the connection for client pagination metadata
+  };
+}
+
 // ---------- query resolvers ----------
 
 export const resolvers = {
