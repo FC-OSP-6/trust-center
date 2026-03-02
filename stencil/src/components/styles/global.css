@@ -1,3 +1,5 @@
 @import './tokens.css';
+@import './tokens-semantic.css';
+@import './tokens-dark.css';
 @import './typography.css';
 @import './expandable.css';

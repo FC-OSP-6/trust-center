@@ -15,7 +15,7 @@
   width: 100%;
   height: 100%;
   font-family: var(--font-default);
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
   box-sizing: border-box;
 }
 
@@ -39,7 +39,7 @@
   gap: var(--card-content-gap-md);
   width: 100%;
   height: 100%;
-  background: var(--color-surface);
+  background: var(--tc-bg-card);
   border: var(--card-border-width) solid var(--card-border-color-subtle);
   border-radius: var(--card-radius-md);
   padding: var(--card-padding-md);
@@ -56,7 +56,7 @@
 
 .card-title {
   margin: 0;
-  color: var(--color-navy-primary);
+  color: var(--tc-text-primary);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);
@@ -64,7 +64,7 @@
 
 .card-subtitle {
   margin: 0;
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -107,7 +107,7 @@
 }
 
 .link-row:focus-visible {
-  outline: var(--focus-ring-width) solid var(--color-teal-dark-secondary);
+  outline: var(--focus-ring-width) solid var(--tc-border-focus);
   outline-offset: var(--focus-ring-offset);
 }
 
@@ -149,7 +149,7 @@
 }
 
 .row-title {
-  color: var(--color-teal-dark-secondary);
+  color: var(--tc-text-link);
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
@@ -162,12 +162,12 @@
 
 /* link text interaction follows system link tokens */
 .link-row:hover .row-title {
-  color: var(--color-teal-dark-hover);
+  color: var(--tc-text-link-hover);
   text-decoration: var(--link-decoration-hover);
 }
 
 .link-row:active .row-title {
-  color: var(--color-teal-dark-active);
+  color: var(--tc-text-link-hover);
   text-decoration: var(--link-decoration-hover);
 }
 
@@ -178,9 +178,9 @@
   align-items: center;
   padding: var(--chip-padding-y) var(--chip-padding-x);
   border-radius: var(--chip-radius-pill);
-  border: 1px solid var(--color-gray-05);
-  background: var(--color-gray-08);
-  color: var(--color-gray-02);
+  border: 1px solid var(--tc-border-subtle);
+  background: var(--tc-bg-page);
+  color: var(--tc-text-secondary);
   font-size: var(--font-size-xsmall);
   line-height: var(--line-height-xsmall);
   font-weight: var(--font-weight-regular);
@@ -188,7 +188,7 @@
 
 .row-description {
   margin: 0;
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -198,7 +198,7 @@
   flex: 0 0 auto;
   white-space: nowrap;
   margin-left: 8px;
-  color: var(--color-teal-dark-secondary);
+  color: var(--tc-text-link);
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
@@ -208,12 +208,12 @@
 }
 
 .link-row:hover .row-cta {
-  color: var(--color-teal-dark-hover);
+  color: var(--tc-text-link-hover);
   text-decoration: var(--link-decoration-hover);
 }
 
 .link-row:active .row-cta {
-  color: var(--color-teal-dark-active);
+  color: var(--tc-text-link-hover);
   text-decoration: var(--link-decoration-hover);
 }
 

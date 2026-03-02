@@ -164,7 +164,11 @@ function expectTaxonomyNodeShape(
 
 // ---------- graphql taxonomy coverage ----------
 
-describe('graphql taxonomy integration', () => {
+const hasDatabaseUrl =
+  typeof process.env.DATABASE_URL === 'string' &&
+  process.env.DATABASE_URL.trim().length > 0;
+
+describe.skipIf(!hasDatabaseUrl)('graphql taxonomy integration', () => {
   it('returns taxonomy metadata on controlsConnection nodes', async () => {
     const { response, json } = await postGraphQL<{
       controlsConnection: {

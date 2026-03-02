@@ -1,0 +1,49 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  theme-toggle.css
+  Shadow-scoped styles for aon-theme-toggle.
+  Position is owned by :host — no shell layout impact.
+  All color tokens resolve from the document root.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+:host {
+  position: fixed;
+  /*
+    Vertical: centers the ~27px button in the 64px aon-header band.
+    Horizontal: clears the 44px login icon (margin-right: 20px) + 12px gap.
+  */
+  top: 18px;
+  right: 76px;
+  z-index: 1000;
+  display: block;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 14px;
+  border: 1px solid var(--tc-border-subtle);
+  border-radius: 20px;
+  background: var(--tc-bg-card);
+  color: var(--tc-text-primary);
+
+  font-family: var(--font-default);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.toggle:hover {
+  background: var(--tc-bg-hover);
+  border-color: var(--tc-border-card);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--tc-border-focus);
+  outline-offset: 2px;
+}
