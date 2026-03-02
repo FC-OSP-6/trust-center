@@ -39,15 +39,15 @@ p {
 .name {
 }
 .support-message {
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
 }
 .support-email {
 }
 
 a {
-  color: var(--color-teal-dark-secondary);
+  color: var(--tc-text-link);
 }
 
 a:hover {
-  color: var(--color-teal-dark-hover);
+  color: var(--tc-text-link-hover);
 }

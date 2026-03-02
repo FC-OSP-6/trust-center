@@ -15,7 +15,7 @@
 }
 
 .subnav-card {
-  background: var(--color-surface);
+  background: var(--tc-bg-card);
   border: var(--card-border-width) solid var(--card-border-color-subtle);
   border-radius: var(--card-radius-md);
   box-shadow: var(--card-shadow-subtle);
@@ -26,7 +26,7 @@
 
 .subnav-card-title {
   margin: 0;
-  color: var(--color-navy-primary);
+  color: var(--tc-text-primary);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);
   font-family: var(--font-default);
@@ -53,7 +53,7 @@
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
   font-weight: var(--font-weight-regular);
-  color: var(--color-teal-dark-secondary);
+  color: var(--tc-text-link);
   padding: var(--subnav-row-pad-y) var(--subnav-row-pad-x);
   border-radius: var(--subnav-row-radius);
   background: transparent;
@@ -64,13 +64,13 @@
 
 /* hover should feel like link-card row hover */
 .subnav-card-links a:hover {
-  color: var(--color-teal-dark-hover);
+  color: var(--tc-text-link-hover);
   background: var(--subnav-row-bg-hover);
 }
 
 /* mouse active press state */
 .subnav-card-links a:active {
-  color: var(--color-teal-dark-active);
+  color: var(--tc-text-link-hover);
   background: var(--subnav-row-bg-active);
 }
 
@@ -81,11 +81,11 @@
 
 .subnav-card-links a:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-gray-06);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--tc-border-focus);
 }
 
 .subnav-card-empty {
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
 }

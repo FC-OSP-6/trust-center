@@ -6,6 +6,7 @@
   - adds cache + in-flight dedupe to reduce duplicate requests
   - exports convenience wrappers + compatibility aliases for existing callsites
   - keeps react pages thin while preserving typed data access
+  - requests taxonomy metadata so frontend can adopt it incrementally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { ControlsConnection, FaqsConnection } from './types-frontend';
@@ -123,7 +124,10 @@ export const CONTROLS_CONNECTION_QUERY = /* GraphQL */ `
           controlKey
           title
           description
+          section
           category
+          subcategory
+          tags
           sourceUrl
           updatedAt
         }
@@ -157,7 +161,10 @@ export const FAQS_CONNECTION_QUERY = /* GraphQL */ `
           faqKey
           question
           answer
+          section
           category
+          subcategory
+          tags
           updatedAt
         }
       }

@@ -43,21 +43,21 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-xxlarge);
   line-height: var(--line-height-xxlarge);
-  color: var(--color-navy-primary);
+  color: var(--tc-text-primary);
 }
 
 .tile-meta {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
 }
 
 .tile-subtitle {
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
 }
 
 /* ---------- state text (loading/error/empty) ---------- */
@@ -66,7 +66,7 @@
   font-weight: var(--font-weight-regular);
   font-size: var(--font-size-small);
   line-height: var(--line-height-small);
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
 }
 
 /* ---------- grid: 1 card per row -> 1 at tablet ---------- */
@@ -92,7 +92,7 @@
 /* ---------- category card ---------- */
 
 .card {
-  background: var(--color-surface);
+  background: var(--tc-bg-card);
   border: var(--card-border-width) solid var(--card-border-color-subtle);
   border-radius: var(--card-radius-md);
   box-shadow: var(--card-shadow-subtle);
@@ -114,7 +114,7 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-large);
   line-height: var(--line-height-large);
-  color: var(--color-navy-primary);
+  color: var(--tc-text-primary);
 }
 
 /* ---------- rows ---------- */
@@ -161,7 +161,7 @@
 
 .row-header:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 var(--focus-ring-width) var(--color-gray-06);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--tc-border-focus);
   border-radius: 6px;
 }
 
@@ -169,7 +169,7 @@
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-medium);
-  color: var(--color-gray-01);
+  color: var(--tc-text-primary);
 }
 
 .row-toggle {
@@ -183,5 +183,5 @@
 }
 
 .aon-reveal-inner {
-  color: var(--color-gray-02);
+  color: var(--tc-text-secondary);
 }

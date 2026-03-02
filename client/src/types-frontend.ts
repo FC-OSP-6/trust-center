@@ -5,6 +5,7 @@
   - declares stencil custom element props for react tsx usage
   - keeps custom element prop names aligned with current stencil @Prop() APIs
   - intentionally excludes asset module declarations (see assets.d.ts)
+  - includes taxonomy metadata as optional fields so current ui adoption can stay incremental
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React from 'react';
@@ -16,6 +17,9 @@ export type Control = {
   controlKey?: string; // returned by graphql (optional for backwards compatibility)
   title: string; // display label
   category: string; // grouping key
+  section?: string; // broad taxonomy bucket
+  subcategory?: string | null; // finer taxonomy bucket
+  tags?: string[]; // taxonomy/search helper tags
   status?: string; // optional ui-only field (if ever added client-side)
   description?: string; // optional long text
   sourceUrl?: string | null; // optional source link from graphql
@@ -28,6 +32,9 @@ export type Faq = {
   question: string; // faq title/question
   answer: string; // faq answer
   category?: string; // graphql returns category (optional for backwards compatibility)
+  section?: string; // broad taxonomy bucket
+  subcategory?: string | null; // finer taxonomy bucket
+  tags?: string[]; // taxonomy/search helper tags
   updatedAt?: string; // iso timestamp (graphql)
 };
 

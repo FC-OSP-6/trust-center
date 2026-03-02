@@ -77,6 +77,7 @@ export default function App() {
 
   return (
     <>
+      <aon-theme-toggle />
       {showShell && (
         <header className="trust-center-chrome">
           <aon-header />
