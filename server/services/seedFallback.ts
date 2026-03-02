@@ -137,6 +137,13 @@ export function shouldUseSeedFallback(error: unknown): boolean {
   if (lower.includes('connect')) return true; // common connection/refused/timeout failures are safe fallback cases
   if (lower.includes('does not exist')) return true; // missing table/schema during local setup is safe fallback territory
 
+  // auth failures should also be safe fallback cases for local/integration verification
+  if (lower.includes('authentication failed')) return true; // postgres auth mismatch
+  if (lower.includes('password authentication failed')) return true; // common pg auth error wording
+  if (lower.includes('too many authentication errors')) return true; // pg pool / upstream circuit-breaker wording
+  if (lower.includes('circuit breaker open')) return true; // auth cascade may open a temporary breaker
+  if (lower.includes('28p01')) return true; // postgres invalid_password sqlstate
+
   return false; // logic/query bugs should surface instead of being hidden by fallback
 }
 

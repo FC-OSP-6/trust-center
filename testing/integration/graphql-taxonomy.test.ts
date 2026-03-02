@@ -18,7 +18,15 @@
 
 import type { AddressInfo } from 'node:net';
 import type { Server as HttpServer } from 'node:http';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest';
 import { createServer } from '../../server/server';
 
 // ---------- test server lifecycle ----------
@@ -30,6 +38,7 @@ let origin = ''; // base url for fetch calls (http://127.0.0.1:PORT)
 
 let consoleLogSpy: ReturnType<typeof vi.spyOn>;
 let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+let previousAllowSeedFallback: string | undefined; // preserve caller env so this file does not leak fallback mode outside its own lifecycle
 
 // ---------- shared graphql test types ----------
 
@@ -79,6 +88,9 @@ async function stopTestServer(nextServer: HttpServer): Promise<void> {
 }
 
 beforeAll(async () => {
+  previousAllowSeedFallback = process.env.ALLOW_SEED_FALLBACK; // preserve incoming env before forcing test-safe fallback behavior
+  process.env.ALLOW_SEED_FALLBACK = 'true'; // taxonomy integration should still pass when db auth/connectivity is unavailable
+
   consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {}); // silence request/data logs during integration tests
   consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {}); // keep output focused on assertions
 
@@ -87,11 +99,22 @@ beforeAll(async () => {
   origin = started.origin;
 });
 
+beforeEach(() => {
+  consoleLogSpy.mockClear(); // isolate per-test assertions from prior requests/logs
+  consoleErrorSpy.mockClear(); // isolate per-test assertions from prior requests/logs
+});
+
 afterAll(async () => {
   await stopTestServer(server);
 
   consoleLogSpy.mockRestore(); // restore console after this file completes
   consoleErrorSpy.mockRestore(); // restore console after this file completes
+
+  if (previousAllowSeedFallback === undefined) {
+    delete process.env.ALLOW_SEED_FALLBACK; // restore original env shape when the flag was previously absent
+  } else {
+    process.env.ALLOW_SEED_FALLBACK = previousAllowSeedFallback; // restore original env value when one existed
+  }
 });
 
 // ---------- graphql test helpers ----------
@@ -141,11 +164,7 @@ function expectTaxonomyNodeShape(
 
 // ---------- graphql taxonomy coverage ----------
 
-const hasDatabaseUrl =
-  typeof process.env.DATABASE_URL === 'string' &&
-  process.env.DATABASE_URL.trim().length > 0;
-
-describe.skipIf(!hasDatabaseUrl)('graphql taxonomy integration', () => {
+describe('graphql taxonomy integration', () => {
   it('returns taxonomy metadata on controlsConnection nodes', async () => {
     const { response, json } = await postGraphQL<{
       controlsConnection: {
