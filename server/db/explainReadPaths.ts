@@ -5,6 +5,7 @@
     - category-filtered count/page queries still look index-friendly after service refactors
     - current substring search still behaves as the chosen prototype path
     - read-path select lists now reflect the richer taxonomy-aware row shape
+    - overviewSearch intentionally reuses controls/faqs search paths instead of introducing a separate explain-only query lane
 
   what this script does NOT prove:
     - production-scale plan quality on large datasets
@@ -124,7 +125,7 @@ ${buildSelectList(args.columns)}
       ORDER BY updated_at DESC, id DESC
       LIMIT $2
     `,
-    params: [args.category, 3] // mirrors a small paginated page query with one-row overfetch shape
+    params: [args.category, 3] // mirrors a small paginated page query shape
   };
 }
 
@@ -137,7 +138,7 @@ function buildSearchPageCase(args: {
   return {
     name: args.name,
     expectation:
-      'seq scan is acceptable for now because ILIKE substring search is still the chosen prototype behavior',
+      'prototype substring search remains acceptable whether postgres chooses a seq scan or an order-compatible index/filter path',
     sql: `
       EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
       SELECT
@@ -211,7 +212,7 @@ function summarizePlan(planLines: string[]): string {
 
   if (joined.includes('bitmap index scan')) return 'bitmap-index-scan-visible'; // bitmap index scans are still index-backed and good evidence for category probes
   if (joined.includes('index scan')) return 'index-scan-visible'; // strongest positive signal for direct index usage
-  if (joined.includes('seq scan')) return 'seq-scan-visible'; // acceptable for tiny tables or substring search cases
+  if (joined.includes('seq scan')) return 'seq-scan-visible'; // acceptable for tiny tables or current substring-search cases
   return 'scan-type-not-obvious'; // fallback when postgres chooses another plan shape
 }
 

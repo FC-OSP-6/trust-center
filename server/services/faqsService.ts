@@ -85,67 +85,25 @@ function getAuthScopeForReadCache(ctx: GraphQLContext): string {
   return 'public'; // current prototype reads behave as public
 }
 
-// ---------- fallback detection ----------
-
-function shouldFallbackToMock(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message : String(error); // normalize error message for matching
-
-  if (msg.includes('ENV_ERROR:')) return true; // env not set (your db layer throws ENV_ERROR: ...)
-  if (msg.toLowerCase().includes('connect')) return true; // common connection issues (mvp-safe broad match)
-  if (msg.toLowerCase().includes('does not exist')) return true; // missing table/schema during setup/demo
-
-  return false; // let non-connectivity/query bugs surface normally
+function buildFaqsReadIdentity(
+  args: FaqsConnectionArgs,
+  ctx: GraphQLContext
+): string {
+  return buildFaqsReadCacheKey(args, {
+    authScope: getAuthScopeForReadCache(ctx)
+  }); // compute one normalized read identity so request memo + shared cache stay aligned
 }
 
-// ---------- seed fallback helpers (db unavailable) ----------
+function buildFaqsWhereArgs(args: FaqsConnectionArgs): {
+  category?: string;
+  search?: string;
+} {
+  const out: { category?: string; search?: string } = {}; // omit undefined props for exactOptionalPropertyTypes
 
-type SeedFaqJson = {
-  faqs: Array<{
-    faq_key: string;
-    question: string;
-    answer: string;
-    category: string;
-  }>;
-};
+  if (args.category !== undefined) out.category = args.category; // preserve caller category only when present
+  if (args.search !== undefined) out.search = args.search; // preserve caller search only when present
 
-function getDataDir(): string {
-  const here = path.dirname(fileURLToPath(import.meta.url)); // resolve current services directory in ESM
-  return path.resolve(here, '../db/data'); // match seed.ts data directory convention
-}
-
-function stableId(prefix: string, key: string): string {
-  const hash = createHash('sha256').update(`${prefix}:${key}`).digest('hex'); // deterministic hash for seed rows
-  return `${prefix}_${hash.slice(0, 24)}`; // short stable id string (not a real uuid, okay for seed mode)
-}
-
-let cachedSeedFaqs: DbFaqRow[] | null = null; // memoized in-process seed rows to avoid file reads per call
-
-async function loadSeedFaqs(): Promise<DbFaqRow[]> {
-  if (cachedSeedFaqs) return cachedSeedFaqs; // reuse parsed seed rows within the process
-
-  const dataDir = getDataDir(); // resolve seed data directory
-  const faqsPath = path.join(dataDir, 'faqs.json'); // seed file path
-  const raw = await fs.readFile(faqsPath, 'utf8'); // read seed file
-  const parsed = JSON.parse(raw) as SeedFaqJson; // parse json payload
-  const nowIso = new Date().toISOString(); // placeholder timestamp in seed mode
-
-  const rows: DbFaqRow[] = (parsed.faqs ?? []).map(f => ({
-    id: stableId('faq', String(f.faq_key ?? 'missing_key')), // deterministic seed id
-    faq_key: String(f.faq_key ?? ''), // normalize to string
-    question: String(f.question ?? ''), // normalize to string
-    answer: String(f.answer ?? ''), // normalize to string
-    category: String(f.category ?? 'General'), // default grouping for incomplete seed rows
-    updated_at: nowIso // synthetic timestamp for stable connection behavior in seed mode
-  }));
-
-  rows.sort((a, b) => {
-    const k = b.faq_key.localeCompare(a.faq_key); // deterministic tie order for seed rows
-    if (k !== 0) return k; // primary seed-mode ordering
-    return b.id.localeCompare(a.id); // stable tie-breaker
-  });
-
-  cachedSeedFaqs = rows; // cache parsed rows for reuse across requests
-  return rows; // return parsed + normalized seed rows
+  return out; // exactOptionalPropertyTypes-safe filter arg bag
 }
 
 // ---------- db read path (cacheable) ----------
@@ -155,13 +113,9 @@ async function getFaqsPageFromDb(
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
   const firstClamped = clampFirst(args.first); // enforce safe page size
-
-  const whereArgs = {
-    ...(args.category !== undefined ? { category: args.category } : {}),
-    ...(args.search !== undefined ? { search: args.search } : {})
-  }; // omit undefined props for exactOptionalPropertyTypes
-
-  const { whereSql, params } = buildCategorySearchWhere(whereArgs); // build shared filter predicates
+  const { whereSql, params } = buildCategorySearchWhere(
+    buildFaqsWhereArgs(args)
+  ); // build shared filter predicates
   const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary predicate
 
   const countSql = `
@@ -211,16 +165,7 @@ async function getFaqsPageDbCached(
   args: FaqsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
-  const cacheKey = buildFaqsReadCacheKey(args, {
-    authScope: getAuthScopeForReadCache(ctx)
-  }); // normalized cross-request cache key with placeholder auth scope
-
-  const cached = ctx.cache.get(cacheKey); // probe once for debug visibility before getOrSet
-  logReadCache(
-    cached === null ? 'miss' : 'hit',
-    cacheKey,
-    FAQS_READ_CACHE_TTL_SECONDS
-  ); // optional cache hit/miss logs
+  const cacheKey = buildFaqsReadIdentity(args, ctx); // normalized cross-request cache key with placeholder auth scope
 
   const page = await ctx.cache.getOrSet(
     cacheKey,
@@ -237,7 +182,8 @@ export async function getFaqsPage(
   args: FaqsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
-  const memoKey = `faqsService:getFaqsPage:${buildFaqsKey(args)}`; // deterministic per-request dedupe key
+  const readIdentity = buildFaqsReadIdentity(args, ctx); // compute once so memo identity and shared cache identity cannot drift
+  const memoKey = `faqsService:getFaqsPage:${readIdentity}`; // namespace request memo identity to keep traceable service ownership
 
   return memoizePromise(ctx.memo, memoKey, async () => {
     try {

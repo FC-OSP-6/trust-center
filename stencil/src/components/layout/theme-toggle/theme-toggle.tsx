@@ -64,15 +64,12 @@ export class ThemeToggle {
     return (
       <button
         type="button"
-        role="switch"
-        class={`toggle${isDark ? ' is-on' : ''}`}
+        class="toggle"
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        aria-checked={isDark}
+        aria-pressed={isDark}
         onClick={() => this.toggle()}
       >
-        <span class="track">
-          <span class="thumb" />
-        </span>
+        {isDark ? 'Dark' : 'Light'}
       </button>
     );
   }
