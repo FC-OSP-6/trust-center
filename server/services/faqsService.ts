@@ -9,7 +9,12 @@
   - exposes admin create/update/delete methods with validation, search_text recompute, and cache invalidation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+import fs from 'node:fs/promises'; // read seed json files when db is unavailable
+import path from 'node:path'; // resolve data folder paths
+import { fileURLToPath } from 'node:url'; // resolve current file location in ESM
+import { createHash } from 'node:crypto'; // stable id fallback when seed mode is active
 import type { GraphQLContext } from '../graphql/context'; // request-scoped deps (db + memo + cache + auth)
+import { buildFaqsKey } from '../cache'; // deterministic memo key builder (raw args for readability)
 import { buildFaqsReadCacheKey } from '../cache/keys'; // normalized cache key builder (includes auth scope)
 import { invalidateFaqs } from '../cache/invalidation'; // entity-level invalidation helper for post-write cache clearing
 import { memoizePromise } from './memo'; // request-scoped promise dedupe helper
@@ -74,7 +79,21 @@ export type DeleteFaqResult = {
 
 // ---------- cache config helpers ----------
 
-const FAQS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl keeps repeated UI reads fast while staying reasonably fresh
+const FAQS_READ_CACHE_TTL_SECONDS = 60; // short prototype ttl for repeated UI reads while keeping data reasonably fresh
+
+function isDebugPerfEnabled(): boolean {
+  const raw = String(process.env.DEBUG_PERF ?? '').toLowerCase(); // env flags are strings
+  return raw === 'true' || raw === '1' || raw === 'yes' || raw === 'on'; // tolerate common truthy values
+}
+
+function logReadCache(
+  event: 'hit' | 'miss',
+  key: string,
+  ttlSeconds: number
+): void {
+  if (!isDebugPerfEnabled()) return; // keep logs quiet unless explicitly enabled
+  console.log(`[cache] ${event} key=${key} ttl=${ttlSeconds}s`); // single-line terminal log for quick perf checks
+}
 
 function getAuthScopeForReadCache(ctx: GraphQLContext): string {
   if (ctx.auth.isAdmin) return 'admin'; // placeholder until real auth scopes land
@@ -253,7 +272,7 @@ async function getFaqsPageDbCached(
   const page = await ctx.cache.getOrSet(
     cacheKey,
     FAQS_READ_CACHE_TTL_SECONDS,
-    async () => getFaqsPageFromDb(args, ctx) // only db-backed reads belong in the shared cross-request cache
+    async () => getFaqsPageFromDb(args, ctx) // cache DB-backed result only (fallback is handled outside)
   );
 
   return page as FaqsPage; // cache interface is generic/unknown-friendly, so cast to service return type
@@ -270,19 +289,14 @@ export async function getFaqsPage(
 
   return memoizePromise(ctx.memo, memoKey, async () => {
     try {
-      return await getFaqsPageDbCached(args, ctx); // request memo wraps shared read cache so one request never duplicates work
+      return await getFaqsPageDbCached(args, ctx); // shared read cache sits inside request memo for best of both
     } catch (error) {
-      if (!shouldUseSeedFallback(error)) throw error; // only known demo-safe failures should route into fallback mode
+      if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should not be masked
 
-      const reason = error instanceof Error ? error.message : String(error); // normalize unknown errors into one loggable string
+      const msg = error instanceof Error ? error.message : String(error); // normalize error for logging
+      console.warn('[gql] faqsConnection fallback to seed json:', msg); // explicit fallback log for demos
 
-      logSeedFallback({
-        requestId: ctx.requestId, // tie fallback log to the same request trace used by gql/cache/db/data logs
-        resolverName: 'faqsConnection', // identify which resolver path fell back
-        reason // keep the db/env failure reason visible for debugging
-      });
-
-      const seedRows = await getSeedFaqsRows(); // load normalized faqs seed rows from the centralized fallback module
+      const seedRows = await loadSeedFaqs(); // parse/cached seed rows
       const filtered = filterRowsByCategorySearch(seedRows, args, {
         getCategory: row => row.category, // category source for shared in-memory filter helper
         getSearchText: getSeedFaqSearchText // reuse the precomputed fallback search_text so services do not drift from seed normalization
@@ -293,8 +307,8 @@ export async function getFaqsPage(
         ...(args.after !== undefined ? { after: args.after } : {})
       }; // omit undefined props for exactOptionalPropertyTypes
 
-      const page = pageFromRows(filtered, pageArgs); // paginate the filtered seed rows using the same in-memory helper as before
-      return { ...page, source: 'mock' }; // preserve resolver contract while clearly signaling fallback mode
+      const page = pageFromRows(filtered, pageArgs); // shared in-memory paging helper
+      return { ...page, source: 'mock' }; // preserve resolver contract while signaling fallback source
     }
   });
 }
