@@ -12,7 +12,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
-import { mutationResolvers } from './mutations'; // admin-ready cache invalidation mutation hooks
+import { mutationResolvers } from './mutations'; // admin-ready invalidation + CRUD mutation hooks
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared cursor + timestamp helpers
 import {
   getControlsPage,
@@ -28,6 +28,7 @@ import {
   getOverviewSearch,
   type OverviewSearchArgs
 } from '../services/searchService'; // grouped overview search service composes existing entity read paths
+import { mapControlNode, mapFaqNode } from './nodeMappers'; // shared db-row -> graphql-node mappers
 
 // ---------- data-source logging ----------
 
@@ -51,34 +52,27 @@ function logDataSource(args: {
   ); // one structured line makes terminal scanning easier during backend verification
 }
 
-// ---------- row-to-node mappers ----------
+// ---------- connection helper ----------
 
-function mapControlNode(row: DbControlRow) {
-  return {
-    id: row.id, // GraphQL node id
-    controlKey: row.control_key, // db snake_case -> api camelCase
-    title: row.title, // pass through title as-is
-    description: row.description, // pass through description as-is
-    section: row.section, // expose broad taxonomy bucket
-    category: row.category, // pass through category as-is
-    subcategory: row.subcategory, // expose finer taxonomy bucket when present
-    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
-    sourceUrl: row.source_url, // db snake_case -> api camelCase
-    updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
-  };
-}
+function buildConnectionResult<
+  T extends { id: string; updated_at: string | Date },
+  TNode
+>(page: ConnectionPage<T>, mapNode: (row: T) => TNode) {
+  const edges = page.rows.map(row => ({
+    cursor: encodeCursor({
+      sortValue: toIso(row.updated_at), // keep cursor aligned with service/db sort order
+      id: row.id // id is the tie-breaker to keep ordering stable
+    }),
+    node: mapNode(row) // convert db/service row into frontend GraphQL shape
+  }));
 
-function mapFaqNode(row: DbFaqRow) {
   return {
-    id: row.id, // GraphQL node id
-    faqKey: row.faq_key, // db snake_case -> api camelCase
-    question: row.question, // pass through question as-is
-    answer: row.answer, // pass through answer as-is
-    section: row.section, // expose broad taxonomy bucket
-    category: row.category, // pass through category as-is
-    subcategory: row.subcategory, // expose finer taxonomy bucket when present
-    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
-    updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
+    edges, // Relay-style edge array
+    pageInfo: {
+      hasNextPage: page.hasNextPage, // service already determined if a next page exists
+      endCursor: page.endCursor // service already computed the last cursor for this page
+    },
+    totalCount: page.totalCount // total count stays on the connection for client pagination metadata
   };
 }
 
@@ -115,7 +109,7 @@ export const resolvers = {
 
     debugContext: (_parent: unknown, _args: unknown, ctx: GraphQLContext) => ({
       requestId: ctx.requestId, // exposes request id so the team can match GraphiQL output to terminal logs
-      isAdmin: ctx.auth.isAdmin // exposes placeholder auth state while auth is still a stub
+      isAdmin: ctx.auth.isAdmin // exposes request-derived admin auth state for local verification
     }),
 
     controlsConnection: async (
@@ -207,5 +201,5 @@ export const resolvers = {
     }
   },
 
-  Mutation: mutationResolvers.Mutation // wire cache invalidation mutations into the executable resolver map
+  Mutation: mutationResolvers.Mutation // wire invalidation + CRUD mutations into the executable resolver map
 };

@@ -28,7 +28,7 @@ function createRequestLogger(): RequestHandler {
 
     res.on('finish', () => {
       console.log(
-        `[req]  ${req.method}  ${req.originalUrl}  ${res.statusCode}  ${Date.now() - startMs}ms`
+        `[req]  stat = ${res.statusCode}  ${Date.now() - startMs}ms  ${req.method} ${req.originalUrl}`
       ); // log duration on response finish
     });
 
