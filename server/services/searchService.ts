@@ -50,7 +50,7 @@ export async function getOverviewSearch(
   const normalized = normalizeOverviewArgs(args); // compute one normalized grouped-search shape for this call
   const memoKey = buildOverviewSearchKey(normalized); // deterministic request-scoped identity for duplicate overview searches
 
-  return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
+  return memoizePromise(ctx.memo, memoKey, async () => {
     const [controlsPage, faqsPage] = await Promise.all([
       getControlsPage(
         {

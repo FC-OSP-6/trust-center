@@ -168,7 +168,7 @@ export async function getControlsPage(
   const readIdentity = buildControlsReadIdentity(args, ctx); // compute once so memo identity and shared cache identity cannot drift
   const memoKey = `controlsService:getControlsPage:${readIdentity}`; // namespace request memo identity to keep traceable service ownership
 
-  return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
+  return memoizePromise(ctx.memo, memoKey, async () => {
     try {
       return await getControlsPageDbCached(args, ctx); // request memo wraps shared read cache so one request never duplicates work
     } catch (error) {
