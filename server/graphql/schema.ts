@@ -6,6 +6,7 @@
   - exposes debug fields for boot/runtime verification
   - exposes admin-ready cache invalidation mutations
   - exposes taxonomy metadata without breaking current query args
+  - adds a grouped overview search contract for later frontend consumers
   - keeps future AI/query ideas as comments only until implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -75,6 +76,13 @@ export const typeDefs = /* GraphQL */ `
     totalCount: Int!
   }
 
+  type OverviewSearchResult {
+    search: String!
+    controls: ControlConnection!
+    faqs: FaqConnection!
+    totalCount: Int!
+  }
+
   # ----------  mutation payloads  ----------
 
   type InvalidationResult {
@@ -105,6 +113,12 @@ export const typeDefs = /* GraphQL */ `
       category: String
       search: String
     ): FaqConnection!
+
+    # grouped overview search  -->  small backend contract for the overview page
+    overviewSearch(
+      search: String!
+      firstPerKind: Int = 5
+    ): OverviewSearchResult!
   }
 
   # ----------  root mutation  ----------

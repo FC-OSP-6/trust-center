@@ -8,6 +8,7 @@
   - logs which source produced the data for debugging
   - preserves the existing GraphQL contract for the frontend
   - exposes richer taxonomy metadata for later consumers
+  - keeps overview search grouped while delegating composition to the service layer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
@@ -23,6 +24,10 @@ import {
   type DbFaqRow,
   type FaqsPage
 } from '../services/faqsService'; // faqs read-path service owns db/cache/memo/pagination
+import {
+  getOverviewSearch,
+  type OverviewSearchArgs
+} from '../services/searchService'; // grouped overview search service composes existing entity read paths
 
 // ---------- data-source logging ----------
 
@@ -77,7 +82,7 @@ function mapFaqNode(row: DbFaqRow) {
   };
 }
 
-// ---------- connection helpers ----------
+// ---------- connection helper ----------
 
 function buildConnectionResult<
   T extends { id: string; updated_at: string | Date },
@@ -103,14 +108,6 @@ function buildConnectionResult<
 
 // ---------- query resolvers ----------
 
-/**
- * GraphQL resolver map bound to schema fields.
- *
- * Thin orchestration layer:
- * - Validates arguments
- * - Delegates data retrieval to service layer
- * - Shapes results into GraphQL connection format
- */
 export const resolvers = {
   Query: {
     hello: () => 'helloWorld from GraphQL!', // lightweight sanity field to prove schema wiring
@@ -171,7 +168,44 @@ export const resolvers = {
       });
 
       return buildConnectionResult(page, mapFaqNode); // centralize relay connection shaping so controls/faqs stay symmetric
+    },
+
+    overviewSearch: async (
+      _parent: unknown,
+      args: OverviewSearchArgs,
+      ctx: GraphQLContext
+    ) => {
+      const overview = await getOverviewSearch(args, ctx); // grouped search composition now lives in the dedicated service layer
+
+      logDataSource({
+        requestId: ctx.requestId, // tie overview controls bucket to the same request trace
+        resolverName: 'overviewSearch.controls', // keeps grouped-search terminal logs readable
+        source: overview.controlsPage.source, // shows whether controls bucket came from db or fallback
+        returnedCount: overview.controlsPage.rows.length // page row count, not totalCount
+      });
+
+      logDataSource({
+        requestId: ctx.requestId, // tie overview faqs bucket to the same request trace
+        resolverName: 'overviewSearch.faqs', // keeps grouped-search terminal logs readable
+        source: overview.faqsPage.source, // shows whether faqs bucket came from db or fallback
+        returnedCount: overview.faqsPage.rows.length // page row count, not totalCount
+      });
+
+      const controls = buildConnectionResult(
+        overview.controlsPage,
+        mapControlNode
+      ); // keep grouped payload consistent with existing connection shapes
+
+      const faqs = buildConnectionResult(overview.faqsPage, mapFaqNode); // keep grouped payload consistent with existing connection shapes
+
+      return {
+        search: overview.search, // echo the normalized term actually used by the service
+        controls, // grouped controls bucket for overview consumers
+        faqs, // grouped faqs bucket for overview consumers
+        totalCount: overview.totalCount // total remains owned by the grouped service contract
+      };
     }
   },
+
   Mutation: mutationResolvers.Mutation // wire cache invalidation mutations into the executable resolver map
 };

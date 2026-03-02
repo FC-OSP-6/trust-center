@@ -5,6 +5,7 @@
   - provides safe page size clamping + input normalization
   - provides shared sql helpers (where + after cursor boundary)
   - provides shared in-memory helpers (seed-mode filtering + slicing)
+  - freezes one shared search contract for connection queries + overview search
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 // ----------  cursor payload (base64url json)  ----------
@@ -17,6 +18,8 @@ export type CursorPayload = {
 // ----------  constants  ----------
 
 const MAX_PAGE_SIZE = 50; // safety cap --> avoids accidental heavy queries
+const SEARCH_MIN_LENGTH = 2; // shortest useful overview search term (e.g. "ai")
+const SEARCH_MAX_LENGTH = 80; // defensive cap keeps the prototype contract bounded
 
 // ----------  helpers (timestamps + inputs)  ----------
 
@@ -39,6 +42,45 @@ export function normalizeText(value: string): string {
 
 export function escapeLike(value: string): string {
   return value.replace(/[%_]/g, m => `\\${m}`); // escape wildcard chars for LIKE/ILIKE
+}
+
+export function normalizeSearchInput(
+  value: string | undefined
+): string | undefined {
+  if (value === undefined) return undefined; // preserve omitted semantics for existing connection queries
+
+  const normalized = normalizeText(value); // trim outer whitespace + collapse internal whitespace once
+  if (normalized === '') return undefined; // blank search behaves like no search filter on existing queries
+
+  return normalized; // return one canonical search term for downstream callers
+}
+
+function assertSearchLength(value: string): string {
+  if (value.length < SEARCH_MIN_LENGTH) {
+    throw new Error(
+      `SEARCH_ERROR: search must be at least ${SEARCH_MIN_LENGTH} characters`
+    ); // reject overly-short overview queries before service work begins
+  }
+
+  if (value.length > SEARCH_MAX_LENGTH) {
+    throw new Error(
+      `SEARCH_ERROR: search must be at most ${SEARCH_MAX_LENGTH} characters`
+    ); // reject unbounded overview queries so the contract stays explicit
+  }
+
+  return value; // validated length is safe to reuse across service/db/fallback paths
+}
+
+export function assertOverviewSearchInput(value: string): string {
+  const normalized = normalizeSearchInput(value); // overview search starts from the same normalization path as existing reads
+
+  if (!normalized) {
+    throw new Error(
+      'SEARCH_ERROR: overviewSearch requires a non-empty search term'
+    ); // overview search should never run as a blank catch-all query
+  }
+
+  return assertSearchLength(normalized); // overview search also enforces the shared min/max contract
 }
 
 // ----------  cursor encoding (base64url json)  ----------
@@ -88,16 +130,23 @@ export function buildCategorySearchWhere(args: {
   const parts: string[] = []; // sql predicates
   const params: unknown[] = []; // parameter bag
 
-  if (args.category && normalizeText(args.category) !== '') {
+  const categoryNorm =
+    args.category && normalizeText(args.category) !== ''
+      ? normalizeText(args.category)
+      : undefined; // preserve existing category semantics while computing normalization once
+
+  const searchNorm = normalizeSearchInput(args.search); // reuse the shared connection-search normalization helper
+
+  if (categoryNorm) {
     // pre-lowercase the param so postgres only evaluates lower() on the indexed column side
     // aligns with the lower(category) expression index added in 002_indexes.sql
     // EXPLAIN: Index Scan using controls_category_lower_idx / faqs_category_lower_idx
-    params.push(normalizeText(args.category).toLowerCase()); // normalized lowercase param
+    params.push(categoryNorm.toLowerCase()); // normalized lowercase param
     parts.push(`lower(category) = $${params.length}`); // index-friendly: lower() only on column, not param
   }
 
-  if (args.search && normalizeText(args.search) !== '') {
-    const needle = escapeLike(normalizeText(args.search).toLowerCase()); // normalize + escape wildcard chars
+  if (searchNorm) {
+    const needle = escapeLike(searchNorm.toLowerCase()); // normalize + escape wildcard chars
     params.push(`%${needle}%`); // param: contains pattern
     // prototype: ILIKE is a seq scan but acceptable for current dataset size
     // production path: switch to search_vector @@ plainto_tsquery('english', $N)
@@ -151,9 +200,7 @@ export function filterRowsByCategorySearch<T>(
   const categoryNorm = args.category
     ? normalizeText(args.category).toLowerCase()
     : ''; // normalize optional category
-  const searchNorm = args.search
-    ? normalizeText(args.search).toLowerCase()
-    : ''; // normalize optional search
+  const searchNorm = normalizeSearchInput(args.search)?.toLowerCase() ?? ''; // normalize optional search through the shared connection helper
 
   return rows.filter(row => {
     const catOk = categoryNorm
