@@ -326,18 +326,4 @@ npm run format:check
 
 ## Disclaimer
 
-> **This is an educational project developed by students at Codesmith.**
->
-> - All data, content, and materials in this repository are used for **learning and demonstration purposes only**
-> - This project is **not an official Aon product or service**
-> - Any data presented is **sample/mock data** and does not represent actual client, business, or sensitive information
-> - This repository and its contents are **not endorsed by, affiliated with, or representative of Aon plc or any of its subsidiaries**
-> - Students and contributors should **not share any proprietary, confidential, or sensitive Aon information** in this public repository
-
-## About This Project
-
-This project was created as part of a learning experience at Codesmith in collaboration with Aon Cyber Solutions, exploring the development of a Trust Center application. The Trust Center concept is designed to provide transparency around security posture, compliance measures, and operational practices.
-
-## License
-
-This project is for educational purposes. Please respect intellectual property and do not use any concepts, designs, or materials for commercial purposes without appropriate permissions.
+> This prototype was built as part of a client-student partnership through Codesmith’s Future Code program. It explores solutions to a real-world case study provided by an external partner. This work does not represent employment or contracting with the partner. All intellectual property belongs to the partner. This is a time-boxed MVP and not a production system.
