@@ -1,0 +1,43 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  TL;DR  -->  Semantic token layer for the Trust Center design system
+    - Maps intent names (--tc-*) to raw color primitives defined in tokens.css
+    - This is the ONLY layer that changes in dark mode — raw --color-* primitives
+      in tokens.css are never overridden
+    - Naming rules: --tc-* prefix, intent-based, 1–2 words after prefix (hard max 4)
+    - Consumed by all Stencil component styles and React page styles
+    - Dark mode overrides belong in a [data-theme="dark"] block in this file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+:root {
+  /* == Background == */
+  --tc-bg-page: var(--color-gray-08); /* page-level product background */
+  --tc-bg-card: var(--color-surface); /* card / paper surface */
+  --tc-bg-section: var(--color-gray-06); /* alternate section fill */
+  --tc-bg-hover: var(--color-gray-07); /* hover state fill */
+  --tc-bg-active: var(--color-gray-06); /* active / pressed fill */
+
+  /* == Text == */
+  --tc-text-primary: var(--color-gray-01); /* high emphasis body text */
+  --tc-text-secondary: var(--color-gray-02); /* medium emphasis text */
+  --tc-text-muted: var(--color-gray-03); /* low emphasis / captions */
+  --tc-text-inverse: var(--color-white); /* text on dark/navy surfaces */
+  --tc-text-link: var(--color-teal-dark-secondary); /* link default */
+  --tc-text-link-hover: var(--color-teal-dark-interaction); /* link hover */
+
+  /* == Border == */
+  --tc-border-subtle: var(--color-gray-05); /* dividers and soft outlines */
+  --tc-border-card: var(--color-gray-05); /* explicit card border */
+  --tc-border-focus: var(--color-teal-dark-secondary); /* keyboard focus ring */
+
+  /* == Feedback == */
+  --tc-feedback-success: var(--color-success); /* success state */
+  --tc-feedback-error: var(--color-error); /* error state */
+  --tc-feedback-warning: var(--color-warning); /* warning state */
+  --tc-feedback-info: var(--color-info); /* info state */
+
+  /* == Navigation == */
+  --tc-nav-bg: var(--color-navy-primary); /* nav bar background */
+  --tc-nav-text: var(--color-white); /* nav item text */
+  --tc-nav-active-text: var(--color-teal-light-accent); /* active nav item */
+  --tc-nav-accent: var(--color-signature-red-nav-accent); /* brand accent */
+}

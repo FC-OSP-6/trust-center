@@ -66,6 +66,27 @@ function getAuthScopeForReadCache(ctx: GraphQLContext): string {
   return 'public'; // current prototype reads behave as public
 }
 
+function buildFaqsReadIdentity(
+  args: FaqsConnectionArgs,
+  ctx: GraphQLContext
+): string {
+  return buildFaqsReadCacheKey(args, {
+    authScope: getAuthScopeForReadCache(ctx)
+  }); // compute one normalized read identity so request memo + shared cache stay aligned
+}
+
+function buildFaqsWhereArgs(args: FaqsConnectionArgs): {
+  category?: string;
+  search?: string;
+} {
+  const out: { category?: string; search?: string } = {}; // omit undefined props for exactOptionalPropertyTypes
+
+  if (args.category !== undefined) out.category = args.category; // preserve caller category only when present
+  if (args.search !== undefined) out.search = args.search; // preserve caller search only when present
+
+  return out; // exactOptionalPropertyTypes-safe filter arg bag
+}
+
 // ---------- db read path (cacheable) ----------
 
 async function getFaqsPageFromDb(
@@ -73,13 +94,9 @@ async function getFaqsPageFromDb(
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
   const firstClamped = clampFirst(args.first); // enforce safe page size
-
-  const whereArgs = {
-    ...(args.category !== undefined ? { category: args.category } : {}),
-    ...(args.search !== undefined ? { search: args.search } : {})
-  }; // omit undefined props for exactOptionalPropertyTypes
-
-  const { whereSql, params } = buildCategorySearchWhere(whereArgs); // build shared filter predicates
+  const { whereSql, params } = buildCategorySearchWhere(
+    buildFaqsWhereArgs(args)
+  ); // build shared filter predicates
   const afterBoundary = buildAfterBoundary(args.after, params.length + 1); // build cursor boundary predicate
 
   const countSql = `
@@ -129,9 +146,7 @@ async function getFaqsPageDbCached(
   args: FaqsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
-  const cacheKey = buildFaqsReadCacheKey(args, {
-    authScope: getAuthScopeForReadCache(ctx)
-  }); // normalized cross-request cache key with placeholder auth scope
+  const cacheKey = buildFaqsReadIdentity(args, ctx); // normalized cross-request cache key with placeholder auth scope
 
   const page = await ctx.cache.getOrSet(
     cacheKey,
@@ -148,11 +163,10 @@ export async function getFaqsPage(
   args: FaqsConnectionArgs,
   ctx: GraphQLContext
 ): Promise<FaqsPage> {
-  const memoKey = `faqsService:getFaqsPage:${buildFaqsReadCacheKey(args, {
-    authScope: getAuthScopeForReadCache(ctx)
-  })}`; // align memo identity with shared read-cache identity so future auth-scoped reads cannot collide
+  const readIdentity = buildFaqsReadIdentity(args, ctx); // compute once so memo identity and shared cache identity cannot drift
+  const memoKey = `faqsService:getFaqsPage:${readIdentity}`; // namespace request memo identity to keep traceable service ownership
 
-  return memoizePromise(ctx.memo, ctx.requestId, memoKey, async () => {
+  return memoizePromise(ctx.memo, memoKey, async () => {
     try {
       return await getFaqsPageDbCached(args, ctx); // request memo wraps shared read cache so one request never duplicates work
     } catch (error) {

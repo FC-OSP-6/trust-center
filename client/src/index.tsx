@@ -6,13 +6,14 @@
   - imports client styles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import '../../stencil/dist/components/components.css';
 import './styles.css';
 import App from './app';
 import { defineCustomElements } from '../../stencil/loader';
+import { initTheme, ThemeProvider } from './theme';
 
 // ---------- browser-only bootstrap ----------
 
@@ -21,6 +22,8 @@ const canUseBrowserDom =
 
 if (canUseBrowserDom) {
   defineCustomElements(window); // registers stencil web components only when window exists
+
+  initTheme(); // apply stored/system theme to <html> before first paint — prevents flash
 
   const container = document.getElementById('root'); // grabs react mount target from index.html
 
@@ -37,7 +40,9 @@ if (canUseBrowserDom) {
           v7_relativeSplatPath: true
         }}
       >
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </BrowserRouter>
     </StrictMode>
   );

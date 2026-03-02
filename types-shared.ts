@@ -4,6 +4,7 @@
   - centralizes connection/page types used by client + server-facing adapters
   - reduces schema drift between frontend api helpers and backend graphql shape
   - keeps ui-only jsx/web-component typing out of shared contracts
+  - includes grouped overview-search contracts so 006E can consume the same backend shape
   - includes lightweight grouped ui shapes used by stencil renderers
   - leaves new taxonomy metadata optional so current consumers do not break
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -22,6 +23,18 @@ export type Connection<TNode> = {
   edges: Array<Edge<TNode>>; // ordered page rows
   pageInfo: PageInfo; // pagination state
   totalCount: number; // total rows matching filters
+};
+
+export type ConnectionQueryArgs = {
+  first: number; // page size requested by the caller
+  after?: string; // optional cursor boundary
+  category?: string; // optional category filter
+  search?: string; // optional substring search term
+};
+
+export type OverviewSearchQueryArgs = {
+  search: string; // grouped overview search term
+  firstPerKind?: number; // per-entity visible row cap for grouped overview results
 };
 
 export type Control = {
@@ -52,6 +65,13 @@ export type Faq = {
 
 export type ControlsConnection = Connection<Control>; // typed alias for controls pages
 export type FaqsConnection = Connection<Faq>; // typed alias for faq pages
+
+export type OverviewSearchResult = {
+  search: string; // normalized search term echoed back by the backend
+  controls: ControlsConnection; // grouped controls bucket for overview search
+  faqs: FaqsConnection; // grouped faqs bucket for overview search
+  totalCount: number; // sum of controls.totalCount + faqs.totalCount
+};
 
 // ----------  grouped UI helper types (used by stencil components)  ----------
 
