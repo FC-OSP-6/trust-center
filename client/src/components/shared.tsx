@@ -283,7 +283,7 @@ export function useSubnavJump() {
 // ---------- shared rail placeholder copy (controls/faqs reuse) ----------
 
 export const aiCard = {
-  title: 'CyCu Assistant',
+  title: 'CyQu Assistant',
   text: 'Ask a question about controls, FAQs, or resources. A future AI assistant will jump you to the best section and entry, or route you to the right area if there is no direct match.'
 }; // shared placeholder copy for controls/faqs rail
 
@@ -363,9 +363,11 @@ export const titleCard = {
 
 export const footCard = {
   copy: 'Copyright 2026 AON PLC',
-  privacyHref: '/privacy-policy',
+  privacyHref:
+    'https://www.aon.com/en/about/leadership-and-governance/privacy-policy',
   privacyLabel: 'Privacy Policy',
-  termsHref: '/terms-and-conditions',
+  termsHref:
+    'https://www.aon.com/getmedia/e93f3b8a-ac9c-4e3d-ba7b-e8fa45bc0640/USA-TERMS.aspx',
   termsLabel: 'Terms and Conditions'
 }; // footer props passed into <aon-footer>
 
@@ -412,13 +414,13 @@ export const extRows: LinkRow[] = [
   },
   {
     label: 'Aon Investor Relations',
-    href: 'https://investors.aon.com/',
+    href: 'https://ir.aon.com/',
     iconSrc: External,
     iconAlt: ''
   },
   {
     label: 'Aon Newsroom',
-    href: 'https://www.aon.com/en/about/newsroom',
+    href: 'https://insights-north-america.aon.com/',
     iconSrc: External,
     iconAlt: ''
   }

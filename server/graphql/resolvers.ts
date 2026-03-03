@@ -8,18 +8,12 @@
   - logs which source produced the data for debugging
   - preserves the existing GraphQL contract for the frontend
   - exposes richer taxonomy metadata for later consumers
-  - adds a grouped overview search contract without inventing a second search engine
+  - keeps overview search grouped while delegating composition to the service layer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
-import { mutationResolvers } from './mutations'; // admin-ready cache invalidation mutation hooks
-import {
-  isValidCursor,
-  encodeCursor,
-  toIso,
-  assertOverviewSearchInput,
-  clampFirst
-} from '../services/pagination'; // shared cursor + timestamp helpers + overview-search contract rules
+import { mutationResolvers } from './mutations'; // admin-ready invalidation + CRUD mutation hooks
+import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared cursor + timestamp helpers
 import {
   getControlsPage,
   type DbControlRow,
@@ -30,6 +24,11 @@ import {
   type DbFaqRow,
   type FaqsPage
 } from '../services/faqsService'; // faqs read-path service owns db/cache/memo/pagination
+import {
+  getOverviewSearch,
+  type OverviewSearchArgs
+} from '../services/searchService'; // grouped overview search service composes existing entity read paths
+import { mapControlNode, mapFaqNode } from './nodeMappers'; // shared db-row -> graphql-node mappers
 
 // ---------- data-source logging ----------
 
@@ -42,11 +41,6 @@ type ConnectionPage<T> = {
   totalCount: number;
 }; // shared subset used to build relay-style connection results without duplicating the final response shape
 
-type OverviewSearchConnectionArgs = {
-  search: string;
-  firstPerKind?: number;
-}; // minimal grouped-search args kept small so the contract stays obvious
-
 function logDataSource(args: {
   requestId: string;
   resolverName: string;
@@ -56,37 +50,6 @@ function logDataSource(args: {
   console.log(
     `[data] requestId=${args.requestId} resolver=${args.resolverName} source=${args.source} count=${args.returnedCount}`
   ); // one structured line makes terminal scanning easier during backend verification
-}
-
-// ---------- row-to-node mappers ----------
-
-function mapControlNode(row: DbControlRow) {
-  return {
-    id: row.id, // GraphQL node id
-    controlKey: row.control_key, // db snake_case -> api camelCase
-    title: row.title, // pass through title as-is
-    description: row.description, // pass through description as-is
-    section: row.section, // expose broad taxonomy bucket
-    category: row.category, // pass through category as-is
-    subcategory: row.subcategory, // expose finer taxonomy bucket when present
-    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
-    sourceUrl: row.source_url, // db snake_case -> api camelCase
-    updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
-  };
-}
-
-function mapFaqNode(row: DbFaqRow) {
-  return {
-    id: row.id, // GraphQL node id
-    faqKey: row.faq_key, // db snake_case -> api camelCase
-    question: row.question, // pass through question as-is
-    answer: row.answer, // pass through answer as-is
-    section: row.section, // expose broad taxonomy bucket
-    category: row.category, // pass through category as-is
-    subcategory: row.subcategory, // expose finer taxonomy bucket when present
-    tags: row.tags ?? [], // GraphQL list stays non-null even when db/fallback tags are absent
-    updatedAt: toIso(row.updated_at) // normalize db timestamp into GraphQL-friendly iso string
-  };
 }
 
 // ---------- connection helper ----------
@@ -122,7 +85,7 @@ export const resolvers = {
 
     debugContext: (_parent: unknown, _args: unknown, ctx: GraphQLContext) => ({
       requestId: ctx.requestId, // exposes request id so the team can match GraphiQL output to terminal logs
-      isAdmin: ctx.auth.isAdmin // exposes placeholder auth state while auth is still a stub
+      isAdmin: ctx.auth.isAdmin // exposes request-derived admin auth state for local verification
     }),
 
     controlsConnection: async (
@@ -179,54 +142,40 @@ export const resolvers = {
 
     overviewSearch: async (
       _parent: unknown,
-      args: OverviewSearchConnectionArgs,
+      args: OverviewSearchArgs,
       ctx: GraphQLContext
     ) => {
-      const search = assertOverviewSearchInput(args.search); // freeze shared search rules at the resolver boundary
-      const firstPerKind = clampFirst(args.firstPerKind ?? 5); // keep page sizing aligned with existing connection safety rules
-
-      const [controlsPage, faqsPage] = await Promise.all([
-        getControlsPage(
-          {
-            first: firstPerKind,
-            search
-          },
-          ctx
-        ), // reuse the existing controls read path instead of inventing a second engine
-        getFaqsPage(
-          {
-            first: firstPerKind,
-            search
-          },
-          ctx
-        ) // reuse the existing faqs read path instead of inventing a second engine
-      ]);
+      const overview = await getOverviewSearch(args, ctx); // grouped search composition now lives in the dedicated service layer
 
       logDataSource({
         requestId: ctx.requestId, // tie overview controls bucket to the same request trace
         resolverName: 'overviewSearch.controls', // keeps grouped-search terminal logs readable
-        source: controlsPage.source, // shows whether controls bucket came from db or fallback
-        returnedCount: controlsPage.rows.length // page row count, not totalCount
+        source: overview.controlsPage.source, // shows whether controls bucket came from db or fallback
+        returnedCount: overview.controlsPage.rows.length // page row count, not totalCount
       });
 
       logDataSource({
         requestId: ctx.requestId, // tie overview faqs bucket to the same request trace
         resolverName: 'overviewSearch.faqs', // keeps grouped-search terminal logs readable
-        source: faqsPage.source, // shows whether faqs bucket came from db or fallback
-        returnedCount: faqsPage.rows.length // page row count, not totalCount
+        source: overview.faqsPage.source, // shows whether faqs bucket came from db or fallback
+        returnedCount: overview.faqsPage.rows.length // page row count, not totalCount
       });
 
-      const controls = buildConnectionResult(controlsPage, mapControlNode); // keep grouped payload consistent with existing connection shapes
-      const faqs = buildConnectionResult(faqsPage, mapFaqNode); // keep grouped payload consistent with existing connection shapes
+      const controls = buildConnectionResult(
+        overview.controlsPage,
+        mapControlNode
+      ); // keep grouped payload consistent with existing connection shapes
+
+      const faqs = buildConnectionResult(overview.faqsPage, mapFaqNode); // keep grouped payload consistent with existing connection shapes
 
       return {
-        search, // echo back the normalized term so callers can verify what the backend actually used
+        search: overview.search, // echo the normalized term actually used by the service
         controls, // grouped controls bucket for overview consumers
         faqs, // grouped faqs bucket for overview consumers
-        totalCount: controls.totalCount + faqs.totalCount // overview total is the sum of both entity totals
+        totalCount: overview.totalCount // total remains owned by the grouped service contract
       };
     }
   },
 
-  Mutation: mutationResolvers.Mutation // wire cache invalidation mutations into the executable resolver map
+  Mutation: mutationResolvers.Mutation // wire invalidation + CRUD mutations into the executable resolver map
 };

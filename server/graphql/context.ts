@@ -1,44 +1,65 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  GraphQL request context factory
 
-  - defines the GraphQLContext type used by resolvers/services
-  - creates per-request state (requestId + memo map + auth stub)
-  - injects shared process-level dependencies (cache)
-  - wraps db access with optional request-aware timing instrumentation
-  - logs request start with a dedicated GraphQL layer tag
+  - Defines the GraphQLContext type (resolver dependency contract)
+  - Constructs per-request state (requestId, memoization map, auth state)
+  - Injects shared process-level dependencies (cache instance)
+  - Wraps DB access with optional performance instrumentation
+  - Derives demo-grade admin auth from request headers through the auth module
+  - Exports: GraphQLContext type, createGraphQLContext()
+  - Consumed by: GraphQL server initialization (context configuration)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { YogaInitialContext } from 'graphql-yoga'; // framework-provided request metadata
-import { randomUUID } from 'node:crypto'; // generates unique request trace ids
+// GraphQL Yoga request context type (framework-provided per request metadata)
+import type { YogaInitialContext } from 'graphql-yoga';
+// Generates unique request identifiers for tracing and logging
+import { randomUUID } from 'node:crypto';
 
-import { createTimedQuery, query } from '../db'; // db adapter + optional request-aware timing wrapper
-import { cache } from '../cache'; // process-scoped cache singleton
-import type { Cache } from '../cache'; // shared cache interface contract
+// Database access layer (raw query + optional timed instrumentation wrapper)
+import { createTimedQuery, query } from '../db';
+// Shared in-memory or distributed cache instance (process-scoped)
+import { cache } from '../cache';
+import type { Cache } from '../cache';
+import { extractAuth, type AuthState } from '../auth'; // request-derived demo auth extraction
 
-const DEBUG_PERF = process.env.DEBUG_PERF === 'true'; // enables request-aware db timing logs
+// Enables DB query timing instrumentation when DEBUG_PERF=true
+const DEBUG_PERF = process.env.DEBUG_PERF === 'true';
 
 // ---------- context contract ----------
 
 export type GraphQLContext = {
-  requestId: string; // unique trace id for one GraphQL request
-  memo: Map<string, Promise<unknown>>; // request-scoped promise dedupe storage
-  cache: Cache; // shared process-scoped cache adapter
-  db: { query: typeof query }; // request-aware db adapter exposed to services
-  auth: {
-    userEmail?: string | null;
-    roles: string[];
-    isAdmin: boolean;
-  };
+  requestId: string; // unique per request
+  memo: Map<string, Promise<unknown>>; // request-scoped async result deduplication
+  cache: Cache; // shared cache instance
+  db: { query: typeof query }; // database adapter exposed to resolvers
+  auth: AuthState; // request-derived auth state used by admin-ready mutations
 };
 
-// ---------- context factory ----------
+// ---------- Context factory (runs once per request) ----------
+
+/**
+ * Creates the GraphQL execution context for a single request.
+ *
+ * Responsibilities:
+ * - Generates a unique requestId for tracing
+ * - Wraps DB access with optional performance instrumentation
+ * - Initializes request-scoped memoization storage
+ * - Attaches shared process-level dependencies (cache)
+ * - Derives authentication state from the incoming request
+ *
+ * This function is invoked once per incoming GraphQL request
+ * by the server configuration.
+ */
 
 export function createGraphQLContext(
   _initialContext: YogaInitialContext
 ): GraphQLContext {
-  const requestId = randomUUID(); // generate one trace id for this GraphQL request
+  const requestId = randomUUID(); // stable trace id for all logs produced by this request
+  const auth = extractAuth(initialContext.request); // derive demo-grade admin state from request headers once
 
-  console.log(`[gql] requestId=${requestId} event=request_start`); // dedicated GraphQL start log avoids confusion with the HTTP access logger
+  // Log request entry for trace correlation across services
+  // console.log(`[request:${requestId}] Incoming GraphQL request`);
+  console.log(`[gql]  requestId = ${requestId}  event = request_start`);
 
   const dbAdapter = {
     query: createTimedQuery({
@@ -48,14 +69,10 @@ export function createGraphQLContext(
   };
 
   return {
-    requestId: requestId, // expose trace id to resolvers, services, and perf logs
-    memo: new Map<string, Promise<unknown>>(), // fresh memo map per request so dedupe never leaks across requests
-    cache, // inject shared cache singleton
-    db: dbAdapter, // inject request-aware db adapter
-    auth: {
-      userEmail: null, // auth remains a stub in this prototype
-      roles: [], // no role claims are attached yet
-      isAdmin: false // default to non-admin until real auth lands
-    }
+    requestId, // expose trace id to resolvers and debugContext
+    memo: new Map<string, Promise<unknown>>(), // one memo map per request
+    cache, // shared process-level cache instance
+    db: dbAdapter, // request-aware db adapter
+    auth // request-derived auth replaces the old hardcoded stub
   };
 }

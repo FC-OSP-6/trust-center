@@ -7,6 +7,7 @@
   - exposes admin-ready cache invalidation mutations
   - exposes taxonomy metadata without breaking current query args
   - adds a grouped overview search contract for later frontend consumers
+  - adds backend-only admin CRUD mutation inputs + payloads for GraphiQL verification
   - keeps future AI/query ideas as comments only until implemented
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -83,12 +84,66 @@ export const typeDefs = /* GraphQL */ `
     totalCount: Int!
   }
 
+  # ----------  admin mutation inputs  ----------
+
+  # demo/admin-only input  -->  future rbac can enforce field-level rules later
+  input CreateControlInput {
+    controlKey: String!
+    title: String!
+    description: String!
+    section: String!
+    category: String!
+    subcategory: String
+    tags: [String!]
+    sourceUrl: String
+  }
+
+  # partial update input  -->  id stays on the mutation arg, fields are optional
+  input UpdateControlInput {
+    controlKey: String
+    title: String
+    description: String
+    section: String
+    category: String
+    subcategory: String
+    tags: [String!]
+    sourceUrl: String
+  }
+
+  # demo/admin-only input  -->  future rbac can enforce field-level rules later
+  input CreateFaqInput {
+    faqKey: String!
+    question: String!
+    answer: String!
+    section: String!
+    category: String!
+    subcategory: String
+    tags: [String!]
+  }
+
+  # partial update input  -->  id stays on the mutation arg, fields are optional
+  input UpdateFaqInput {
+    faqKey: String
+    question: String
+    answer: String
+    section: String
+    category: String
+    subcategory: String
+    tags: [String!]
+  }
+
   # ----------  mutation payloads  ----------
 
   type InvalidationResult {
     ok: Boolean!
     scope: String!
     invalidatedPrefix: String!
+    requestId: String!
+  }
+
+  type DeleteResult {
+    ok: Boolean!
+    id: ID!
     requestId: String!
   }
 
@@ -127,6 +182,15 @@ export const typeDefs = /* GraphQL */ `
     # admin-ready cache invalidation hooks  -->  safe to verify before real writes land
     adminInvalidateControlsReads: InvalidationResult!
     adminInvalidateFaqsReads: InvalidationResult!
+
+    # demo/admin-only crud  -->  future admin gui can sit on this backend contract
+    adminCreateControl(input: CreateControlInput!): Control!
+    adminUpdateControl(id: ID!, input: UpdateControlInput!): Control!
+    adminDeleteControl(id: ID!): DeleteResult!
+
+    adminCreateFaq(input: CreateFaqInput!): Faq!
+    adminUpdateFaq(id: ID!, input: UpdateFaqInput!): Faq!
+    adminDeleteFaq(id: ID!): DeleteResult!
   }
 
   # ----------  FUTURE-ONLY NOTES (COMMENTS ONLY)  ----------

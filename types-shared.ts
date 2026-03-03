@@ -4,6 +4,7 @@
   - centralizes connection/page types used by client + server-facing adapters
   - reduces schema drift between frontend api helpers and backend graphql shape
   - keeps ui-only jsx/web-component typing out of shared contracts
+  - includes grouped overview-search contracts so 006E can consume the same backend shape
   - includes lightweight grouped ui shapes used by stencil renderers
   - leaves new taxonomy metadata optional so current consumers do not break
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -22,6 +23,18 @@ export type Connection<TNode> = {
   edges: Array<Edge<TNode>>; // ordered page rows
   pageInfo: PageInfo; // pagination state
   totalCount: number; // total rows matching filters
+};
+
+export type ConnectionQueryArgs = {
+  first: number; // page size requested by the caller
+  after?: string; // optional cursor boundary
+  category?: string; // optional category filter
+  search?: string; // optional substring search term
+};
+
+export type OverviewSearchQueryArgs = {
+  search: string; // grouped overview search term
+  firstPerKind?: number; // per-entity visible row cap for grouped overview results
 };
 
 export type Control = {
