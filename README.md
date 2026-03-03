@@ -39,9 +39,11 @@ Core implemented capabilities:
 <img src="ReadMe-Images/Overview-Mockup.png" alt="Overview in Mockup" width="50%">
 <img src="ReadMe-Images/FAQS-Mockup.png" alt="FAQs in Mockup" width="50%">
 
-## MVP Demo
+## Snapshots of Our MVP
 
-<video src="ReadMe-Images/demo.mov" controls="controls" width="600" height="400" autoplay loop></video>
+<img src="ReadMe-Images/Controls-LightMode.png" alt="Controls in Light Mode" width="50%">
+<img src="ReadMe-Images/Overview-DarkMode.png" alt="Overview in Dark Mode" width="50%">
+<img src="ReadMe-Images/FAQS-Expand.png" alt="FAQs in Light Mode" width="50%">
 
 ## Documentation
 
