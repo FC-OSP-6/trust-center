@@ -1,35 +1,29 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  GraphQL request context factory
 
-  - Defines the GraphQLContext type (resolver dependency contract)
-  - Constructs per-request state (requestId, memoization map, auth defaults)
-  - Injects shared process-level dependencies (cache instance)
-  - Wraps DB access with optional performance instrumentation
-  - Exports: GraphQLContext type, createGraphQLContext()
-  - Consumed by: GraphQL server initialization (context configuration)
+  - defines the GraphQLContext type used by resolvers/services
+  - creates per-request state (requestId + memo map + auth stub)
+  - injects shared process-level dependencies (cache)
+  - wraps db access with optional request-aware timing instrumentation
+  - logs request start with a dedicated GraphQL layer tag
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// GraphQL Yoga request context type (framework-provided per request metadata)
-import type { YogaInitialContext } from 'graphql-yoga';
-// Generates unique request identifiers for tracing and logging
-import { randomUUID } from 'node:crypto';
+import type { YogaInitialContext } from 'graphql-yoga'; // framework-provided request metadata
+import { randomUUID } from 'node:crypto'; // generates unique request trace ids
 
-// Database access layer (raw query + optional timed instrumentation wrapper)
-import { createTimedQuery, query } from '../db';
-// Shared in-memory or distributed cache instance (process-scoped)
-import { cache } from '../cache';
-import type { Cache } from '../cache';
+import { createTimedQuery, query } from '../db'; // db adapter + optional request-aware timing wrapper
+import { cache } from '../cache'; // process-scoped cache singleton
+import type { Cache } from '../cache'; // shared cache interface contract
 
-// Enables DB query timing instrumentation when DEBUG_PERF=true
-const DEBUG_PERF = process.env.DEBUG_PERF === 'true';
+const DEBUG_PERF = process.env.DEBUG_PERF === 'true'; // enables request-aware db timing logs
 
-// ---------- GraphQLContext contract (injected into all resolvers) ----------
+// ---------- context contract ----------
 
 export type GraphQLContext = {
-  requestId: string; // unique per request
-  memo: Map<string, Promise<unknown>>; // request-scoped async result deduplication
-  cache: Cache; // shared cache instance
-  db: { query: typeof query }; // database adapter exposed to resolvers
+  requestId: string; // unique trace id for one GraphQL request
+  memo: Map<string, Promise<unknown>>; // request-scoped promise dedupe storage
+  cache: Cache; // shared process-scoped cache adapter
+  db: { query: typeof query }; // request-aware db adapter exposed to services
   auth: {
     userEmail?: string | null;
     roles: string[];
@@ -37,47 +31,31 @@ export type GraphQLContext = {
   };
 };
 
-// ---------- Context factory (runs once per request) ----------
-
-/**
- * Creates the GraphQL execution context for a single request.
- *
- * Responsibilities:
- * - Generates a unique requestId for tracing
- * - Wraps DB access with optional performance instrumentation
- * - Initializes request-scoped memoization storage
- * - Attaches shared process-level dependencies (cache)
- * - Initializes default authentication state
- *
- * This function is invoked once per incoming GraphQL request
- * by the server configuration.
- */
+// ---------- context factory ----------
 
 export function createGraphQLContext(
-  initialContext: YogaInitialContext
+  _initialContext: YogaInitialContext
 ): GraphQLContext {
-  const requestId = randomUUID();
+  const requestId = randomUUID(); // generate one trace id for this GraphQL request
 
-  // Log request entry for trace correlation across services
-  console.log(`[request:${requestId}] Incoming GraphQL request`);
+  console.log(`[gql] requestId=${requestId} event=request_start`); // dedicated GraphQL start log avoids confusion with the HTTP access logger
 
-  // DB adapter: wraps base query function with request-scoped timing instrumentation
   const dbAdapter = {
     query: createTimedQuery({
-      requestId,
-      enabled: DEBUG_PERF
+      requestId, // stamp all db timing logs with this request id
+      enabled: DEBUG_PERF // only emit db timing logs when perf debugging is enabled
     })
   };
 
   return {
-    requestId: requestId,
-    memo: new Map<string, Promise<unknown>>(),
-    cache,
-    db: dbAdapter,
+    requestId: requestId, // expose trace id to resolvers, services, and perf logs
+    memo: new Map<string, Promise<unknown>>(), // fresh memo map per request so dedupe never leaks across requests
+    cache, // inject shared cache singleton
+    db: dbAdapter, // inject request-aware db adapter
     auth: {
-      userEmail: null,
-      roles: [],
-      isAdmin: false
+      userEmail: null, // auth remains a stub in this prototype
+      roles: [], // no role claims are attached yet
+      isAdmin: false // default to non-admin until real auth lands
     }
   };
 }

@@ -78,7 +78,7 @@ export function getServerEnv() {
       'DB_POOL_CONNECTION_TIMEOUT_MS',
       2_000
     ),
-    ALLOW_SEED_FALLBACK: optionalEnv('Allow_SEED_FALLBACK', 'false') === 'true'
+    ALLOW_SEED_FALLBACK: optionalEnv('ALLOW_SEED_FALLBACK', 'false') === 'true'
   };
 }
 
@@ -288,7 +288,7 @@ export function createTimedQuery({ requestId, enabled }: TimedQueryOptions) {
 
       if (enabled) {
         console.log(
-          `[db] requestId=${requestId} duration=${durationMs}ms rows=${res.rowCount ?? 0}`
+          `[db] requestId=${requestId} duration=${durationMs}ms rows=${res.rowCount ?? 0} sql="${text.trim().substring(0, 50)}..."`
         );
       }
 

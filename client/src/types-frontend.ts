@@ -1,65 +1,26 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   TL;DR  -->  frontend-only types + react/stencil jsx typing
 
-  - declares ui-facing node + connection shapes
+  - re-exports shared ui/data contracts from the repo root shared types file
   - declares stencil custom element props for react tsx usage
   - keeps custom element prop names aligned with current stencil @Prop() APIs
   - intentionally excludes asset module declarations (see assets.d.ts)
-  - includes taxonomy metadata as optional fields so current ui adoption can stay incremental
+  - keeps frontend-only JSX/custom-element typing separate from shared data contracts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import React from 'react';
 
-// ----------  graphql node types (ui-facing)  ----------
+export type {
+  Control,
+  Faq,
+  PageInfo,
+  Edge,
+  Connection,
+  ControlsConnection,
+  FaqsConnection
+} from '../../types-shared'; // shared node + connection contracts should have exactly one source of truth
 
-export type Control = {
-  id: string; // graphql id
-  controlKey?: string; // returned by graphql (optional for backwards compatibility)
-  title: string; // display label
-  category: string; // grouping key
-  section?: string; // broad taxonomy bucket
-  subcategory?: string | null; // finer taxonomy bucket
-  tags?: string[]; // taxonomy/search helper tags
-  status?: string; // optional ui-only field (if ever added client-side)
-  description?: string; // optional long text
-  sourceUrl?: string | null; // optional source link from graphql
-  updatedAt?: string; // iso timestamp (graphql)
-};
-
-export type Faq = {
-  id: string; // graphql id
-  faqKey?: string; // returned by graphql (optional for backwards compatibility)
-  question: string; // faq title/question
-  answer: string; // faq answer
-  category?: string; // graphql returns category (optional for backwards compatibility)
-  section?: string; // broad taxonomy bucket
-  subcategory?: string | null; // finer taxonomy bucket
-  tags?: string[]; // taxonomy/search helper tags
-  updatedAt?: string; // iso timestamp (graphql)
-};
-
-// ----------  generic connection types  ----------
-
-export type PageInfo = {
-  hasNextPage: boolean; // pagination flag
-  endCursor: string | null; // cursor for next page
-};
-
-export type Edge<T> = {
-  cursor: string; // edge cursor
-  node: T; // edge payload
-};
-
-export type Connection<T> = {
-  edges: Array<Edge<T>>; // paginated list
-  pageInfo: PageInfo; // pagination metadata
-  totalCount: number; // total matching rows (server resolver returns this)
-};
-
-export type ControlsConnection = Connection<Control>;
-export type FaqsConnection = Connection<Faq>;
-
-// ----------  reusable link-card item types (react composition)  ----------
+// ---------- reusable link-card item types (react composition) ----------
 
 export type LinkCardItem = {
   label: string; // row label shown in the card
@@ -73,14 +34,14 @@ export type LinkCardConfig = {
   items: LinkCardItem[]; // serialized into the items prop
 };
 
-// ----------  react intrinsic typing helpers  ----------
+// ---------- react intrinsic typing helpers ----------
 
 type HtmlElProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLElement>,
   HTMLElement
 >;
 
-// ----------  stencil custom element prop typings  ----------
+// ---------- stencil custom element prop typings ----------
 // use kebab-case here because react passes attributes to custom elements
 
 type AonLinkCardProps = HtmlElProps & {
