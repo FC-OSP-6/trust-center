@@ -291,10 +291,15 @@ export async function getFaqsPage(
     try {
       return await getFaqsPageDbCached(args, ctx); // shared read cache sits inside request memo for best of both
     } catch (error) {
-      if (!shouldFallbackToMock(error)) throw error; // non-db-availability errors should not be masked
+      if (!shouldUseSeedFallback(error)) throw error; // only known demo-safe failures should route into fallback mode
 
-      const msg = error instanceof Error ? error.message : String(error); // normalize error for logging
-      console.warn('[gql] faqsConnection fallback to seed json:', msg); // explicit fallback log for demos
+      const reason = error instanceof Error ? error.message : String(error); // normalize unknown errors into one loggable string
+
+      logSeedFallback({
+        requestId: ctx.requestId, // tie fallback log to the same request trace used by gql/cache/db/data logs
+        resolverName: 'faqsConnection', // identify which resolver path fell back
+        reason // keep the db/env failure reason visible for debugging
+      });
 
       const seedRows = await getSeedFaqsRows(); // load normalized faq seed rows from the centralized fallback module
       const filtered = filterRowsByCategorySearch(seedRows, args, {

@@ -21,6 +21,7 @@
     "db:cleanapply": "npm exec tsx -- -e \"import { runCleanApplyDb } from './server/db/index.ts'; runCleanApplyDb();\"",
     "db:explain": "tsx server/db/explainReadPaths.ts",
     "test": "npm run test:unit && npm run test:integration",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e:headed",
     "test:watch": "vitest",
     "test:unit": "vitest run testing/unit",
     "test:integration": "vitest run testing/integration",
