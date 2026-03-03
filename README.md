@@ -33,6 +33,18 @@ Core implemented capabilities:
 - layered performance controls: request memoization, shared read cache, deterministic cache keys
 - token-based Stencil component system with dark/light theme support
 
+## The Client's Wireframe Mockups
+
+<img src="ReadMe-Images/Controls-Mockup.png" alt="Controls in Mockup" width="50%">
+<img src="ReadMe-Images/Overview-Mockup.png" alt="Overview in Mockup" width="50%">
+<img src="ReadMe-Images/FAQS-Mockup.png" alt="FAQs in Mockup" width="50%">
+
+## Snapshots of Our MVP
+
+<img src="ReadMe-Images/Controls-LightMode.png" alt="Controls in Light Mode" width="50%">
+<img src="ReadMe-Images/Overview-DarkMode.png" alt="Overview in Dark Mode" width="50%">
+<img src="ReadMe-Images/FAQS-Expand.png" alt="FAQs in Light Mode" width="50%">
+
 ## Documentation
 
 - [Client](docs/client.md)
@@ -243,6 +255,8 @@ trust-center/
 ```
 
 ## Architecture Overview
+
+<img src="ReadMe-Images/Architecture_Diagram.png" alt="Architecture Diagram" width="65%">
 
 ### Runtime flow
 
