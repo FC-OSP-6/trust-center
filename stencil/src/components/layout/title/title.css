@@ -34,14 +34,12 @@ p {
   flex-direction: column;
   gap: 6px;
   padding: 30px;
+  padding-top: 30px;
   /* padding-left: 40px; */
 }
-.name {
-}
+
 .support-message {
   color: var(--tc-text-primary);
-}
-.support-email {
 }
 
 a {

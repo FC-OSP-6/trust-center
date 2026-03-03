@@ -2,7 +2,7 @@
 
 ## Overview
 
-Trust Center is a full-stack prototype that centralizes cybersecurity assessment data for brokers and clients.
+> Trust Center is a full-stack cybersecurity assurance prototype that centralizes assessment data for brokers and clients in order to make it easier to retrieve, review, and discuss.
 
 Cyber Quotient Evaluation (CYQU) is a cybersecurity assessment service provided by Aon Cyber Solutions. Clients submit products for risk evaluation, and the service generates structured analytics on cyber risk exposure. These outputs are used for:
 
@@ -11,9 +11,7 @@ Cyber Quotient Evaluation (CYQU) is a cybersecurity assessment service provided 
 - Vendor reviews
 - Due diligence
 
-Today, retrieving this information often requires brokers to manually request data from engineers — creating delays and inefficiencies.
-
-Trust Center solves this by providing a unified, scannable UI where security and compliance information is immediately accessible.
+Today, retrieving this information often requires brokers to manually request data from engineers — creating delays and inefficiencies. Trust Center solves this by providing a unified, scannable UI where security and compliance information is immediately accessible. The application exposes structured controls, FAQs, and supporting resources through a single browser experience backed by a GraphQL API and PostgreSQL.
 
 This prototype focuses on:
 
@@ -24,66 +22,123 @@ This prototype focuses on:
 - AI-assisted knowledge retrieval
 - Scalable architecture patterns
 
-## How to Run Locally
+Core implemented capabilities:
 
-### 1. Environmental Setup
+- route-based Trust Center UI with Overview, Controls, Resources, and FAQs
+- GraphQL read APIs for controls, FAQs, and grouped overview search
+- cursor-based pagination for controls and FAQs
+- taxonomy-aware data model with section, category, and subcategory support
+- database-backed reads with optional seed fallback for known local failure modes
+- admin-ready GraphQL mutations for CRUD and cache invalidation
+- layered performance controls: request memoization, shared read cache, deterministic cache keys
+- token-based Stencil component system with dark/light theme support
 
-- Create a .env file and copy the contents of .env.example, filling in the required variables.
+## The Client's Wireframe Mockups
 
-```bash
-cp .env.example .env
-```
+<img src="ReadMe-Images/Controls-Mockup.png" alt="Controls in Mockup" width="50%">
+<img src="ReadMe-Images/Overview-Mockup.png" alt="Overview in Mockup" width="50%">
+<img src="ReadMe-Images/FAQS-Mockup.png" alt="FAQs in Mockup" width="50%">
 
-Minimum required to run with a database:
+## Snapshots of Our MVP
 
-- DATABASE_URL
-- SERVER_PORT (defaults to 4000)
-- HOST (defaults to http://localhost)
-  Note: .env.example includes optional Supabase keys (client-side) and stretch AI provider config.
+<img src="ReadMe-Images/Controls-LightMode.png" alt="Controls in Light Mode" width="50%">
+<img src="ReadMe-Images/Overview-DarkMode.png" alt="Overview in Dark Mode" width="50%">
+<img src="ReadMe-Images/FAQS-Expand.png" alt="FAQs in Light Mode" width="50%">
 
-### 2. Install dependencies
+## Documentation
 
-From the root:
+- [Client](docs/client.md)
+- [Config](docs/config.md)
+- [Database](docs/db.md)
+- [GraphQL](docs/graphql.md)
+- [Optimizations](docs/optimizations.md)
+- [Server](docs/server.md)
+- [Stencil](docs/stencil.md)
+- [Testing](docs/testing.md)
+
+## Local Development
+
+### Prerequisites
+
+- Node.js compatible with the project toolchain
+- npm
+- PostgreSQL accessible through a `DATABASE_URL`
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Database Setup
+### 2. Create the environment file
 
-Run migrations:
+```bash
+cp .env.example .env
+```
+
+Minimum variables required for the intended local path:
+
+```env
+HOST=http://localhost
+SERVER_PORT=4000
+DATABASE_URL=postgres://username:password@localhost:5432/trust-center
+ADMIN_SECRET=replace-me
+```
+
+Additional runtime controls that already exist in the repository:
+
+```env
+DEBUG_PERF=false
+CACHE_ADAPTER=lru
+CACHE_MAX_ITEMS=500
+ALLOW_SEED_FALLBACK=false
+DB_POOL_MAX=10
+DB_POOL_IDLE_TIMEOUT_MS=30000
+DB_POOL_CONNECTION_TIMEOUT_MS=2000
+```
+
+Notes:
+
+- `CACHE_ADAPTER=redis` is not operational yet. The adapter is a stub and will throw if selected.
+- `ALLOW_SEED_FALLBACK=true` is intended for controlled local resilience, not as the default runtime mode.
+
+### 3. Apply the schema and seed data
 
 ```bash
 npm run db:migrate
-```
-
-Seed the database:
-
-```bash
 npm run db:seed
 ```
 
-Optional: clean apply (drops and rebuilds schema + seed flow, depending on your local DB config):
+For a full local reset:
 
 ```bash
 npm run db:cleanapply
 ```
 
-### 4. Run the App
+### 4. Start the application
 
-Runs server + client + stencil watch concurrently:
+Full stack watch mode (Stencil)):
 
 ```bash
 npm run dev
 ```
 
-If you want only server + client (no stencil watch):
+Server and client only:
 
 ```bash
 npm run dev:basic
 ```
 
-Useful Scripts
+### 5. Access the application
+
+- UI: `http://localhost:5173/trust-center/`
+  - Navigate between the SPA's main 4 sections: Overview, Controls, Resources, and FAQs.
+  - Some cards are expandable: click "View All" or the "+" to show the rest of the contents.
+  - Click on an external link or document and it will open in another tab.
+- GraphiQL: `http://localhost:4000/graphql`
+- Health endpoint: `http://localhost:4000/api/health`
+
+### 6. Common commands
 
 ```bash
 npm run dev              # server + client + stencil watch
@@ -91,30 +146,21 @@ npm run dev:basic        # server + client
 npm run dev:server       # server only (tsx watch)
 npm run dev:client       # client only (vite)
 npm run stencil          # stencil build --watch
-
 npm run db:migrate
 npm run db:seed
 npm run db:cleanapply
+npm run db:explain
 
-npm run test             # vitest (server) + stencil jest tests (scaffolded)
+npm run test
+npm run test:unit
+npm run test:integration
+npm run test:e2e
+npm run test:stencil
+
 npm run typecheck
 npm run format
 npm run format:check
 ```
-
-### 5. Access the App
-
-1. Git clone the repo, then navigate to the folder root.
-2. In your terminal, run npm install from the repo root, then npm run dev to start the build for the server, client, and StencilJS.
-3. Backend Data populates to FAQs + Controls.
-4. Click the link for:
-
-- localhost:5173/trust-center to access the UI
-- localhost:4000/graphql for the Yoga GraphiQL GUI
-
-5. Navigate between the SPA's main 4 sections: Overview, Controls, Resources, and FAQs.
-6. Some cards are expandable: click "View All" or the "+" to show the rest of the contents.
-7. Click on an external link or document and it will open in another tab.
 
 ## Tech Stack
 
@@ -158,40 +204,262 @@ npm run format:check
 - **Lint-staged**
 - **Prettier**
 
-## Why GraphQL?
+## Repository Structure
 
-- Aligns with Aon's use of GraphQL, ensuring consistency with their tech stack
-- Allows the frontend to request exactly the data it needs, preventing over and under fetching
-- Uses a single endpoint with a schema that is strongly typed
-- Makes nested and relational data easier to query in one request
-- Improves frontend-backend collaboration through a shared schema contract
+```bash
+trust-center/
+│
+├── README.md
+├── package.json
+├── vite.config.ts
+├── vitest.config.ts
+├── playwright.config.ts
+├── types-shared.ts
+│
+├── client/                    # Vite + React frontend
+│   └── src/
+│       ├── app.tsx
+│       ├── api.ts             # GraphQL client layer
+│       ├──└── assets/
+│       └── components/
+│           ├── shared.tsx
+│           └── sections/
+│
+├── server/                    # GraphQL API + backend optimization
+│   ├── server.ts
+│   ├── auth/
+│   ├── cache/                 # Multi-layer caching (LRU + Redis)
+│   ├── db/
+│   ├── graphql/
+│   ├── services/              # Business logic layer
+│   └── ai/                    # Knowledge graph + prompt layer
+│
+├── stencil/                   # Web component design system
+│   ├── stencil.config.ts
+│   └── src/components/
+│
+├── testing/
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+│
+└── docs/
+    ├── client.md
+    ├── config.md
+    ├── db.md
+    ├── graphql.md
+    ├── server.md
+    ├── stencil.md
+    ├── testing.md
+    └── optimizations.md
+```
 
-## Why StencilJS?
+## Architecture Overview
 
-- Aligns with Aon's use of Stencil, maintaining consistency with their architecture
-- Allows for more flexibility because the web components are framework-agnostic
-- Separates component prensentation (Stencil) from component behavior (React)
-- Compiles to optimized, standards-based browser components
-- Includes strong TypeScript support out of the box
-- Reduces long-term framework lock-in risk
+<img src="ReadMe-Images/Architecture_Diagram.png" alt="Architecture Diagram" width="65%">
 
-## Why Explicit DB Schema + Migrations?
+### Runtime flow
 
-- Enforces strict data integrity at the database layer
-- Creates a single source of truth for the domain model
-- Makes schema evolution safe, versioned, and reversible
-- Enables predictable CI/CD deployments
-- Reduces runtime validation complexity
-- Improves collaboration between backend and analytics teams
+```text
+Browser
+  |
+  v
+Vite + React shell
+  |
+  |  JSON props + custom events
+  v
+Stencil web components
+  |
+  |  POST /graphql
+  v
+Express server
+  |
+  v
+GraphQL Yoga
+  |
+  v
+Resolvers (thin)
+  |
+  v
+Services
+  |\
+  | \-- request memoization
+  | \-- shared cache (LRU)
+  |
+  v
+DB adapter
+  |
+  v
+PostgreSQL
+```
 
-## Why tests centralized in /testing?
+### Frontend composition
 
-- Separates production and test concerns clearly
-- Allows shared mocks, fixtures, and integration helpers
-- Encourages consistent test structure across domains
-- Improves maintainability in larger repos
-- Makes CI configuration cleaner
-- Supports layered testing (unit, integration, API, UI)
+The frontend is intentionally split into two layers:
+
+- **React** owns routing, data fetching, page composition, URL state, and app-level theme persistence.
+- **Stencil** owns reusable presentation components such as the navbar, title, footer, cards, and theme toggle.
+
+That split allows the repository to demonstrate a framework-agnostic component layer without forcing custom elements to own routing or network logic.
+
+### Data flow
+
+1. React mounts a route in `client/src/app.tsx`.
+2. Route components call the manual GraphQL client in `client/src/api.ts`.
+3. Vite proxies `/graphql` and `/api/health` to the Express server during development.
+4. GraphQL Yoga creates request context with a request ID, request-scoped memo store, shared cache, DB adapter, and auth state.
+5. Thin resolvers delegate to services.
+6. Services apply normalization, caching, pagination, validation, DB access, and seed fallback when enabled and appropriate.
+7. Resolvers map service rows into GraphQL node shapes.
+8. React serializes payloads into Stencil custom elements for rendering.
+
+### Caching and optimization layers
+
+The current implementation has three distinct optimization layers:
+
+- **Client-side TTL cache and in-flight request dedupe** in `client/src/api.ts`
+- **Request-scoped promise memoization** in `server/services/memo.ts`
+- **Shared cross-request cache** behind `server/cache/*`, with LRU active and Redis scaffolded
+
+This is deliberate. GraphQL reduces over-fetching at the transport layer, but it does not eliminate duplicate work inside a request or across requests. The repository addresses those concerns at different boundaries.
+
+### Theme and token system
+
+The component system uses tokenized styling in `stencil/src/components/styles/`:
+
+- `tokens.css`
+- `tokens-semantic.css`
+- `tokens-dark.css`
+- `typography.css`
+- `global.css`
+
+Dark mode is implemented and persisted today:
+
+- Stencil renders the visible toggle
+- React persists the chosen theme in local storage
+- `document.documentElement.dataset.theme` is the shared switch used by the app and component system
+
+## Key Technical Decisions
+
+### Why choose GraphQL over REST?
+
+GraphQL is the primary application API because the Trust Center needs one typed contract that can support multiple read shapes without multiplying route surface area.
+
+In the current implementation, GraphQL supports:
+
+- paginated controls
+- paginated FAQs
+- grouped overview search
+- admin-ready mutation hooks
+
+Why this is a good fit here:
+
+- one endpoint keeps the client-server contract compact and easier to review
+- each route can request only the fields it actually renders
+- cursor-based connections align with the current read model and caching strategy
+- the schema is a stable artifact for maintainers, reviewers, and future integration work
+
+Tradeoff:
+
+- GraphQL improves contract quality, not backend efficiency by itself. Resolver discipline, service boundaries, pagination strategy, and caching still determine whether the system performs well under load.
+
+### Why use Stencil instead of React-only components?
+
+Stencil is the component layer; React is the application shell.
+
+This separation was chosen because:
+
+- it mirrors the client partner's broader technical direction
+- custom elements reduce long-term coupling between the UI library and the application shell
+- page orchestration and route composition remain in React, while reusable visual primitives live in Stencil
+- tokenized styling and shadow DOM provide stronger encapsulation for the design system
+
+Tradeoff:
+
+- React-Stencil integration is more complex than a pure React tree. Serialized props, custom event bridging, and shadow-DOM-aware navigation add coordination cost that would not exist in a React-only component model.
+
+### Why keep business logic in services?
+
+Resolvers are intentionally thin. The services layer owns:
+
+- read path behavior
+- pagination
+- cache key selection
+- invalidation
+- fallback behavior
+- write validation
+- search normalization
+
+Why this matters:
+
+- the same logic can be reused across GraphQL fields instead of being duplicated in resolvers
+- optimization work happens at a single architectural boundary
+- the GraphQL layer stays easier to reason about, test, and extend
+- read and write concerns remain closer to the data model than to the transport layer
+
+Tradeoff:
+
+- the service layer becomes the critical backend boundary. If it absorbs too much route-specific or schema-specific behavior, it can become overly central and harder to evolve safely.
+
+### Why use layered caching with deterministic keys?
+
+The cache design is built around deterministic key builders, request-scoped memoization, and centralized invalidation.
+
+Why this is a strong choice:
+
+- equivalent requests collapse to the same cache identity
+- duplicate work can be avoided both within a request and across requests
+- invalidation behavior is consistent across services and mutations
+- the active LRU path is simple to run locally, while the Redis adapter preserves a path to shared caching later
+
+Tradeoff:
+
+- multi-layer caching increases reasoning complexity, especially once write traffic grows. Staleness, invalidation scope, and cache ownership need to remain explicit to keep behavior predictable.
+
+### Why evolve the taxonomy now?
+
+The database and GraphQL contracts expose section, category, and subcategory rather than preserving a flat category-only model.
+
+Why this was worth doing now:
+
+- the model better reflects how trust-center content is actually organized
+- taxonomy validation is enforced in both seed and fallback paths
+- search, grouping, and future retrieval features can build on a richer contract without another schema reset
+- the API can grow without reworking the same conceptual model twice
+
+Tradeoff:
+
+- the current UI still leans primarily on category. Some of the richer taxonomy is infrastructure ahead of full route-level usage.
+
+### Why centralize tests under /testing?
+
+The repository keeps most automated tests in a dedicated `/testing` directory rather than scattering all tests across runtime folders.
+
+Why this strategy works here:
+
+- it separates test concerns from production code paths
+- unit, integration, and browser-level coverage are easier to locate and review quickly
+- shared fixtures, helpers, and environment setup can be managed consistently
+- CI becomes easier to reason about because the suite structure mirrors the testing strategy directly
+
+Tradeoff:
+
+- centralized testing improves discoverability at the suite level, but it can reduce proximity between implementation files and their tests. That makes disciplined naming and coverage boundaries more important.
+
+### Why use explicit schema and SQL migrations?
+
+The database layer is managed through explicit SQL migrations and a versioned schema history instead of implicit runtime table creation.
+
+Why this matters:
+
+- schema changes are reviewable, ordered, and reproducible
+- local development and CI can rebuild the same database state deterministically
+- indexes, generated columns, and constraints stay visible as first-class design decisions
+- the data model remains an explicit contract rather than an implementation side effect
+
+Tradeoff:
+
+- explicit migrations require coordination across the database, service layer, and GraphQL contract. That adds change-management overhead, but it also prevents silent drift between the application model and the persistence layer.
 
 ## Common Problems
 
@@ -216,70 +484,38 @@ npm run format:check
 
 - Managing type definitions between React and Web Components requires careful typing and event handling.
 
-## Repo Map:
+## Notable Implementation Constraints
 
-```bash
-├── README.md
-├── package.json
-├── docs/
-│   ├── ai.md
-│   ├── graphql.md
-│   ├── db.md
-│   └── server.md
-│
-├── client/                    # Vite + React frontend
-│   └── src/
-│       ├── app.tsx
-│       ├── api.ts             # GraphQL client layer
-│       ├── components/
-│       │   ├── shared.tsx
-│       │   └── sections/
-│       │       ├── controls.tsx
-│       │       ├── faqs.tsx
-│       │       ├── overview.tsx
-│       │       └── resources.tsx
-│       └── assets/
-│
-├── server/                    # GraphQL API + backend optimization
-│   ├── server.ts
-│   ├── graphql/
-│   │   ├── schema.ts
-│   │   ├── resolvers.ts
-│   │   └── mutations.ts
-│   │
-│   ├── services/              # Business logic layer
-│   │   ├── controlsService.ts
-│   │   ├── faqsService.ts
-│   │   └── pagination.ts
-│   │
-│   ├── cache/                 # Multi-layer caching (LRU + Redis)
-│   │   ├── cache.ts
-│   │   ├── lru.ts
-│   │   └── redis.ts
-│   │
-│   ├── db/
-│   │   ├── migrations/
-│   │   ├── seed.ts
-│   │   └── data/
-│   │
-│   └── ai/                    # Knowledge graph + prompt layer
-│       ├── graph.ts
-│       ├── kb.ts
-│       └── prompts.ts
-│
-├── stencil/                   # Web component design system
-│   └── src/components/
-│
-└── testing/
-    ├── api.test.ts
-    ├── db.test.ts
-    └── ui.test.tsx
-```
+- The Redis adapter exists only as an interface-aligned stub. Shared caching is currently single-process and in-memory.
+- The frontend GraphQL client is manual. There is no Apollo Client, Relay, or GraphQL code generation pipeline.
+- Admin auth is demo-grade and header-based. It is sufficient for local mutation verification, not production authorization.
+- Seed fallback is real and centralized, but it should be treated as a controlled development aid rather than a normal runtime dependency.
+- Search infrastructure is ahead of the active search path. The schema supports generated `search_vector` columns, but the current read path still uses substring matching on `search_text`.
+- Browser E2E coverage is intentionally shallow. `testing/e2e/controls.spec.ts` exists but is currently empty.
+- The `server/ai` folder contains early modules, but AI retrieval is not yet integrated into the main user-facing application flow.
+
+## Findings
+
+- Splitting React and Stencil cleanly required a strict ownership model. Without that separation, routing, state, and rendering responsibilities would have drifted across both layers.
+- GraphQL transport alone did not solve backend efficiency. Request memoization, shared caching, and service reuse were necessary to make the read path predictable.
+- Taxonomy work affected more than schema shape. It had to be applied consistently across migrations, seed normalization, fallback loading, GraphQL nodes, and tests.
+- Cursor pagination was a worthwhile investment because it aligns better with ordered read performance and stable cache identity than page-number pagination.
+- The current architecture benefits from small, explicit utilities. Cache keys, search text builders, pagination helpers, and validation functions each keep drift out of the service layer.
+
+## Stretch and Future Work
+
+The repository already contains clear extension points for future work:
+
+- Wire the grouped `overviewSearch` contract into a fuller Overview search experience
+- Connect the AI modules to a stable retrieval path instead of leaving them as backend-adjacent scaffolding
+- Replace header-based admin auth with a stronger auth and authorization model
+- Complete the Redis adapter for multi-process or hosted environments
+- Expand mutation-path tests and browser interaction tests
+- Move search from substring matching toward a validated full-text or retrieval-oriented path
 
 ## Golden Demo Flow
 
 1. Broker logs into Trust Center dashboard
-
 2. Lands on Overview page
    - High-level cyber risk summary
    - Risk score visualization
@@ -326,18 +562,4 @@ npm run format:check
 
 ## Disclaimer
 
-> **This is an educational project developed by students at Codesmith.**
->
-> - All data, content, and materials in this repository are used for **learning and demonstration purposes only**
-> - This project is **not an official Aon product or service**
-> - Any data presented is **sample/mock data** and does not represent actual client, business, or sensitive information
-> - This repository and its contents are **not endorsed by, affiliated with, or representative of Aon plc or any of its subsidiaries**
-> - Students and contributors should **not share any proprietary, confidential, or sensitive Aon information** in this public repository
-
-## About This Project
-
-This project was created as part of a learning experience at Codesmith in collaboration with Aon Cyber Solutions, exploring the development of a Trust Center application. The Trust Center concept is designed to provide transparency around security posture, compliance measures, and operational practices.
-
-## License
-
-This project is for educational purposes. Please respect intellectual property and do not use any concepts, designs, or materials for commercial purposes without appropriate permissions.
+> This prototype was built as part of a client-student partnership through Codesmith’s Future Code program. It explores solutions to a real-world case study provided by an external partner. This work does not represent employment or contracting with the partner. All intellectual property belongs to the partner. This is a time-boxed MVP and not a production system.
