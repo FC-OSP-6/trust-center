@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
   const host = env.HOST ?? 'http://localhost';
   const port = Number(env.SERVER_PORT ?? 4000);
   const serverTarget = `${host}:${port}`; // ex:  http://localhost:4000
+  const viteHost = env.VITE_DEV_HOST || undefined;
 
   return {
     base: '/trust-center/',
@@ -29,6 +30,9 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: { include: ['react', 'react-dom'] },
 
     server: {
+      host: viteHost,
+      port: 5173,
+      strictPort: true,
       proxy: {
         // preserves method + json + headers  -->  no hardcoding,  no path rewriting,  no websocket upgrades needed for MVP
         '/api/health': { target: serverTarget, changeOrigin: true },
