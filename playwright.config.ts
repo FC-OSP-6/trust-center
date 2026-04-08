@@ -42,7 +42,7 @@ export default defineConfig({
   // ---------- local dev server orchestration ----------
 
   webServer: {
-    command: 'npm run dev', // starts your full local stack (client/server/stencil) for e2e
+    command: 'bun run dev', // starts your full local stack (client/server/stencil) for e2e
     url: 'http://localhost:5173/trust-center/', // playwright waits until this url is reachable
     reuseExistingServer: !process.env.CI, // avoids restarting if the app is already running locally
     timeout: 120_000 // gives the stack time to boot on slower machines
