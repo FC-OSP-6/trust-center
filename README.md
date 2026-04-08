@@ -60,15 +60,20 @@ Core implemented capabilities:
 
 ### Prerequisites
 
-- Node.js compatible with the project toolchain
-- npm
+- Bun `1.3.11` or compatible Bun runtime
+- Node.js compatible with the current inner toolchain
 - PostgreSQL accessible through a `DATABASE_URL`
 
 ### 1. Install dependencies
 
 ```bash
-npm install
+bun install
 ```
+
+Notes:
+
+- Bun is the official outer runtime surface for this repository.
+- `bun.lock` is the authoritative lockfile for local development and CI.
 
 ### 2. Create the environment file
 
@@ -105,14 +110,14 @@ Notes:
 ### 3. Apply the schema and seed data
 
 ```bash
-npm run db:migrate
-npm run db:seed
+bun run db:migrate
+bun run db:seed
 ```
 
 For a full local reset:
 
 ```bash
-npm run db:cleanapply
+bun run db:cleanapply
 ```
 
 ### 4. Start the application
@@ -120,13 +125,13 @@ npm run db:cleanapply
 Full stack watch mode (Stencil)):
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Server and client only:
 
 ```bash
-npm run dev:basic
+bun run dev:basic
 ```
 
 ### 5. Access the application
@@ -141,25 +146,25 @@ npm run dev:basic
 ### 6. Common commands
 
 ```bash
-npm run dev              # server + client + stencil watch
-npm run dev:basic        # server + client
-npm run dev:server       # server only (tsx watch)
-npm run dev:client       # client only (vite)
-npm run stencil          # stencil build --watch
-npm run db:migrate
-npm run db:seed
-npm run db:cleanapply
-npm run db:explain
+bun run dev              # server + client + stencil watch
+bun run dev:basic        # server + client
+bun run dev:server       # server only (tsx watch)
+bun run dev:client       # client only (vite)
+bun run stencil          # stencil build --watch
+bun run db:migrate
+bun run db:seed
+bun run db:cleanapply
+bun run db:explain
 
-npm run test
-npm run test:unit
-npm run test:integration
-npm run test:e2e
-npm run test:stencil
+bun run test
+bun run test:unit
+bun run test:integration
+bun run test:e2e
+bun run test:stencil
 
-npm run typecheck
-npm run format
-npm run format:check
+bun run typecheck
+bun run format
+bun run format:check
 ```
 
 ## Tech Stack
@@ -199,6 +204,7 @@ npm run format:check
 
 ### DevOps & Tooling
 
+- **Bun**
 - **GitHub Actions (CI)**
 - **Husky (pre-commit hooks)**
 - **Lint-staged**
