@@ -1,0 +1,16 @@
+.env*
+!.env.example
+.git
+.gitignore
+node_modules
+dist
+playwright-report
+test-results
+# Stencil build output is generated and should not be copied from the host.
+stencil/dist
+stencil/loader
+stencil/.stencil
+stencil/node_modules
+client/node_modules
+server/node_modules
+.DS_Store
