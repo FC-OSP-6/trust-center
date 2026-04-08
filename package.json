@@ -11,6 +11,7 @@
     "dev": "concurrently -n server,client,stencil -c auto --kill-others-on-fail \"bun run dev:server\" \"bun run dev:client\" \"bun run stencil\"",
     "dev:basic": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
     "dev:server": "tsx watch server/server.ts",
+    "start:server": "bun server/server.ts",
     "stencil": "cd stencil && bun run start",
     "dev:client": "vite --config vite.config.ts",
     "build": "bun run build:stencil && bun run build:client",
