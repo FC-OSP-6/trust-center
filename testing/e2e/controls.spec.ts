@@ -17,6 +17,67 @@ const controlTitle = 'Authentication standard is documented and reviewed';
 const faqQuestion =
   'How does CyQu manage authentication within access control?';
 
+async function mockHealthyGraphql(page: Page) {
+  await page.route('**/graphql', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          controlsConnection: {
+            edges: [
+              {
+                cursor: '1',
+                node: {
+                  id: 'control-1',
+                  controlKey: 'ac-1',
+                  title: controlTitle,
+                  description:
+                    'The platform documents and reviews authentication guidance.',
+                  category: 'Access Control',
+                  section: 'Identity',
+                  subcategory: null,
+                  tags: [],
+                  sourceUrl: null,
+                  updatedAt: '2026-01-01T00:00:00.000Z'
+                }
+              }
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: '1'
+            },
+            totalCount: 1
+          },
+          faqsConnection: {
+            edges: [
+              {
+                cursor: '1',
+                node: {
+                  id: 'faq-1',
+                  faqKey: 'auth-1',
+                  question: faqQuestion,
+                  answer: 'CyQu uses role-based access with periodic review.',
+                  category: 'Access Control',
+                  section: 'Identity',
+                  subcategory: null,
+                  tags: [],
+                  updatedAt: '2026-01-01T00:00:00.000Z'
+                }
+              }
+            ],
+            pageInfo: {
+              hasNextPage: false,
+              endCursor: '1'
+            },
+            totalCount: 1
+          }
+        }
+      })
+    });
+  });
+}
+
 async function forceGraphqlFailure(page: Page) {
   await page.route('**/graphql', async route => {
     await route.fulfill({
@@ -33,6 +94,8 @@ test.describe('trust center data routes', () => {
   test('healthy data routes render stable overview controls and faq content', async ({
     page
   }) => {
+    await mockHealthyGraphql(page);
+
     await page.goto(overviewPath);
 
     await expect(page.getByText('Documents', { exact: true })).toBeVisible();
