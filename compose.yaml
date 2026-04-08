@@ -32,7 +32,8 @@ services:
       - '4000:4000'
     environment:
       SERVER_PORT: '4000'
-      DATABASE_URL: postgres://trust_center:trust_center@postgres:5432/trust_center
+      # Defaults to the local Postgres service, but allows an opt-in remote override.
+      DATABASE_URL: ${DOCKER_REMOTE_DATABASE_URL:-postgres://trust_center:trust_center@postgres:5432/trust_center}
       ADMIN_SECRET: replace-me
       # The Redis adapter is still a stub in this repo, so keep LRU active.
       CACHE_ADAPTER: lru
