@@ -8,6 +8,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+    depends_on:
+      api:
+        condition: service_healthy
     ports:
       - '5173:5173'
     environment:
@@ -20,6 +23,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - '4000:4000'
     environment:
@@ -47,11 +55,23 @@ services:
       POSTGRES_DB: trust_center
       POSTGRES_USER: trust_center
       POSTGRES_PASSWORD: trust_center
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U trust_center -d trust_center']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   postgres-data:
