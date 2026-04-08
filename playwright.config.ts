@@ -4,7 +4,7 @@
     what this config does:
         - runs only e2e specs from testing/e2e (avoids vitest files)
         - uses the chrome already installed on the machine
-        - starts the app with npm run dev if it is not already running
+        - starts the app with bun run dev if it is not already running
         - keeps debug artifacts only when tests fail or retry
 
     why this matters:
