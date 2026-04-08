@@ -497,7 +497,7 @@ Tradeoff:
 - Admin auth is demo-grade and header-based. It is sufficient for local mutation verification, not production authorization.
 - Seed fallback is real and centralized, but it should be treated as a controlled development aid rather than a normal runtime dependency.
 - Search infrastructure is ahead of the active search path. The schema supports generated `search_vector` columns, but the current read path still uses substring matching on `search_text`.
-- Browser E2E coverage is intentionally shallow. `testing/e2e/controls.spec.ts` exists but is currently empty.
+- Browser E2E coverage is intentionally narrow, but it now includes route smoke and forced GraphQL outage fallback coverage for Trust Center data pages.
 - The `server/ai` folder contains early modules, but AI retrieval is not yet integrated into the main user-facing application flow.
 
 ## Findings
