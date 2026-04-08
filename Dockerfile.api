@@ -13,4 +13,4 @@ COPY . .
 
 EXPOSE 4000
 
-CMD ["bun", "run", "start:server"]
+CMD ["bun", "run", "dev:server:start"]
