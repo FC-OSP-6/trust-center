@@ -92,7 +92,7 @@ This matches the current testing emphasis: backend logic and integration confide
 
 - runs only `testing/e2e`
 - points its base URL at `http://localhost:5173/trust-center/`
-- starts the full stack with `npm run dev`
+- starts the full stack with `bun run dev`
 - reuses an existing local server outside CI
 - targets installed Chrome rather than a Playwright-managed browser
 
@@ -111,28 +111,30 @@ That config supports the repository's main Stencil goal: treat the component sys
 
 ## Script Surface
 
-The current scripts are intentionally explicit.
+The current scripts are intentionally explicit and Bun-first at the repo root.
 
 Important scripts:
 
-- `npm run dev`
-- `npm run dev:basic`
-- `npm run dev:server`
-- `npm run dev:client`
-- `npm run stencil`
-- `npm run build`
-- `npm run db:migrate`
-- `npm run db:seed`
-- `npm run db:cleanapply`
-- `npm run db:explain`
-- `npm run test`
-- `npm run test:unit`
-- `npm run test:integration`
-- `npm run test:e2e`
-- `npm run test:stencil`
-- `npm run typecheck`
+- `bun run dev`
+- `bun run dev:basic`
+- `bun run dev:server`
+- `bun run dev:client`
+- `bun run stencil`
+- `bun run build`
+- `bun run db:migrate`
+- `bun run db:seed`
+- `bun run db:cleanapply`
+- `bun run db:explain`
+- `bun run test`
+- `bun run test:unit`
+- `bun run test:integration`
+- `bun run test:e2e`
+- `bun run test:stencil`
+- `bun run typecheck`
 
 This is a good configuration choice for a reviewable prototype because each subsystem can be exercised independently.
+
+The root runtime contract is also encoded directly in `package.json` via `packageManager: bun@1.3.11`, and `bun.lock` is the primary sprint lockfile.
 
 ## CI and pre-commit behavior
 
@@ -142,6 +144,7 @@ The repository already has lightweight hygiene automation:
 - lint-staged
 - Prettier formatting rules
 - Git attributes for text and binary handling
+- Bun-first CI install and script execution in GitHub Actions
 
 The current approach favors low-friction consistency over a heavier lint-and-policy stack.
 
