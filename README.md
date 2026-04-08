@@ -134,7 +134,57 @@ Server and client only:
 bun run dev:basic
 ```
 
-### 5. Access the application
+Stable non-watch server runtime:
+
+```bash
+bun run dev:server:start
+```
+
+### 5. Docker Development
+
+If you want the local app stack to run in Docker instead of host watch mode:
+
+```bash
+bun run dev:docker
+```
+
+Then initialize the database from a second terminal:
+
+```bash
+bun run dev:docker:db:init
+```
+
+Notes:
+
+- `dev:docker` builds first, then streams focused `api` and `frontend` logs.
+- `postgres` and `redis` still run in the stack, but their steady-state logs are not attached to the main Docker dev stream.
+- Stop the Docker stack with `Ctrl+C` in the terminal running `bun run dev:docker`.
+
+Docker local URLs:
+
+- UI: `http://localhost:5173/trust-center/`
+- GraphQL: `http://localhost:4000/graphql`
+- Health endpoint: `http://localhost:4000/api/health`
+
+Important backend note:
+
+- `http://localhost:4000/` returning `{"ok":false,"error":"not found"}` is expected.
+- The intended backend verification endpoints are `/api/health` and `/graphql`.
+
+### 6. Docker Remote Database Override
+
+Docker Compose uses its local Postgres service by default. To point the Dockerized API at a remote database instead, set `DOCKER_REMOTE_DATABASE_URL` explicitly:
+
+```bash
+DOCKER_REMOTE_DATABASE_URL='postgres://username:password@db.example.com:5432/trust-center' bun run dev:docker:remote
+```
+
+Notes:
+
+- This is opt-in only; the default Docker path uses the local Compose Postgres service.
+- Avoid running seed or clean-apply commands against a remote database unless you intentionally want to modify that environment.
+
+### 7. Access the application
 
 - UI: `http://localhost:5173/trust-center/`
   - Navigate between the SPA's main 4 sections: Overview, Controls, Resources, and FAQs.
@@ -143,14 +193,20 @@ bun run dev:basic
 - GraphiQL: `http://localhost:4000/graphql`
 - Health endpoint: `http://localhost:4000/api/health`
 
-### 6. Common commands
+### 8. Common commands
 
 ```bash
 bun run dev              # server + client + stencil watch
 bun run dev:basic        # server + client
 bun run dev:server       # server only (tsx watch)
+bun run dev:server:start # server only (stable non-watch runtime)
 bun run dev:client       # client only (vite)
 bun run stencil          # stencil build --watch
+bun run dev:docker       # dockerized local stack with focused app logs
+bun run dev:docker:build # build docker images
+bun run dev:docker:db:init
+bun run dev:docker:down
+bun run dev:docker:remote
 bun run db:migrate
 bun run db:seed
 bun run db:cleanapply
