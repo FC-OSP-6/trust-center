@@ -8,6 +8,7 @@
 
 # Dependencies
 node_modules/ 
+dist/
 
 # stencil generated files
 # Stencil cache / build artifacts
@@ -17,5 +18,7 @@ stencil/dist/
 stencil/src/components.d.ts
 stencil/loader/
 client/src/custom-elements.d.ts
+playwright-report/
+test-results/
 
 .DS_Store
