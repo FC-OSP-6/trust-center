@@ -17,6 +17,8 @@ dist/
 stencil/dist/
 stencil/src/components.d.ts
 stencil/loader/
+stencil/types-shared.js
+stencil/types-shared.js.map
 client/src/custom-elements.d.ts
 playwright-report/
 test-results/
