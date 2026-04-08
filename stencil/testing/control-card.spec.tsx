@@ -15,6 +15,14 @@
     - keeps component tests fast, stable, and focused on stencil behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+import { describe, it } from '@jest/globals';
+
+describe.skip('aon-control-card stencil specs', () => {
+  it('placeholder until the commented spec plan is restored', () => {
+    // kept as an explicit skip so the stencil test runner remains executable during runtime migration work
+  });
+});
+
 // ---------- test setup ----------
 
 // ---------- shared mock payloads ----------
