@@ -1,6 +1,7 @@
 # TLDR --> contains all files to be ignored when pushed
 
-#.claude
+.claude/
+CLAUDE.md
 
 #.opencode - agentic coding practice for sprint #2
 .opendcode
