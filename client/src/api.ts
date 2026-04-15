@@ -10,7 +10,12 @@
   - requests taxonomy metadata so frontend can adopt it incrementally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { ControlsConnection, FaqsConnection } from './types-frontend';
+import type {
+  ControlsConnection,
+  FaqsConnection,
+  AiAnswerUi,
+  AiCitationUi
+} from './types-frontend';
 import controlsSeedData from '../../server/db/data/controls.json';
 import faqsSeedData from '../../server/db/data/faqs.json';
 
@@ -837,4 +842,106 @@ export function fetchFaqsConnectionAll(
   args: FetchAllConnectionArgs = {}
 ): Promise<FaqsConnection> {
   return fetchAllFaqs(args); // alias for older section imports
+}
+
+// ----------  ai assistant helper (cyqu assistant / ai rail)  ----------
+// source of truth: .claude/changes/spec.md — Data Contract + Mapping Rules sections
+// do NOT call this function inside a component — it is a standalone data-layer helper
+
+// raw backend shape returned by the aiAnswer GraphQL mutation
+type AiAnswerBackend = {
+  answer: string;
+  citations: Array<{
+    id: string;
+    label: string;
+    kind: string;
+    category: string | null;
+  }>;
+  provider: string;
+  mode: string;
+  status: string;
+  fallbackUsed: boolean | null;
+  error: string | null;
+};
+
+type AiAnswerMutationData = {
+  aiAnswer: AiAnswerBackend; // root field for aiAnswer mutation
+};
+
+type AiAnswerVars = {
+  question: string; // required non-empty question string
+};
+
+const ASK_AI_MUTATION = /* GraphQL */ `
+  mutation AskAi($question: String!) {
+    aiAnswer(question: $question) {
+      answer
+      citations {
+        id
+        label
+        kind
+        category
+      }
+      provider
+      mode
+      status
+      fallbackUsed
+      error
+    }
+  }
+`;
+
+export async function askAi(question: string): Promise<AiAnswerUi> {
+  const trimmed = question.trim(); // trim before validation per spec behavioral rules
+
+  if (trimmed === '') {
+    throw new Error('INPUT_ERROR: question must not be empty'); // reject empty input — UI maps to error state
+  }
+
+  // network / unexpected failures propagate as thrown errors
+  // the UI layer is responsible for mapping catch → 'error' state (spec mapping rule 3)
+  const res = await graphqlFetch<AiAnswerMutationData, AiAnswerVars>({
+    query: ASK_AI_MUTATION,
+    variables: { question: trimmed }
+  });
+
+  const backend = res.data.aiAnswer;
+
+  // explicit citation mapping — no spread/passthrough of raw backend data (contract-agent rule)
+  const citations: AiCitationUi[] = backend.citations.map(c => ({
+    id: c.id, // string — required
+    label: c.label, // string — required
+    kind: c.kind as AiCitationUi['kind'], // narrowed from String to union at the boundary
+    ...(c.category != null ? { category: c.category } : {}) // omit key when null/absent
+  }));
+
+  // mapping rule 1 (spec): backend.status === 'success' → UI status 'success'
+  if (backend.status === 'success') {
+    return {
+      answer: backend.answer,
+      citations,
+      provider: backend.provider,
+      mode: backend.mode as AiAnswerUi['mode'], // narrowed from String to union at the boundary
+      status: 'success',
+      fallbackUsed: backend.fallbackUsed ?? false,
+      error: backend.error ?? null
+    };
+  }
+
+  // mapping rule 2 (spec): backend.status === 'fallback' OR backend.fallbackUsed === true → UI status 'fallback'
+  if (backend.status === 'fallback' || backend.fallbackUsed === true) {
+    return {
+      answer: backend.answer,
+      citations,
+      provider: backend.provider,
+      mode: backend.mode as AiAnswerUi['mode'],
+      status: 'fallback',
+      fallbackUsed: true,
+      error: backend.error ?? null
+    };
+  }
+
+  // mapping rule 3 (spec): network / unexpected failure → throw so UI maps to 'error'
+  // this branch handles an unrecognised backend status value — treat as an unexpected failure
+  throw new Error(`UNEXPECTED_AI_STATUS: ${backend.status}`);
 }

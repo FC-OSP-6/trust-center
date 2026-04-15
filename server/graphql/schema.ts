@@ -132,6 +132,27 @@ export const typeDefs = /* GraphQL */ `
     tags: [String!]
   }
 
+  # ----------  ai assistant types (cyqu assistant / ai rail)  ----------
+  # source of truth: .claude/changes/spec.md — Data Contract section
+  # do NOT add or remove fields without updating spec.md first
+
+  type AiCitation {
+    id: String!
+    label: String!
+    kind: String!
+    category: String
+  }
+
+  type AiAnswerResponse {
+    answer: String!
+    citations: [AiCitation!]!
+    provider: String!
+    mode: String!
+    status: String!
+    fallbackUsed: Boolean
+    error: String
+  }
+
   # ----------  mutation payloads  ----------
 
   type InvalidationResult {
@@ -191,10 +212,12 @@ export const typeDefs = /* GraphQL */ `
     adminCreateFaq(input: CreateFaqInput!): Faq!
     adminUpdateFaq(id: ID!, input: UpdateFaqInput!): Faq!
     adminDeleteFaq(id: ID!): DeleteResult!
+
+    # ai assistant mutation  -->  cyqu assistant / ai rail
+    aiAnswer(question: String!): AiAnswerResponse!
   }
 
   # ----------  FUTURE-ONLY NOTES (COMMENTS ONLY)  ----------
 
   # future admin writes should use: write db -> invalidate reads -> return payload
-  # future ai work may add: aiAnswer(question: String!): AiAnswerResponse!
 `;

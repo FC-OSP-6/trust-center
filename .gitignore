@@ -1,5 +1,10 @@
 # TLDR --> contains all files to be ignored when pushed
 
+#.claude
+
+#.opencode - agentic coding practice for sprint #2
+.opendcode
+
 # Environment variables
 # ignores all .env files
 .env*
