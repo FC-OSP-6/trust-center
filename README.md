@@ -128,17 +128,24 @@ Full stack watch mode (Stencil)):
 bun run dev
 ```
 
+- This command now chooses both dev ports before launch: the API starts at `4000` and scans through `4099`, while Vite starts at `5173` and scans through `5199`. Startup logs show the selected URLs for that run.
+
 Server and client only:
 
 ```bash
 bun run dev:basic
 ```
 
+- `dev:basic` uses the same shared API + Vite auto-port behavior as `dev`.
+
 Stable non-watch server runtime:
 
 ```bash
 bun run dev:server:start
 ```
+
+- `dev:server` and `dev:server:start` respect an explicit `SERVER_PORT`; otherwise they start at `4000` and scan through `4099` if needed.
+- `dev:client` respects an explicit `VITE_DEV_PORT`; otherwise it starts at `5173` and scans through `5199` if needed.
 
 ### 5. Docker Development
 
@@ -186,21 +193,22 @@ Notes:
 
 ### 7. Access the application
 
-- UI: `http://localhost:5173/trust-center/`
+- Watch the local dev startup logs for the active UI and API URLs.
+- UI: `http://localhost:${VITE_DEV_PORT:-5173}/trust-center/`
   - Navigate between the SPA's main 4 sections: Overview, Controls, Resources, and FAQs.
   - Some cards are expandable: click "View All" or the "+" to show the rest of the contents.
   - Click on an external link or document and it will open in another tab.
-- GraphiQL: `http://localhost:4000/graphql`
-- Health endpoint: `http://localhost:4000/api/health`
+- GraphiQL: `http://localhost:${SERVER_PORT:-4000}/graphql`
+- Health endpoint: `http://localhost:${SERVER_PORT:-4000}/api/health`
 
 ### 8. Common commands
 
 ```bash
-bun run dev              # server + client + stencil watch
-bun run dev:basic        # server + client
-bun run dev:server       # server only (tsx watch)
-bun run dev:server:start # server only (stable non-watch runtime)
-bun run dev:client       # client only (vite)
+bun run dev              # server + client + stencil watch (API 4000-4099, UI 5173-5199)
+bun run dev:basic        # server + client (same shared auto-port behavior)
+bun run dev:server       # server only (auto-scans 4000-4099 unless SERVER_PORT is set)
+bun run dev:server:start # server only (same auto-port behavior without watch mode)
+bun run dev:client       # client only (auto-scans 5173-5199 unless VITE_DEV_PORT is set)
 bun run stencil          # stencil build --watch
 bun run dev:docker       # dockerized local stack with focused app logs
 bun run dev:docker:build # build docker images
