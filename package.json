@@ -8,10 +8,10 @@
     "stencil"
   ],
   "scripts": {
-    "dev": "concurrently -n server,client,stencil -c auto --kill-others-on-fail \"bun run dev:server\" \"bun run dev:client\" \"bun run stencil\"",
-    "dev:basic": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
-    "dev:server": "tsx watch server/server.ts",
-    "dev:server:start": "bun server/server.ts",
+    "dev": "perl scripts/with-dev-port.pl --manage SERVER_PORT --manage VITE_DEV_PORT -- concurrently -n server,client,stencil -c auto --kill-others-on-fail \"bun run dev:server\" \"bun run dev:client\" \"bun run stencil\"",
+    "dev:basic": "perl scripts/with-dev-port.pl --manage SERVER_PORT --manage VITE_DEV_PORT -- concurrently \"bun run dev:server\" \"bun run dev:client\"",
+    "dev:server": "perl scripts/with-dev-port.pl --manage SERVER_PORT -- tsx watch server/server.ts",
+    "dev:server:start": "perl scripts/with-dev-port.pl --manage SERVER_PORT -- bun server/server.ts",
     "dev:docker": "bun run dev:docker:build && concurrently -n info,stack -c magenta,blue --kill-others-on-fail \"bun run dev:docker:info\" \"bun run dev:docker:up\"",
     "dev:docker:build": "docker compose build",
     "dev:docker:up": "sh -c 'cleanup() { docker compose down; }; trap cleanup INT TERM EXIT; docker compose up -d && bun run dev:docker:logs; rc=$?; trap - INT TERM EXIT; cleanup; exit $rc'",
@@ -44,7 +44,7 @@
     "test:e2e:smoke": "playwright test testing/e2e/app.spec.ts",
     "test:e2e:subnav": "playwright test testing/e2e/controls.spec.ts",
     "typecheck": "tsc -p ./tsconfig.json --noEmit",
-    "cleanexit": "concurrently -n server,client,stencil,fail -c auto --kill-others-on-fail \"bun run dev:server\" \"bun run dev:client\" \"bun run stencil\" \"node -e \\\"console.error('[fail] waiting 12s then exiting 1'); setTimeout(() => process.exit(1), 12000)\\\"\"",
+    "cleanexit": "perl scripts/with-dev-port.pl --manage SERVER_PORT --manage VITE_DEV_PORT -- concurrently -n server,client,stencil,fail -c auto --kill-others-on-fail \"bun run dev:server\" \"bun run dev:client\" \"bun run stencil\" \"node -e \\\"console.error('[fail] waiting 12s then exiting 1'); setTimeout(() => process.exit(1), 12000)\\\"\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
