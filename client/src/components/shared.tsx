@@ -6,10 +6,18 @@
   - wrappers only map props and serialize json for stencil
   - shared helpers keep controls/faqs subnav + jump behavior DRY
   - link-card payload shaping + static json stringification are centralized for DRY/perf
-  - shared rail + ai placeholder wrappers keep controls/faqs layout consistent
+  - shared rail + cyqu assistant component keeps controls/faqs layout consistent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'; // react jsx runtime + shared hooks for stable json + event bridge
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'; // react jsx runtime + shared hooks for stable json + event bridge
+import type { AiUiStatus, AiAnswerUi } from '../types-frontend'; // spec-defined state machine type — do not alias or extend
+import { askAi } from '../api'; // data-layer helper — only entry point for ai requests (spec phase 4 rule)
 import PDF from '../assets/images/pdf-svgrepo-com.svg'; // bundled icon url for pdf rows
 import External from '../assets/images/external-link-svgrepo-com.svg'; // bundled icon url for external rows
 import ClientPrivacySummaryPDF from '../assets/PDFs/Aon Client Privacy Summary - Mock.pdf'; // bundled mock pdf
@@ -280,33 +288,261 @@ export function useSubnavJump() {
   };
 }
 
-// ---------- shared rail placeholder copy (controls/faqs reuse) ----------
+// ---------- cyqu assistant (controls/faqs rail) ----------
 
-export const aiCard = {
+const cyquCopy = {
   title: 'CyQu Assistant',
-  text: 'Ask a question about controls, FAQs, or resources. A future AI assistant will jump you to the best section and entry, or route you to the right area if there is no direct match.'
-}; // shared placeholder copy for controls/faqs rail
+  helper:
+    'Ask about controls, FAQs, or resources. Answers include source-backed references.',
+  label: 'Ask a Trust Center question',
+  placeholder:
+    'For example: Explain MFA controls, summarize incident response FAQs...'
+} as const; // immutable spec-defined copy — do not paraphrase
 
-export function AiStub() {
+export function CyQuAssistant() {
+  const triggerRef = useRef<HTMLButtonElement | null>(null); // ref for returning focus on panel close
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null); // ref for moving focus to textarea on panel open
+
+  // ---------- state machine (spec.md — exactly these five, no others) ----------
+  const [status, setStatus] = useState<AiUiStatus>('idle'); // tracks the five allowed ui states
+  const [inputValue, setInputValue] = useState<string>(''); // controlled textarea value
+  const [lastSubmitted, setLastSubmitted] = useState<string>(''); // stores trimmed value for retry
+  const [isOpen, setIsOpen] = useState<boolean>(false); // disclosure panel open/closed
+  const [answer, setAnswer] = useState<AiAnswerUi | null>(null); // normalized api response — null until a successful or fallback response arrives
+
+  // ---------- disclosure toggle (task 3.2) ----------
+  function handleToggle() {
+    const opening = !isOpen;
+
+    setIsOpen(opening);
+
+    if (opening) {
+      // defer focus so the panel is visible before grabbing focus
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 0);
+    } else {
+      triggerRef.current?.focus(); // return focus to trigger on close
+    }
+  }
+
+  // ---------- submit handler (task 3.4 / task 4.2) ----------
+  async function handleSubmit() {
+    const trimmed = inputValue.trim();
+
+    if (!trimmed) return; // reject empty input (spec behavioral rule)
+    if (status === 'submitting') return; // prevent duplicate submissions
+
+    setLastSubmitted(trimmed); // store for retry
+    setStatus('submitting');
+    setAnswer(null); // clear previous answer before new request
+
+    try {
+      const response = await askAi(trimmed);
+
+      if (response.status === 'success') {
+        setStatus('success');
+        setAnswer(response);
+      } else if (response.status === 'fallback') {
+        setStatus('fallback');
+        setAnswer(response);
+      }
+      // askAi() throws for any unrecognised status — caught below
+    } catch {
+      // network failure, unrecognised status, or unexpected throw → error
+      setStatus('error');
+      setAnswer(null);
+    }
+  }
+
+  // ---------- retry handler (task 3.5 / task 4.3) ----------
+  async function handleRetry() {
+    if (!lastSubmitted) return; // nothing to retry
+    if (status === 'submitting') return; // prevent duplicate submissions
+
+    setStatus('submitting');
+    setAnswer(null); // clear previous answer before retry
+
+    try {
+      const response = await askAi(lastSubmitted);
+
+      if (response.status === 'success') {
+        setStatus('success');
+        setAnswer(response);
+      } else if (response.status === 'fallback') {
+        setStatus('fallback');
+        setAnswer(response);
+      }
+      // askAi() throws for any unrecognised status — caught below
+    } catch {
+      // network failure, unrecognised status, or unexpected throw → error
+      setStatus('error');
+      setAnswer(null);
+    }
+  }
+
+  // ---------- clear handler (task 3.6) ----------
+  function handleClear() {
+    setStatus('idle'); // reset state machine
+    setInputValue(''); // clear controlled input
+    setLastSubmitted(''); // clear retry payload
+    setAnswer(null); // clear api response
+    setIsOpen(false); // spec.md: Clear resets entire component state including closing the panel
+    triggerRef.current?.focus(); // return focus to trigger after panel closes (spec.md focus rule)
+  }
+
+  // ---------- derived visibility flags ----------
+  const showRetry = status === 'error' || status === 'fallback'; // only visible in terminal error states
+  const showClear = status !== 'idle' && status !== 'submitting'; // visible once there is something to clear
+
   return (
-    <section className="ai-slot" aria-label={aiCard.title}>
-      <div className="ai-head">
-        <h3 className="ai-title">{aiCard.title}</h3>
+    <section className="cyqu-assistant" aria-label={cyquCopy.title}>
+      <div className="cyqu-header">
+        <h3 className="cyqu-title">{cyquCopy.title}</h3>
 
-        <p className="ai-text">{aiCard.text}</p>
+        <p className="cyqu-helper">{cyquCopy.helper}</p>
       </div>
 
-      <div className="ai-body" aria-hidden="true">
-        <div className="ai-chip">chat placeholder</div>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="cyqu-trigger"
+        aria-expanded={isOpen}
+        aria-controls="cyqu-panel"
+        onClick={handleToggle}
+      >
+        Ask a question
+      </button>
 
-        <div className="ai-line" />
-        <div className="ai-line short" />
-        <div className="ai-line" />
+      <div id="cyqu-panel" className="cyqu-panel" hidden={!isOpen}>
+        <div className="cyqu-panel-inner">
+          <label className="cyqu-label" htmlFor="cyqu-textarea">
+            {cyquCopy.label}
+          </label>
 
-        <div className="ai-note">
-          future stencil component lives here
-          <br />
-          react will provide api + connection props
+          <textarea
+            ref={textareaRef}
+            id="cyqu-textarea"
+            className="cyqu-textarea"
+            placeholder={cyquCopy.placeholder}
+            rows={4}
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+          />
+
+          <div className="cyqu-actions">
+            {status === 'submitting' ? (
+              <button type="button" className="cyqu-submit" disabled>
+                Searching Trust Center content and preparing an answer…
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="cyqu-submit"
+                onClick={handleSubmit}
+                disabled={inputValue.trim() === ''}
+              >
+                Ask
+              </button>
+            )}
+
+            {showRetry && (
+              <button
+                type="button"
+                className="cyqu-retry"
+                onClick={handleRetry}
+              >
+                Retry
+              </button>
+            )}
+
+            {showClear && (
+              <button
+                type="button"
+                className="cyqu-clear"
+                onClick={handleClear}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div
+          className="cyqu-response"
+          aria-live="polite"
+          aria-atomic="true"
+          data-status={status}
+        >
+          {status === 'idle' && null}
+
+          {status === 'submitting' && (
+            <p className="cyqu-loading">
+              Searching Trust Center content and preparing an answer…
+            </p>
+          )}
+
+          {status === 'error' && (
+            <div className="cyqu-error" role="alert">
+              <p>
+                The assistant could not complete that request. Please try again.
+              </p>
+            </div>
+          )}
+
+          {status === 'success' && answer && (
+            <div className="cyqu-answer">
+              <p className="cyqu-answer-text">{answer.answer}</p>
+              {answer.citations.length > 0 && (
+                <ul className="cyqu-citations" aria-label="Sources">
+                  {answer.citations.map(citation => (
+                    <li key={citation.id} className="cyqu-citation">
+                      <span className="cyqu-citation-label">
+                        {citation.label}
+                      </span>
+                      <span className="cyqu-citation-kind">
+                        {citation.kind}
+                      </span>
+                      {citation.category && (
+                        <span className="cyqu-citation-category">
+                          {citation.category}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {status === 'fallback' && answer && (
+            <div className="cyqu-answer cyqu-answer--fallback">
+              <p className="cyqu-answer-text">{answer.answer}</p>
+              <p className="cyqu-fallback-notice">
+                This answer may be based on general knowledge rather than live
+                Trust Center data.
+              </p>
+              {answer.citations.length > 0 && (
+                <ul className="cyqu-citations" aria-label="Sources">
+                  {answer.citations.map(citation => (
+                    <li key={citation.id} className="cyqu-citation">
+                      <span className="cyqu-citation-label">
+                        {citation.label}
+                      </span>
+                      <span className="cyqu-citation-kind">
+                        {citation.kind}
+                      </span>
+                      {citation.category && (
+                        <span className="cyqu-citation-category">
+                          {citation.category}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -326,7 +562,7 @@ export function InfoRail({ subRef, navTitle, navJson, emptyText }: RailProps) {
           empty-text={emptyText}
         />
         <div className="ai-slot-wrapper">
-          <AiStub />
+          <CyQuAssistant />
         </div>
       </div>
     </aside>

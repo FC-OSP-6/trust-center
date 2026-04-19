@@ -37,6 +37,34 @@ export type LinkCardConfig = {
   items: LinkCardItem[]; // serialized into the items prop
 };
 
+// ---------- ai assistant types (cyqu assistant / ai rail) ----------
+// source of truth: .claude/changes/spec.md — Data Contract section
+// do NOT add or remove fields without updating spec.md first
+
+export type AiUiStatus =
+  | 'idle'
+  | 'submitting'
+  | 'success'
+  | 'fallback'
+  | 'error';
+
+export type AiCitationUi = {
+  id: string;
+  label: string;
+  kind: 'control' | 'faq' | 'resource';
+  category?: string;
+};
+
+export type AiAnswerUi = {
+  answer: string;
+  citations: AiCitationUi[];
+  provider: string;
+  mode: 'online' | 'offline';
+  status: 'success' | 'fallback' | 'error';
+  error?: string | null;
+  fallbackUsed?: boolean;
+};
+
 // ---------- react intrinsic typing helpers ----------
 
 type HtmlElProps = React.DetailedHTMLProps<
