@@ -191,92 +191,14 @@ body {
   width: 50%;
   margin: 0 auto;
 }
-.info-stick > .ai-slot {
+.info-stick > aon-ai-assistant {
   width: 100%;
-  margin: 0 auto;
 }
 .info-main > aon-control-card,
 .info-main > aon-faq-card {
   display: block;
   width: 100%;
   min-width: 0;
-}
-
-/* ---------- ai placeholder (react wrapper; future stencil slot) ---------- */
-
-.ai-slot {
-  background: var(--tc-bg-card);
-  border: 1px solid var(--tc-border-card);
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-  padding: 16px;
-  display: grid;
-  gap: 12px;
-  max-height: 100%; /* can’t exceed the info-stick container */
-  min-height: 100px; /* optional: avoid collapsing too much */
-  overflow: hidden; /* no inner scroll */
-}
-
-.ai-head {
-  display: grid;
-  gap: 8px;
-}
-
-.ai-title {
-  margin: 0;
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 700;
-  color: var(--tc-text-primary);
-}
-
-.ai-text {
-  margin: 0;
-  font-size: 14px;
-  line-height: 18px;
-  color: var(--tc-text-secondary);
-}
-
-/* placeholder "chat area" intentionally sized to reserve real component space */
-.ai-body {
-  border: 1px dashed var(--tc-border-card);
-  border-radius: 8px;
-  background: var(--tc-bg-page);
-  padding: 12px;
-  min-height: clamp(200px, 34vh, 360px);
-
-  display: grid;
-  align-content: start;
-  gap: 8px;
-}
-
-.ai-chip {
-  width: fit-content;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 700;
-  color: var(--tc-text-link-hover);
-  background: var(--tc-bg-hover);
-  text-transform: lowercase;
-}
-
-.ai-line {
-  height: 10px;
-  border-radius: 999px;
-  background: var(--tc-bg-section);
-}
-
-.ai-line.short {
-  width: 62%;
-}
-
-.ai-note {
-  margin-top: 4px;
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--tc-text-muted);
 }
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -330,10 +252,6 @@ body {
     overflow: visible;
     gap: 12px;
     padding-right: 0;
-  }
-
-  .ai-body {
-    min-height: 180px;
   }
 }
 
