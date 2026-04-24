@@ -39,50 +39,49 @@ export class LruCacheAdapter implements Cache {
 
   // returns the stored value, or null if key doesn't exist or has expired
   // ?? null means: "if lru.get returns undefined, use null instead"
-  async get<T = unknown>(key: string): Promise<T | null> {
-    return (this.lru.get(key) as T) ?? null;
+  get(key: string): unknown | null {
+    return this.lru.get(key) ?? null;
   }
 
   // stores value under key with a per-item TTL override
   // ttlSeconds * 1000 converts to milliseconds because lru-cache always works in ms
   // "as CacheVal" is a safe cast — callers should only store JSON-safe values (documented on Cache interface)
-  async set(key: string, value: unknown, ttlSeconds: number): Promise<void> {
+  set(key: string, value: unknown, ttlSeconds: number): void {
     this.lru.set(key, value as CacheVal, { ttl: ttlSeconds * 1000 });
   }
 
   // immediately removes the key — useful when a write/mutation makes cached data stale
-  async del(key: string): Promise<void> {
+  del(key: string): void {
     this.lru.delete(key);
   }
 
   // removes every key that starts with the given prefix — coarse but simple
   // this.lru.keys() returns all currently stored (non-expired) keys as an iterator
   // we collect them first before deleting to avoid modifying the map while iterating
-  async invalidatePrefix(prefix: string): Promise<number> {
+  invalidatePrefix(prefix: string): void {
     const toDelete = [...this.lru.keys()].filter(key => key.startsWith(prefix)); // collect matches
     for (const key of toDelete) {
       this.lru.delete(key); // delete each matching key individually
     }
-    return toDelete.length; // return count
   }
 
   // the main workhorse method services will use
-  async getOrSet<T>(
+  async getOrSet(
     key: string,
     ttlSeconds: number,
-    fn: () => Promise<T>
-  ): Promise<T> {
-    const cached = await this.get<T>(key); // check the notepad first
+    fn: () => Promise<unknown>
+  ): Promise<unknown> {
+    const cached = this.get(key); // check the notepad first
     if (cached !== null) return cached; // cache hit — skip the DB entirely
 
     // Check if there's already a fetch happening for this key (Stampede Protection)
     const existingPromise = this.inFlight.get(key);
-    if (existingPromise) return existingPromise as Promise<T>;
+    if (existingPromise) return existingPromise;
 
     // Cache miss — create a promise to fetch the data
     const promise = fn()
-      .then(async value => {
-        await this.set(key, value, ttlSeconds); // store the result
+      .then(value => {
+        this.set(key, value, ttlSeconds); // store the result
         return value;
       })
       .finally(() => {

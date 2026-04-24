@@ -38,18 +38,21 @@ function decorateCacheWithRequestLogging(
     },
 
     set(key, value, ttlSeconds) {
-      return cache.set(key, value, ttlSeconds); // direct cache writes pass straight through to the underlying adapter
+      cache.set(key, value, ttlSeconds); // direct cache writes pass straight through to the underlying adapter
     },
 
     del(key) {
-      return cache.del(key); // direct cache deletes pass straight through to the underlying adapter
+      cache.del(key); // direct cache deletes pass straight through to the underlying adapter
     },
 
     async getOrSet(key, ttlSeconds, fn) {
+      const existing = cache.get(key); // probe once here so hit/miss logging stays centralized in one place
+
       if (debugEnabled) {
         console.log(
-          `[cache] requestId=${requestId}
-            getOrSet key=${key} ttl=${ttlSeconds}s`
+          `[cache] requestId=${requestId} ${
+            existing !== null ? 'hit' : 'miss'
+          } key=${key} ttl=${ttlSeconds}s`
         ); // one request-aware cache line replaces the older duplicate service + decorator logs
       }
 
@@ -63,7 +66,7 @@ function decorateCacheWithRequestLogging(
         ); // request-aware invalidation log helps trace admin-ready cache clears
       }
 
-      return cache.invalidatePrefix(prefix); // preserve optional prefix invalidation support from the underlying adapter
+      cache.invalidatePrefix?.(prefix); // preserve optional prefix invalidation support from the underlying adapter
     }
   };
 }

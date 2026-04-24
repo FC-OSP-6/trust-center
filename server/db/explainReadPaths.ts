@@ -14,7 +14,7 @@
 
   usage:
     - run after db:seed so explain cases probe real seeded data
-    - bun run db:explain
+    - npm run db:explain
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { closeDbPool, query } from './index'; // reuse the app db layer so local .env loading and pool config stay consistent

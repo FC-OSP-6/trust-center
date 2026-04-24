@@ -101,18 +101,18 @@ export const mutationResolvers = {
     ): Promise<InvalidationResult> => {
       assertAdminOrLocalDev(ctx); // allow local verification now while keeping production restricted
 
-      const { prefix, cleared: _cleared } = await invalidateControls(ctx.cache); // clear all cached controls list reads
+      const invalidatedPrefix = invalidateControls(ctx.cache); // clear all cached controls list reads
 
       logInvalidation({
         requestId: ctx.requestId, // tie invalidation log to this GraphQL request
         scope: 'controls', // domain being invalidated
-        prefix // exact prefix used by cache invalidation
+        prefix: invalidatedPrefix // exact prefix used by cache invalidation
       });
 
       return buildInvalidationResult({
         requestId: ctx.requestId, // echo request id back to GraphQL client
         scope: 'controls', // mutation invalidated controls reads
-        invalidatedPrefix: prefix // return exact prefix for easy verification
+        invalidatedPrefix // return exact prefix for easy verification
       });
     },
 
@@ -123,18 +123,18 @@ export const mutationResolvers = {
     ): Promise<InvalidationResult> => {
       assertAdminOrLocalDev(ctx); // allow local verification now while keeping production restricted
 
-      const { prefix, cleared: _cleared } = await invalidateFaqs(ctx.cache); // clear all cached faq list reads
+      const invalidatedPrefix = invalidateFaqs(ctx.cache); // clear all cached faq list reads
 
       logInvalidation({
         requestId: ctx.requestId, // tie invalidation log to this GraphQL request
         scope: 'faqs', // domain being invalidated
-        prefix // exact prefix used by cache invalidation
+        prefix: invalidatedPrefix // exact prefix used by cache invalidation
       });
 
       return buildInvalidationResult({
         requestId: ctx.requestId, // echo request id back to GraphQL client
         scope: 'faqs', // mutation invalidated faq reads
-        invalidatedPrefix: prefix // return exact prefix for easy verification
+        invalidatedPrefix // return exact prefix for easy verification
       });
     },
 

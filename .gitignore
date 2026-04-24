@@ -1,11 +1,5 @@
 # TLDR --> contains all files to be ignored when pushed
 
-.claude/
-CLAUDE.md
-
-#.opencode - agentic coding practice for sprint #2
-.opendcode
-
 # Environment variables
 # ignores all .env files
 .env*
@@ -14,7 +8,6 @@ CLAUDE.md
 
 # Dependencies
 node_modules/ 
-dist/
 
 # stencil generated files
 # Stencil cache / build artifacts
@@ -23,10 +16,6 @@ dist/
 stencil/dist/
 stencil/src/components.d.ts
 stencil/loader/
-stencil/types-shared.js
-stencil/types-shared.js.map
 client/src/custom-elements.d.ts
-playwright-report/
-test-results/
 
 .DS_Store
