@@ -289,263 +289,116 @@ export function useSubnavJump() {
 }
 
 // ---------- cyqu assistant (controls/faqs rail) ----------
-
-const cyquCopy = {
-  title: 'CyQu Assistant',
-  helper:
-    'Ask about controls, FAQs, or resources. Answers include source-backed references.',
-  label: 'Ask a Trust Center question',
-  placeholder:
-    'For example: Explain MFA controls, summarize incident response FAQs...'
-} as const; // immutable spec-defined copy — do not paraphrase
+// react is a thin state + event bridge — stencil owns all rendering
+// spec.md state machine: exactly five states, no others
 
 export function CyQuAssistant() {
-  const triggerRef = useRef<HTMLButtonElement | null>(null); // ref for returning focus on panel close
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null); // ref for moving focus to textarea on panel open
+  const aiRef = useRef<HTMLElement | null>(null); // host for aon-ai-assistant event listeners
 
   // ---------- state machine (spec.md — exactly these five, no others) ----------
-  const [status, setStatus] = useState<AiUiStatus>('idle'); // tracks the five allowed ui states
-  const [inputValue, setInputValue] = useState<string>(''); // controlled textarea value
-  const [lastSubmitted, setLastSubmitted] = useState<string>(''); // stores trimmed value for retry
-  const [isOpen, setIsOpen] = useState<boolean>(false); // disclosure panel open/closed
-  const [answer, setAnswer] = useState<AiAnswerUi | null>(null); // normalized api response — null until a successful or fallback response arrives
+  const [status, setStatus] = useState<AiUiStatus>('idle');
+  const [lastSubmitted, setLastSubmitted] = useState<string>(''); // stored for retry
+  const [answer, setAnswer] = useState<AiAnswerUi | null>(null);
 
-  // ---------- disclosure toggle (task 3.2) ----------
-  function handleToggle() {
-    const opening = !isOpen;
+  // serialized answer prop for stencil — stable reference when null
+  const answerJson = useMemo(
+    () => (answer !== null ? JSON.stringify(answer) : ''),
+    [answer]
+  );
 
-    setIsOpen(opening);
+  // refs keep event handlers free of stale closures without re-registering listeners
+  const statusRef = useRef<AiUiStatus>('idle');
+  const lastSubmittedRef = useRef<string>('');
+  statusRef.current = status;
+  lastSubmittedRef.current = lastSubmitted;
 
-    if (opening) {
-      // defer focus so the panel is visible before grabbing focus
-      setTimeout(() => {
-        textareaRef.current?.focus();
-      }, 0);
-    } else {
-      triggerRef.current?.focus(); // return focus to trigger on close
-    }
-  }
+  useEffect(() => {
+    const el = aiRef.current;
 
-  // ---------- submit handler (task 3.4 / task 4.2) ----------
-  async function handleSubmit() {
-    const trimmed = inputValue.trim();
+    if (!el) return;
 
-    if (!trimmed) return; // reject empty input (spec behavioral rule)
-    if (status === 'submitting') return; // prevent duplicate submissions
+    // ---------- submit: stencil emits question; react drives api ----------
+    async function onSubmit(e: Event) {
+      const question = (
+        (e as CustomEvent<{ question: string }>).detail?.question ?? ''
+      ).trim();
 
-    setLastSubmitted(trimmed); // store for retry
-    setStatus('submitting');
-    setAnswer(null); // clear previous answer before new request
+      if (!question) return; // guard malformed event payloads
+      if (statusRef.current === 'submitting') return; // spec: prevent duplicate submissions
 
-    try {
-      const response = await askAi(trimmed);
+      setLastSubmitted(question);
+      setStatus('submitting');
+      setAnswer(null);
 
-      if (response.status === 'success') {
-        setStatus('success');
-        setAnswer(response);
-      } else if (response.status === 'fallback') {
-        setStatus('fallback');
-        setAnswer(response);
+      try {
+        const response = await askAi(question);
+
+        if (response.status === 'success') {
+          setStatus('success');
+          setAnswer(response);
+        } else if (response.status === 'fallback') {
+          setStatus('fallback');
+          setAnswer(response);
+        }
+        // askAi() throws for any unrecognised status — caught below
+      } catch {
+        setStatus('error');
+        setAnswer(null);
       }
-      // askAi() throws for any unrecognised status — caught below
-    } catch {
-      // network failure, unrecognised status, or unexpected throw → error
-      setStatus('error');
+    }
+
+    // ---------- retry: stencil requests retry; react uses lastSubmitted ----------
+    async function onRetry() {
+      const q = lastSubmittedRef.current;
+
+      if (!q) return; // nothing to retry
+      if (statusRef.current === 'submitting') return; // spec: prevent duplicate submissions
+
+      setStatus('submitting');
+      setAnswer(null);
+
+      try {
+        const response = await askAi(q);
+
+        if (response.status === 'success') {
+          setStatus('success');
+          setAnswer(response);
+        } else if (response.status === 'fallback') {
+          setStatus('fallback');
+          setAnswer(response);
+        }
+      } catch {
+        setStatus('error');
+        setAnswer(null);
+      }
+    }
+
+    // ---------- clear: stencil resets its own ui; react resets data state ----------
+    function onClear() {
+      setStatus('idle');
+      setLastSubmitted('');
       setAnswer(null);
     }
-  }
 
-  // ---------- retry handler (task 3.5 / task 4.3) ----------
-  async function handleRetry() {
-    if (!lastSubmitted) return; // nothing to retry
-    if (status === 'submitting') return; // prevent duplicate submissions
+    el.addEventListener('aonAiSubmit', onSubmit);
+    el.addEventListener('aonAiRetry', onRetry);
+    el.addEventListener('aonAiClear', onClear);
 
-    setStatus('submitting');
-    setAnswer(null); // clear previous answer before retry
-
-    try {
-      const response = await askAi(lastSubmitted);
-
-      if (response.status === 'success') {
-        setStatus('success');
-        setAnswer(response);
-      } else if (response.status === 'fallback') {
-        setStatus('fallback');
-        setAnswer(response);
-      }
-      // askAi() throws for any unrecognised status — caught below
-    } catch {
-      // network failure, unrecognised status, or unexpected throw → error
-      setStatus('error');
-      setAnswer(null);
-    }
-  }
-
-  // ---------- clear handler (task 3.6) ----------
-  function handleClear() {
-    setStatus('idle'); // reset state machine
-    setInputValue(''); // clear controlled input
-    setLastSubmitted(''); // clear retry payload
-    setAnswer(null); // clear api response
-    setIsOpen(false); // spec.md: Clear resets entire component state including closing the panel
-    triggerRef.current?.focus(); // return focus to trigger after panel closes (spec.md focus rule)
-  }
-
-  // ---------- derived visibility flags ----------
-  const showRetry = status === 'error' || status === 'fallback'; // only visible in terminal error states
-  const showClear = status !== 'idle' && status !== 'submitting'; // visible once there is something to clear
+    return () => {
+      el.removeEventListener('aonAiSubmit', onSubmit);
+      el.removeEventListener('aonAiRetry', onRetry);
+      el.removeEventListener('aonAiClear', onClear);
+    };
+  }, []); // empty deps — handlers read live values through refs
 
   return (
-    <section className="cyqu-assistant" aria-label={cyquCopy.title}>
-      <div className="cyqu-header">
-        <h3 className="cyqu-title">{cyquCopy.title}</h3>
-
-        <p className="cyqu-helper">{cyquCopy.helper}</p>
-      </div>
-
-      <button
-        ref={triggerRef}
-        type="button"
-        className="cyqu-trigger"
-        aria-expanded={isOpen}
-        aria-controls="cyqu-panel"
-        onClick={handleToggle}
-      >
-        Ask a question
-      </button>
-
-      <div id="cyqu-panel" className="cyqu-panel" hidden={!isOpen}>
-        <div className="cyqu-panel-inner">
-          <label className="cyqu-label" htmlFor="cyqu-textarea">
-            {cyquCopy.label}
-          </label>
-
-          <textarea
-            ref={textareaRef}
-            id="cyqu-textarea"
-            className="cyqu-textarea"
-            placeholder={cyquCopy.placeholder}
-            rows={4}
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-          />
-
-          <div className="cyqu-actions">
-            {status === 'submitting' ? (
-              <button type="button" className="cyqu-submit" disabled>
-                Searching Trust Center content and preparing an answer…
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="cyqu-submit"
-                onClick={handleSubmit}
-                disabled={inputValue.trim() === ''}
-              >
-                Ask
-              </button>
-            )}
-
-            {showRetry && (
-              <button
-                type="button"
-                className="cyqu-retry"
-                onClick={handleRetry}
-              >
-                Retry
-              </button>
-            )}
-
-            {showClear && (
-              <button
-                type="button"
-                className="cyqu-clear"
-                onClick={handleClear}
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div
-          className="cyqu-response"
-          aria-live="polite"
-          aria-atomic="true"
-          data-status={status}
-        >
-          {status === 'idle' && null}
-
-          {status === 'submitting' && (
-            <p className="cyqu-loading">
-              Searching Trust Center content and preparing an answer…
-            </p>
-          )}
-
-          {status === 'error' && (
-            <div className="cyqu-error" role="alert">
-              <p>
-                The assistant could not complete that request. Please try again.
-              </p>
-            </div>
-          )}
-
-          {status === 'success' && answer && (
-            <div className="cyqu-answer">
-              <p className="cyqu-answer-text">{answer.answer}</p>
-              {answer.citations.length > 0 && (
-                <ul className="cyqu-citations" aria-label="Sources">
-                  {answer.citations.map(citation => (
-                    <li key={citation.id} className="cyqu-citation">
-                      <span className="cyqu-citation-label">
-                        {citation.label}
-                      </span>
-                      <span className="cyqu-citation-kind">
-                        {citation.kind}
-                      </span>
-                      {citation.category && (
-                        <span className="cyqu-citation-category">
-                          {citation.category}
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-
-          {status === 'fallback' && answer && (
-            <div className="cyqu-answer cyqu-answer--fallback">
-              <p className="cyqu-answer-text">{answer.answer}</p>
-              <p className="cyqu-fallback-notice">
-                This answer may be based on general knowledge rather than live
-                Trust Center data.
-              </p>
-              {answer.citations.length > 0 && (
-                <ul className="cyqu-citations" aria-label="Sources">
-                  {answer.citations.map(citation => (
-                    <li key={citation.id} className="cyqu-citation">
-                      <span className="cyqu-citation-label">
-                        {citation.label}
-                      </span>
-                      <span className="cyqu-citation-kind">
-                        {citation.kind}
-                      </span>
-                      {citation.category && (
-                        <span className="cyqu-citation-category">
-                          {citation.category}
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
+    <aon-ai-assistant
+      ref={node => {
+        aiRef.current = node as HTMLElement | null;
+      }}
+      status={status}
+      answer-json={answerJson}
+    />
   );
 }
 
@@ -561,9 +414,7 @@ export function InfoRail({ subRef, navTitle, navJson, emptyText }: RailProps) {
           items-json={navJson}
           empty-text={emptyText}
         />
-        <div className="ai-slot-wrapper">
-          <CyQuAssistant />
-        </div>
+        <CyQuAssistant />
       </div>
     </aside>
   );

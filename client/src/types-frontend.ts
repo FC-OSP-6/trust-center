@@ -177,7 +177,13 @@ type AonThemeToggleProps = HtmlElProps & {
   theme?: 'light' | 'dark' | string; // current stencil prop is optional and reflected internally
 };
 
+type AonAiAssistantProps = HtmlElProps & {
+  status?: string; // AiUiStatus: idle | submitting | success | fallback | error
+  'answer-json'?: string; // serialized AiAnswerUi or empty string
+};
+
 interface AonStencilIntrinsicElements {
+  'aon-ai-assistant': AonAiAssistantProps;
   'aon-link-card': AonLinkCardProps;
   'aon-expansion-card': AonExpansionCardProps;
   'aon-blue-card': AonBlueCardProps;
