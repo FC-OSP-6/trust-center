@@ -10,7 +10,14 @@
   - requests taxonomy metadata so frontend can adopt it incrementally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import type { ControlsConnection, FaqsConnection } from './types-frontend';
+import type {
+  ControlsConnection,
+  FaqsConnection,
+  AiAnswerUi,
+  AiCitationUi
+} from './types-frontend';
+import controlsSeedData from '../../server/db/data/controls.json';
+import faqsSeedData from '../../server/db/data/faqs.json';
 
 // ----------  shared result types  ----------
 
@@ -35,6 +42,31 @@ type GraphqlErrorItem = {
 type GraphqlResponse<TData> = {
   data?: TData; // successful graphql data payload
   errors?: GraphqlErrorItem[]; // graphql error list (graphql can still return http 200)
+};
+
+type SeedControlsJson = {
+  controls?: Array<{
+    control_key?: string;
+    title?: string;
+    description?: string;
+    section?: string;
+    category?: string;
+    subcategory?: string | null;
+    tags?: string[] | null;
+    source_url?: string | null;
+  }>;
+};
+
+type SeedFaqsJson = {
+  faqs?: Array<{
+    faq_key?: string;
+    question?: string;
+    answer?: string;
+    section?: string;
+    category?: string;
+    subcategory?: string | null;
+    tags?: string[] | null;
+  }>;
 };
 
 // ----------  request input types  ----------
@@ -81,6 +113,7 @@ const DEFAULT_PAGE_SIZE = 25; // default single-page fetch size
 const DEFAULT_OVERVIEW_PAGE_SIZE = 5; // mirrors backend overviewSearch default
 const MAX_PAGE_SIZE = 50; // mirrors backend clamp / resolver safety
 const DEFAULT_MAX_PAGES = 25; // safety cap for "fetch all" pagination
+const MOCK_CURSOR_PREFIX = 'mock'; // stable prefix keeps mock pagination cursors easy to detect
 
 // ----------  graphql fetch wrapper  ----------
 
@@ -378,6 +411,238 @@ function normalizeText(value: string | undefined): string | undefined {
   return normalized; // valid normalized text
 }
 
+function normalizeMockSearchBlob(
+  parts: Array<string | null | undefined>
+): string {
+  return parts
+    .map(part => normalizeText(part ?? undefined) ?? '')
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase(); // search parity does not need backend-perfect ranking, just stable inclusion matching
+}
+
+function shouldUseMockFallback(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  const lower = message.toLowerCase();
+
+  if (message.startsWith('NETWORK_ERROR:')) return true; // browser cannot reach graphql host
+  if (lower.includes('failed to fetch')) return true; // fetch transport failure wording varies by browser/runtime
+  if (lower.includes('load failed')) return true; // safari/webkit transport wording
+  if (lower.includes('unexpected error')) return true; // graphql yoga masks some db outages behind a generic internal error
+  if (lower.includes('connect')) return true; // connection refused / timed out / reset
+  if (lower.includes('authentication failed')) return true; // db auth mismatch
+  if (lower.includes('tenant or user not found')) return true; // hosted postgres startup/auth wording
+  if (lower.includes('password authentication failed')) return true; // postgres auth wording
+  if (lower.includes('does not exist')) return true; // missing schema/table or missing db endpoint
+
+  return false;
+}
+
+function logMockFallback(
+  target: 'controls' | 'faqs' | 'overviewSearch',
+  error: unknown
+) {
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(`[api] target=${target} event=mock_fallback reason=${message}`); // keeps local/demo fallback visible without surfacing a blocking UI error
+}
+
+function buildMockCursor(kind: ConnectionKind, index: number): string {
+  return `${MOCK_CURSOR_PREFIX}:${kind}:${index}`;
+}
+
+function readMockCursor(
+  kind: ConnectionKind,
+  after: string | undefined
+): number {
+  const normalized = normalizeText(after);
+  if (!normalized) return 0;
+
+  const match = normalized.match(
+    new RegExp(`^${MOCK_CURSOR_PREFIX}:${kind}:(\\d+)$`)
+  );
+  if (!match) return 0;
+
+  const parsed = Number(match[1]);
+  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+
+  return Math.floor(parsed) + 1;
+}
+
+function normalizeTagList(tags: string[] | null | undefined): string[] {
+  if (!Array.isArray(tags)) return [];
+
+  return tags.map(tag => normalizeText(tag) ?? '').filter(Boolean);
+}
+
+function matchesOptionalCategory(
+  value: string | undefined,
+  category: string | undefined
+): boolean {
+  if (!category) return true;
+  return (normalizeText(value) ?? '').toLowerCase() === category.toLowerCase();
+}
+
+function matchesOptionalSearch(
+  blob: string,
+  search: string | undefined
+): boolean {
+  if (!search) return true;
+  return blob.includes(search.toLowerCase());
+}
+
+function toMockControlsRows(): ControlsConnection['edges'][number]['node'][] {
+  const parsed = controlsSeedData as SeedControlsJson;
+
+  return (parsed.controls ?? []).map(control => {
+    const controlKey = normalizeText(control.control_key) ?? 'mock-control';
+
+    return {
+      id: `mock-control-${controlKey}`,
+      controlKey,
+      title: normalizeText(control.title) ?? 'Untitled control',
+      description: normalizeText(control.description) ?? '',
+      section: normalizeText(control.section) ?? 'General',
+      category: normalizeText(control.category) ?? 'General',
+      subcategory: normalizeText(control.subcategory ?? undefined) ?? null,
+      tags: normalizeTagList(control.tags),
+      sourceUrl: normalizeText(control.source_url ?? undefined) ?? null,
+      updatedAt: '2020-01-01T00:00:00.000Z'
+    };
+  });
+}
+
+function toMockFaqRows(): FaqsConnection['edges'][number]['node'][] {
+  const parsed = faqsSeedData as SeedFaqsJson;
+
+  return (parsed.faqs ?? []).map(faq => {
+    const faqKey = normalizeText(faq.faq_key) ?? 'mock-faq';
+
+    return {
+      id: `mock-faq-${faqKey}`,
+      faqKey,
+      question: normalizeText(faq.question) ?? 'Untitled FAQ',
+      answer: normalizeText(faq.answer) ?? '',
+      section: normalizeText(faq.section) ?? 'General',
+      category: normalizeText(faq.category) ?? 'General',
+      subcategory: normalizeText(faq.subcategory ?? undefined) ?? null,
+      tags: normalizeTagList(faq.tags),
+      updatedAt: '2020-01-01T00:00:00.000Z'
+    };
+  });
+}
+
+function buildMockConnection<K extends ConnectionKind>(
+  kind: K,
+  args: FetchConnectionArgs
+): ConnectionByKind[K] {
+  const first = clampPageSize(args.first, DEFAULT_PAGE_SIZE);
+  const category = normalizeText(args.category);
+  const search = normalizeText(args.search)?.toLowerCase();
+  const start = readMockCursor(kind, args.after);
+
+  if (kind === 'controls') {
+    const filteredRows = toMockControlsRows().filter(row => {
+      const blob = normalizeMockSearchBlob([
+        row.controlKey,
+        row.title,
+        row.description,
+        row.section,
+        row.category,
+        row.subcategory ?? undefined,
+        ...(row.tags ?? [])
+      ]);
+
+      return (
+        matchesOptionalCategory(row.category, category) &&
+        matchesOptionalSearch(blob, search)
+      );
+    });
+
+    const pageRows = filteredRows.slice(start, start + first);
+    const edges = pageRows.map((node, index) => ({
+      cursor: buildMockCursor(kind, start + index),
+      node
+    }));
+    const endIndex = start + pageRows.length;
+
+    return {
+      edges,
+      totalCount: filteredRows.length,
+      pageInfo: {
+        hasNextPage: endIndex < filteredRows.length,
+        endCursor:
+          edges.length > 0 ? (edges[edges.length - 1]?.cursor ?? null) : null
+      }
+    } as ConnectionByKind[K];
+  }
+
+  const filteredRows = toMockFaqRows().filter(row => {
+    const blob = normalizeMockSearchBlob([
+      row.faqKey,
+      row.question,
+      row.answer,
+      row.section,
+      row.category,
+      row.subcategory ?? undefined,
+      ...(row.tags ?? [])
+    ]);
+
+    return (
+      matchesOptionalCategory(row.category, category) &&
+      matchesOptionalSearch(blob, search)
+    );
+  });
+
+  const pageRows = filteredRows.slice(start, start + first);
+  const edges = pageRows.map((node, index) => ({
+    cursor: buildMockCursor(kind, start + index),
+    node
+  }));
+  const endIndex = start + pageRows.length;
+
+  return {
+    edges,
+    totalCount: filteredRows.length,
+    pageInfo: {
+      hasNextPage: endIndex < filteredRows.length,
+      endCursor:
+        edges.length > 0 ? (edges[edges.length - 1]?.cursor ?? null) : null
+    }
+  } as ConnectionByKind[K];
+}
+
+function buildMockOverviewSearch(
+  args: FetchOverviewSearchArgs
+): OverviewSearchResult {
+  const search = normalizeText(args.search);
+
+  if (!search) {
+    throw new Error(
+      'INPUT_ERROR: overview search requires a non-empty search term'
+    );
+  }
+
+  const firstPerKind = clampPageSize(
+    args.firstPerKind,
+    DEFAULT_OVERVIEW_PAGE_SIZE
+  );
+  const controls = buildMockConnection('controls', {
+    first: firstPerKind,
+    search
+  });
+  const faqs = buildMockConnection('faqs', {
+    first: firstPerKind,
+    search
+  });
+
+  return {
+    search,
+    controls,
+    faqs,
+    totalCount: controls.totalCount + faqs.totalCount
+  };
+}
+
 // ----------  variable builders (exactOptionalPropertyTypes-safe)  ----------
 
 function buildFetchVars(args: FetchConnectionArgs): FetchVars {
@@ -429,10 +694,18 @@ export async function fetchConnectionPage<K extends ConnectionKind>(
   return getOrCreateCached(cacheKey, ttlMs, async () => {
     const query = QUERY_BY_KIND[kind]; // choose query document for current kind
 
-    const res = await graphqlFetch<QueryDataByKind[K], FetchVars>({
-      query, // graphql document
-      variables: vars // exactOptionalPropertyTypes-safe variables
-    });
+    let res: { data: QueryDataByKind[K] };
+
+    try {
+      res = await graphqlFetch<QueryDataByKind[K], FetchVars>({
+        query, // graphql document
+        variables: vars // exactOptionalPropertyTypes-safe variables
+      });
+    } catch (error) {
+      if (!shouldUseMockFallback(error)) throw error;
+      logMockFallback(kind, error);
+      return buildMockConnection(kind, args);
+    }
 
     if (kind === 'controls') {
       return (res.data as QueryDataByKind['controls'])
@@ -454,12 +727,18 @@ export async function fetchOverviewSearch(
   const cacheKey = stableRequestKey('overview-search', vars); // grouped-search identity for cache + dedupe
 
   return getOrCreateCached(cacheKey, ttlMs, async () => {
-    const res = await graphqlFetch<OverviewSearchData, OverviewSearchVars>({
-      query: OVERVIEW_SEARCH_QUERY, // grouped overview-search graphql document
-      variables: vars // normalized overview-search variables
-    });
+    try {
+      const res = await graphqlFetch<OverviewSearchData, OverviewSearchVars>({
+        query: OVERVIEW_SEARCH_QUERY, // grouped overview-search graphql document
+        variables: vars // normalized overview-search variables
+      });
 
-    return res.data.overviewSearch; // extract grouped overview-search payload
+      return res.data.overviewSearch; // extract grouped overview-search payload
+    } catch (error) {
+      if (!shouldUseMockFallback(error)) throw error;
+      logMockFallback('overviewSearch', error);
+      return buildMockOverviewSearch(args);
+    }
   });
 }
 
@@ -563,4 +842,106 @@ export function fetchFaqsConnectionAll(
   args: FetchAllConnectionArgs = {}
 ): Promise<FaqsConnection> {
   return fetchAllFaqs(args); // alias for older section imports
+}
+
+// ----------  ai assistant helper (cyqu assistant / ai rail)  ----------
+// source of truth: .claude/changes/spec.md — Data Contract + Mapping Rules sections
+// do NOT call this function inside a component — it is a standalone data-layer helper
+
+// raw backend shape returned by the aiAnswer GraphQL mutation
+type AiAnswerBackend = {
+  answer: string;
+  citations: Array<{
+    id: string;
+    label: string;
+    kind: string;
+    category: string | null;
+  }>;
+  provider: string;
+  mode: string;
+  status: string;
+  fallbackUsed: boolean | null;
+  error: string | null;
+};
+
+type AiAnswerMutationData = {
+  aiAnswer: AiAnswerBackend; // root field for aiAnswer mutation
+};
+
+type AiAnswerVars = {
+  question: string; // required non-empty question string
+};
+
+const ASK_AI_MUTATION = /* GraphQL */ `
+  mutation AskAi($question: String!) {
+    aiAnswer(question: $question) {
+      answer
+      citations {
+        id
+        label
+        kind
+        category
+      }
+      provider
+      mode
+      status
+      fallbackUsed
+      error
+    }
+  }
+`;
+
+export async function askAi(question: string): Promise<AiAnswerUi> {
+  const trimmed = question.trim(); // trim before validation per spec behavioral rules
+
+  if (trimmed === '') {
+    throw new Error('INPUT_ERROR: question must not be empty'); // reject empty input — UI maps to error state
+  }
+
+  // network / unexpected failures propagate as thrown errors
+  // the UI layer is responsible for mapping catch → 'error' state (spec mapping rule 3)
+  const res = await graphqlFetch<AiAnswerMutationData, AiAnswerVars>({
+    query: ASK_AI_MUTATION,
+    variables: { question: trimmed }
+  });
+
+  const backend = res.data.aiAnswer;
+
+  // explicit citation mapping — no spread/passthrough of raw backend data (contract-agent rule)
+  const citations: AiCitationUi[] = backend.citations.map(c => ({
+    id: c.id, // string — required
+    label: c.label, // string — required
+    kind: c.kind as AiCitationUi['kind'], // narrowed from String to union at the boundary
+    ...(c.category != null ? { category: c.category } : {}) // omit key when null/absent
+  }));
+
+  // mapping rule 1 (spec): backend.status === 'success' → UI status 'success'
+  if (backend.status === 'success') {
+    return {
+      answer: backend.answer,
+      citations,
+      provider: backend.provider,
+      mode: backend.mode as AiAnswerUi['mode'], // narrowed from String to union at the boundary
+      status: 'success',
+      fallbackUsed: backend.fallbackUsed ?? false,
+      error: backend.error ?? null
+    };
+  }
+
+  // mapping rule 2 (spec): backend.status === 'fallback' OR backend.fallbackUsed === true → UI status 'fallback'
+  if (backend.status === 'fallback' || backend.fallbackUsed === true) {
+    return {
+      answer: backend.answer,
+      citations,
+      provider: backend.provider,
+      mode: backend.mode as AiAnswerUi['mode'],
+      status: 'fallback',
+      fallbackUsed: true,
+      error: backend.error ?? null
+    };
+  }
+
+  // mapping rule 3 (spec): network / unexpected failure → throw so UI maps to 'error'
+  // this branch handles an unrecognised backend status value — treat as an unexpected failure
+  throw new Error(`UNEXPECTED_AI_STATUS: ${backend.status}`);
 }

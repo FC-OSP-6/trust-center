@@ -142,6 +142,7 @@ export function shouldUseSeedFallback(error: unknown): boolean {
   if (lower.includes('authentication failed')) return true; // postgres auth mismatch
   if (lower.includes('password authentication failed')) return true; // common pg auth error wording
   if (lower.includes('too many authentication errors')) return true; // pg pool / upstream circuit-breaker wording
+  if (lower.includes('tenant or user not found')) return true; // hosted postgres providers may surface auth/tenant startup errors with this wording
   if (lower.includes('circuit breaker open')) return true; // auth cascade may open a temporary breaker
   if (lower.includes('28p01')) return true; // postgres invalid_password sqlstate
 
