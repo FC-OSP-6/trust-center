@@ -35,8 +35,11 @@ services:
       # Defaults to the local Postgres service, but allows an opt-in remote override.
       DATABASE_URL: ${DOCKER_REMOTE_DATABASE_URL:-postgres://trust_center:trust_center@postgres:5432/trust_center}
       ADMIN_SECRET: replace-me
+      REDIS_URL: redis://redis:6379
+      CACHE_NAMESPACE: trust-center
       # The Redis adapter is still a stub in this repo, so keep LRU active.
-      CACHE_ADAPTER: lru
+      CACHE_ADAPTER: redis
+      DEBUG_PERF: 'true'
     healthcheck:
       test:
         [
