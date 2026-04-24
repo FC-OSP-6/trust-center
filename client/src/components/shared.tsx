@@ -6,18 +6,10 @@
   - wrappers only map props and serialize json for stencil
   - shared helpers keep controls/faqs subnav + jump behavior DRY
   - link-card payload shaping + static json stringification are centralized for DRY/perf
-  - shared rail + cyqu assistant component keeps controls/faqs layout consistent
+  - shared rail + ai placeholder wrappers keep controls/faqs layout consistent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react'; // react jsx runtime + shared hooks for stable json + event bridge
-import type { AiUiStatus, AiAnswerUi } from '../types-frontend'; // spec-defined state machine type — do not alias or extend
-import { askAi } from '../api'; // data-layer helper — only entry point for ai requests (spec phase 4 rule)
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'; // react jsx runtime + shared hooks for stable json + event bridge
 import PDF from '../assets/images/pdf-svgrepo-com.svg'; // bundled icon url for pdf rows
 import External from '../assets/images/external-link-svgrepo-com.svg'; // bundled icon url for external rows
 import ClientPrivacySummaryPDF from '../assets/PDFs/Aon Client Privacy Summary - Mock.pdf'; // bundled mock pdf
@@ -288,117 +280,36 @@ export function useSubnavJump() {
   };
 }
 
-// ---------- cyqu assistant (controls/faqs rail) ----------
-// react is a thin state + event bridge — stencil owns all rendering
-// spec.md state machine: exactly five states, no others
+// ---------- shared rail placeholder copy (controls/faqs reuse) ----------
 
-export function CyQuAssistant() {
-  const aiRef = useRef<HTMLElement | null>(null); // host for aon-ai-assistant event listeners
+export const aiCard = {
+  title: 'CyQu Assistant',
+  text: 'Ask a question about controls, FAQs, or resources. A future AI assistant will jump you to the best section and entry, or route you to the right area if there is no direct match.'
+}; // shared placeholder copy for controls/faqs rail
 
-  // ---------- state machine (spec.md — exactly these five, no others) ----------
-  const [status, setStatus] = useState<AiUiStatus>('idle');
-  const [lastSubmitted, setLastSubmitted] = useState<string>(''); // stored for retry
-  const [answer, setAnswer] = useState<AiAnswerUi | null>(null);
-
-  // serialized answer prop for stencil — stable reference when null
-  const answerJson = useMemo(
-    () => (answer !== null ? JSON.stringify(answer) : ''),
-    [answer]
-  );
-
-  // refs keep event handlers free of stale closures without re-registering listeners
-  const statusRef = useRef<AiUiStatus>('idle');
-  const lastSubmittedRef = useRef<string>('');
-  statusRef.current = status;
-  lastSubmittedRef.current = lastSubmitted;
-
-  useEffect(() => {
-    const el = aiRef.current;
-
-    if (!el) return;
-
-    // ---------- submit: stencil emits question; react drives api ----------
-    async function onSubmit(e: Event) {
-      const question = (
-        (e as CustomEvent<{ question: string }>).detail?.question ?? ''
-      ).trim();
-
-      if (!question) return; // guard malformed event payloads
-      if (statusRef.current === 'submitting') return; // spec: prevent duplicate submissions
-
-      setLastSubmitted(question);
-      setStatus('submitting');
-      setAnswer(null);
-
-      try {
-        const response = await askAi(question);
-
-        if (response.status === 'success') {
-          setStatus('success');
-          setAnswer(response);
-        } else if (response.status === 'fallback') {
-          setStatus('fallback');
-          setAnswer(response);
-        }
-        // askAi() throws for any unrecognised status — caught below
-      } catch {
-        setStatus('error');
-        setAnswer(null);
-      }
-    }
-
-    // ---------- retry: stencil requests retry; react uses lastSubmitted ----------
-    async function onRetry() {
-      const q = lastSubmittedRef.current;
-
-      if (!q) return; // nothing to retry
-      if (statusRef.current === 'submitting') return; // spec: prevent duplicate submissions
-
-      setStatus('submitting');
-      setAnswer(null);
-
-      try {
-        const response = await askAi(q);
-
-        if (response.status === 'success') {
-          setStatus('success');
-          setAnswer(response);
-        } else if (response.status === 'fallback') {
-          setStatus('fallback');
-          setAnswer(response);
-        }
-      } catch {
-        setStatus('error');
-        setAnswer(null);
-      }
-    }
-
-    // ---------- clear: stencil resets its own ui; react resets data state ----------
-    function onClear() {
-      setStatus('idle');
-      setLastSubmitted('');
-      setAnswer(null);
-    }
-
-    el.addEventListener('aonAiSubmit', onSubmit);
-    el.addEventListener('aonAiRetry', onRetry);
-    el.addEventListener('aonAiClear', onClear);
-
-    return () => {
-      el.removeEventListener('aonAiSubmit', onSubmit);
-      el.removeEventListener('aonAiRetry', onRetry);
-      el.removeEventListener('aonAiClear', onClear);
-    };
-  }, []); // empty deps — handlers read live values through refs
-
+export function AiStub() {
   return (
-    <aon-ai-assistant
-      ref={node => {
-        aiRef.current = node as HTMLElement | null;
-      }}
-      status={status}
-      answer-json={answerJson}
-    />
+    <section className="ai-slot" aria-label={aiCard.title}>
+      <div className="ai-head">
+        <h3 className="ai-title">{aiCard.title}</h3>
+
+        <p className="ai-text">{aiCard.text}</p>
+      </div>
+
+      <div className="ai-body" aria-hidden="true">
+        <div className="ai-chip">chat placeholder</div>
+
+        <div className="ai-line" />
+        <div className="ai-line short" />
+        <div className="ai-line" />
+
+        <div className="ai-note">
+          future stencil component lives here
+          <br />
+          react will provide api + connection props
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -414,7 +325,9 @@ export function InfoRail({ subRef, navTitle, navJson, emptyText }: RailProps) {
           items-json={navJson}
           empty-text={emptyText}
         />
-        <CyQuAssistant />
+        <div className="ai-slot-wrapper">
+          <AiStub />
+        </div>
       </div>
     </aside>
   );

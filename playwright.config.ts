@@ -4,7 +4,7 @@
     what this config does:
         - runs only e2e specs from testing/e2e (avoids vitest files)
         - uses the chrome already installed on the machine
-        - starts the app with bun run dev if it is not already running
+        - starts the app with npm run dev if it is not already running
         - keeps debug artifacts only when tests fail or retry
 
     why this matters:
@@ -14,9 +14,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 import { defineConfig } from '@playwright/test';
-
-const viteDevPort = Number(process.env.VITE_DEV_PORT ?? 5173);
-const baseURL = `http://localhost:${viteDevPort}/trust-center/`;
 
 export default defineConfig({
   // ---------- test discovery ----------
@@ -34,7 +31,7 @@ export default defineConfig({
   // ---------- browser defaults ----------
 
   use: {
-    baseURL, // page.goto('/') resolves to the trust-center route on the chosen dev port
+    baseURL: 'http://localhost:5173/trust-center/', // page.goto('/') resolves to the trust-center route
     trace: 'on-first-retry', // capture trace only when a test fails and retries
     screenshot: 'only-on-failure', // keep screenshots lean and useful
     video: 'retain-on-failure', // record video only for failures
@@ -45,8 +42,8 @@ export default defineConfig({
   // ---------- local dev server orchestration ----------
 
   webServer: {
-    command: 'bun run dev', // starts your full local stack (client/server/stencil) for e2e
-    url: baseURL, // playwright waits until this url is reachable
+    command: 'npm run dev', // starts your full local stack (client/server/stencil) for e2e
+    url: 'http://localhost:5173/trust-center/', // playwright waits until this url is reachable
     reuseExistingServer: !process.env.CI, // avoids restarting if the app is already running locally
     timeout: 120_000 // gives the stack time to boot on slower machines
   },

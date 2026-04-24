@@ -13,21 +13,12 @@ import type { Cache } from './cache'; // only need the interface type here
 export const CONTROLS_LIST_PREFIX = 'controls:list:'; // keep invalidation scoped to cached list reads only
 export const FAQS_LIST_PREFIX = 'faqs:list:'; // same pattern for faq list-read cache entries
 
-export type CacheInvalidationResult = {
-  prefix: string;
-  cleared: number;
-};
-
-export async function invalidateControls(
-  cache: Cache
-): Promise<CacheInvalidationResult> {
-  const cleared = await cache.invalidatePrefix(CONTROLS_LIST_PREFIX); // only clear controls list/read entries
-  return { prefix: CONTROLS_LIST_PREFIX, cleared }; // return exact prefix so resolvers/services can log what changed
+export function invalidateControls(cache: Cache): string {
+  cache.invalidatePrefix?.(CONTROLS_LIST_PREFIX); // only clear controls list/read entries
+  return CONTROLS_LIST_PREFIX; // return exact prefix so resolvers/services can log what changed
 }
 
-export async function invalidateFaqs(
-  cache: Cache
-): Promise<CacheInvalidationResult> {
-  const cleared = await cache.invalidatePrefix(FAQS_LIST_PREFIX); // only clear faq list/read entries
-  return { prefix: FAQS_LIST_PREFIX, cleared }; // return exact prefix so resolvers/services can log what changed
+export function invalidateFaqs(cache: Cache): string {
+  cache.invalidatePrefix?.(FAQS_LIST_PREFIX); // only clear faq list/read entries
+  return FAQS_LIST_PREFIX; // return exact prefix so resolvers/services can log what changed
 }

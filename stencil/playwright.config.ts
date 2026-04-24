@@ -32,7 +32,7 @@ export default defineConfig({
   // ---------- local server ----------
 
   webServer: {
-    command: 'bun run start', // verify this script actually starts the stencil demo/dev server
+    command: 'npm run start', // verify this script actually starts the stencil demo/dev server
     url: 'http://localhost:3333', // match the actual server url instead of just port
     reuseExistingServer: !process.env.CI
   }

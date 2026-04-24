@@ -39,17 +39,6 @@ These tests currently cover:
 - taxonomy validation
 - deterministic search-text composition
 
-### Component bridge tests
-
-Current component bridge files:
-
-- `testing/components/shared-bridge.test.tsx`
-
-These tests currently cover:
-
-- React-to-Stencil wrapper markup for shared rail, portal, and link-card bridges
-- custom-element prop wiring that belongs above Stencil component-local specs
-
 ### Integration tests
 
 Current integration files:
@@ -80,8 +69,10 @@ Implemented coverage today:
 - root redirect to `/overview`
 - shell visibility on known routes
 - not-found route behavior and shell suppression
-- healthy browser coverage for Overview, Controls, and FAQs
-- browser-level fallback coverage when GraphQL requests fail
+
+Important constraint:
+
+- `testing/e2e/controls.spec.ts` exists but is currently empty
 
 ## Tool Usage
 
@@ -103,14 +94,12 @@ Playwright is used for:
 - browser boot verification
 - route and shell smoke testing
 - catching base-path and app-mount regressions
-- verifying healthy data-backed route rendering on sprint-critical pages
-- verifying mock-backed fallback rendering during forced GraphQL outage scenarios
 
 This is intentionally a light browser layer, not yet a comprehensive UX automation suite.
 
 ### Stencil runner
 
-The repository includes `bun run test:stencil`, which maps to the Stencil spec runner. Stencil-owned component-local behavior stays in `stencil/testing`, while root-level React-to-Stencil bridge tests live under `testing/components`.
+The repository includes `npm run test:stencil`, which maps to the Stencil spec runner. This supports component-level testing, though the broader testing story in the repository today is still centered on Vitest and Playwright.
 
 ## Design Highlights
 
@@ -118,8 +107,6 @@ The repository includes `bun run test:stencil`, which maps to the Stencil spec r
 - Search, taxonomy, and pagination semantics are documented in executable form.
 - The app factory pattern makes server integration tests straightforward.
 - Browser tests are focused on high-signal smoke paths rather than brittle, low-value selectors.
-- Stencil component-local behavior is tested in the workspace that owns the custom elements.
-- Root component bridge tests prove wrapper-level integration without moving Stencil runner specs out of the workspace.
 
 ## Tradeoffs
 
@@ -135,7 +122,6 @@ Tradeoffs:
 
 - UI interaction coverage is shallower
 - some React-Stencil edge cases still depend on manual or future browser testing
-- root component bridge tests reduce some of that risk, but shadow-DOM integration still benefits from browser coverage
 
 ### Smoke-oriented E2E rather than wide browser automation
 
@@ -177,6 +163,7 @@ Tradeoffs:
 
 ## Stretch and Future Work
 
-- Expand browser coverage beyond smoke and outage fallback into deeper interaction paths
+- Implement meaningful browser coverage in `testing/e2e/controls.spec.ts`
 - Add mutation and invalidation integration tests
-- Add higher-signal root component tests for subnav and shadow-DOM navigation behavior
+- Expand Stencil component tests around prop parsing and event emission
+- Add higher-signal tests for subnav and shadow-DOM navigation behavior

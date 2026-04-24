@@ -9,24 +9,25 @@
 
 export interface Cache {
   // look up a value by key — returns null if the key is missing or has expired
-  get<T = unknown>(key: string): Promise<T | null>;
+  get(key: string): unknown | null;
 
-  // store a value under a key with a TTL
-  set(key: string, value: unknown, ttlSeconds: number): Promise<void>;
+  // store a value under a key; ttlSeconds controls how long before it expires
+  set(key: string, value: unknown, ttlSeconds: number): void;
 
   // immediately remove a key — used when data changes and the cached version is stale
-  del(key: string): Promise<void>;
+  del(key: string): void;
 
-  // remove ALL keys that start with a given prefix — returns how many were deleted
+  // remove ALL keys that start with a given prefix — used after a mutation changes an entity
+  // optional (?) because not every adapter needs to support it
   // example: invalidatePrefix('controls:') wipes every controls list page from the cache at once
-  invalidatePrefix(prefix: string): Promise<number>;
+  invalidatePrefix?(prefix: string): void;
 
   // the smart combo: check cache first, only call fn() if there's a miss
   // fn is an async function that fetches the real data (e.g. a DB query)
   // returns a Promise because fn() is async and we may need to await it
-  getOrSet<T>(
+  getOrSet(
     key: string,
     ttlSeconds: number,
-    fn: () => Promise<T>
-  ): Promise<T>;
+    fn: () => Promise<unknown>
+  ): Promise<unknown>;
 }
