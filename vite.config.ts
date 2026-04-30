@@ -7,15 +7,43 @@
 
 import { defineConfig, loadEnv } from 'vite'; // config helper + mode-aware env loader (.env, .env.[mode], etc.)
 import react from '@vitejs/plugin-react'; // enables react fast refresh + jsx/tsx transform
+import net from 'node:net';
 
-export default defineConfig(({ mode }) => {
+async function findAvailableVitePort(startPort: number, endPort: number) {
+  for (let port = startPort; port <= endPort; port += 1) {
+    const isAvailable = await new Promise<boolean>(resolve => {
+      const probe = net.createServer();
+
+      probe.once('error', () => resolve(false));
+      probe.listen(port, '127.0.0.1', () => {
+        probe.close(() => resolve(true));
+      });
+    });
+
+    if (isAvailable) return port;
+  }
+
+  throw new Error(
+    `No available Vite dev port found in range ${startPort}-${endPort}`
+  );
+}
+
+export default defineConfig(async ({ mode, command }) => {
   // loads both VITE_* and non-vite vars  -->  returns an object  ;  does NOT automatically populate process.env
   const env = loadEnv(mode, process.cwd(), '');
 
-  // single source of truth  -->  proxy target comes from HOST + SERVER_PORT in .env
-  const host = env.HOST ?? 'http://localhost';
-  const port = Number(env.SERVER_PORT ?? 4000);
-  const serverTarget = `${host}:${port}`; // ex:  http://localhost:4000
+  // prefer shell env for combined dev launchers, then fall back to .env values
+  const host = process.env.HOST ?? env.HOST ?? 'http://localhost';
+  const serverPort = Number(process.env.SERVER_PORT ?? env.SERVER_PORT ?? 4000);
+  const serverTarget = `${host}:${serverPort}`; // ex:  http://localhost:4000
+  const viteHost = process.env.VITE_DEV_HOST ?? env.VITE_DEV_HOST ?? undefined;
+  const explicitVitePort = process.env.VITE_DEV_PORT ?? env.VITE_DEV_PORT;
+  const vitePort =
+    command !== 'serve'
+      ? Number(explicitVitePort ?? 5173)
+      : explicitVitePort
+        ? Number(explicitVitePort)
+        : await findAvailableVitePort(5173, 5199);
 
   return {
     base: '/trust-center/',
@@ -29,6 +57,9 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: { include: ['react', 'react-dom'] },
 
     server: {
+      host: viteHost,
+      port: vitePort,
+      strictPort: true,
       proxy: {
         // preserves method + json + headers  -->  no hardcoding,  no path rewriting,  no websocket upgrades needed for MVP
         '/api/health': { target: serverTarget, changeOrigin: true },

@@ -29,6 +29,8 @@ Primary files:
 
 These files divide configuration by runtime concern instead of forcing one global config abstraction.
 
+For combined local dev entrypoints, `bun run dev` and `bun run dev:basic` now reserve shared backend and frontend ports at launch time. The API starts at `4000` and scans upward through `4099`, while Vite starts at `5173` and scans upward through `5199`, and the chosen values are passed into both child processes for that run.
+
 ## Environment Strategy
 
 The environment model is split between browser-visible and server-only variables.
@@ -37,6 +39,7 @@ The environment model is split between browser-visible and server-only variables
 
 Current variables with `VITE_` prefix:
 
+- `VITE_DEV_PORT`
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_KEY`
 
@@ -71,6 +74,7 @@ The environment surface already anticipates future work, but only a subset is ac
 - enables the React plugin
 - sets the base path to `/trust-center/`
 - dedupes `react` and `react-dom`
+- uses `VITE_DEV_PORT` for the local dev server when provided, otherwise scans `5173-5199` during `vite serve`
 - proxies `/graphql` and `/api/health` to the Express server
 - outputs the client build to `dist`
 
@@ -91,8 +95,8 @@ This matches the current testing emphasis: backend logic and integration confide
 `playwright.config.ts` currently:
 
 - runs only `testing/e2e`
-- points its base URL at `http://localhost:5173/trust-center/`
-- starts the full stack with `npm run dev`
+- points its base URL at the chosen local Vite dev port
+- starts the full stack with `bun run dev`
 - reuses an existing local server outside CI
 - targets installed Chrome rather than a Playwright-managed browser
 
@@ -111,28 +115,32 @@ That config supports the repository's main Stencil goal: treat the component sys
 
 ## Script Surface
 
-The current scripts are intentionally explicit.
+The current scripts are intentionally explicit and Bun-first at the repo root.
 
 Important scripts:
 
-- `npm run dev`
-- `npm run dev:basic`
-- `npm run dev:server`
-- `npm run dev:client`
-- `npm run stencil`
-- `npm run build`
-- `npm run db:migrate`
-- `npm run db:seed`
-- `npm run db:cleanapply`
-- `npm run db:explain`
-- `npm run test`
-- `npm run test:unit`
-- `npm run test:integration`
-- `npm run test:e2e`
-- `npm run test:stencil`
-- `npm run typecheck`
+- `bun run dev`
+- `bun run dev:basic`
+- `bun run dev:server`
+- `bun run dev:client`
+- `bun run stencil`
+- `bun run build`
+- `bun run db:migrate`
+- `bun run db:seed`
+- `bun run db:cleanapply`
+- `bun run db:explain`
+- `bun run test`
+- `bun run test:unit`
+- `bun run test:integration`
+- `bun run test:e2e`
+- `bun run test:stencil`
+- `bun run typecheck`
 
 This is a good configuration choice for a reviewable prototype because each subsystem can be exercised independently.
+
+Single-process dev commands now preserve explicit env overrides, but otherwise follow the same bounded local auto-port rules as the combined launcher: the server scans `4000-4099`, and Vite scans `5173-5199`.
+
+The root runtime contract is also encoded directly in `package.json` via `packageManager: bun@1.3.11`, and `bun.lock` is the primary sprint lockfile.
 
 ## CI and pre-commit behavior
 
@@ -142,6 +150,7 @@ The repository already has lightweight hygiene automation:
 - lint-staged
 - Prettier formatting rules
 - Git attributes for text and binary handling
+- Bun-first CI install and script execution in GitHub Actions
 
 The current approach favors low-friction consistency over a heavier lint-and-policy stack.
 

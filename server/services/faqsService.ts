@@ -128,9 +128,10 @@ function buildFaqsWhereArgs(args: FaqsConnectionArgs): {
 function logFaqsInvalidation(args: {
   requestId: string;
   prefix: string;
+  cleared: number;
 }): void {
   console.log(
-    `[cache] requestId=${args.requestId} invalidate scope=faqs prefix=${args.prefix}`
+    `[cache] requestId=${args.requestId} invalidate scope=faqs prefix=${args.prefix} cleared=${args.cleared}`
   ); // structured invalidation log keeps post-write cache behavior reviewer-friendly
 }
 
@@ -373,10 +374,11 @@ export async function createFaq(
       throw new Error('WRITE_ERROR: faq create returned no row');
     }
 
-    const invalidatedPrefix = invalidateFaqs(ctx.cache); // clear stale faq reads only after a successful write
+    const { prefix, cleared } = await invalidateFaqs(ctx.cache); // clear stale faq reads only after a successful write
     logFaqsInvalidation({
       requestId: ctx.requestId,
-      prefix: invalidatedPrefix
+      prefix,
+      cleared
     });
 
     return row; // mutation resolver will map the row into GraphQL shape
@@ -443,10 +445,11 @@ export async function updateFaq(
       throw new Error('NOT_FOUND_ERROR: faq not found');
     }
 
-    const invalidatedPrefix = invalidateFaqs(ctx.cache); // clear stale faq reads only after a successful write
+    const { prefix, cleared } = await invalidateFaqs(ctx.cache); // clear stale faq reads only after a successful write
     logFaqsInvalidation({
       requestId: ctx.requestId,
-      prefix: invalidatedPrefix
+      prefix,
+      cleared
     });
 
     return row; // mutation resolver will map the row into GraphQL shape
@@ -475,10 +478,11 @@ export async function deleteFaq(
     throw new Error('NOT_FOUND_ERROR: faq not found');
   }
 
-  const invalidatedPrefix = invalidateFaqs(ctx.cache); // clear stale faq reads only after a successful delete
+  const { prefix, cleared } = await invalidateFaqs(ctx.cache); // clear stale faq reads only after a successful write
   logFaqsInvalidation({
     requestId: ctx.requestId,
-    prefix: invalidatedPrefix
+    prefix,
+    cleared
   });
 
   return { id: row.id }; // mutation resolver wraps this in DeleteResult

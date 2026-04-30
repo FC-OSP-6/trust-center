@@ -110,9 +110,10 @@ function buildControlsWhereArgs(args: ControlsConnectionArgs): {
 function logControlsInvalidation(args: {
   requestId: string;
   prefix: string;
+  cleared: number;
 }): void {
   console.log(
-    `[cache] requestId=${args.requestId} invalidate scope=controls prefix=${args.prefix}`
+    `[cache] requestId=${args.requestId} invalidate scope=controls prefix=${args.prefix} cleared=${args.cleared}`
   ); // structured invalidation log keeps post-write cache behavior reviewer-friendly
 }
 
@@ -363,10 +364,11 @@ export async function createControl(
       throw new Error('WRITE_ERROR: control create returned no row');
     }
 
-    const invalidatedPrefix = invalidateControls(ctx.cache); // clear stale controls reads only after a successful write
+    const { prefix, cleared } = await invalidateControls(ctx.cache); // clear stale controls reads only after a successful write
     logControlsInvalidation({
       requestId: ctx.requestId,
-      prefix: invalidatedPrefix
+      prefix,
+      cleared
     });
 
     return row; // mutation resolver will map the row into GraphQL shape
@@ -436,10 +438,11 @@ export async function updateControl(
       throw new Error('NOT_FOUND_ERROR: control not found');
     }
 
-    const invalidatedPrefix = invalidateControls(ctx.cache); // clear stale controls reads only after a successful write
+    const { prefix, cleared } = await invalidateControls(ctx.cache); // clear stale controls reads only after a successful write
     logControlsInvalidation({
       requestId: ctx.requestId,
-      prefix: invalidatedPrefix
+      prefix,
+      cleared
     });
 
     return row; // mutation resolver will map the row into GraphQL shape
@@ -468,10 +471,11 @@ export async function deleteControl(
     throw new Error('NOT_FOUND_ERROR: control not found');
   }
 
-  const invalidatedPrefix = invalidateControls(ctx.cache); // clear stale controls reads only after a successful delete
+  const { prefix, cleared } = await invalidateControls(ctx.cache); // clear stale controls reads only after a successful write
   logControlsInvalidation({
     requestId: ctx.requestId,
-    prefix: invalidatedPrefix
+    prefix,
+    cleared
   });
 
   return { id: row.id }; // mutation resolver wraps this in DeleteResult
