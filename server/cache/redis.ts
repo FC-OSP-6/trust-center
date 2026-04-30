@@ -46,7 +46,13 @@ export class RedisAdapter implements Cache {
     const c = await getClient();
     const raw = await c.get(namespacedKey(key));
     if (raw === null) return null; // key doesn't exist or has expired
-    return JSON.parse(raw) as T; // deserialize
+    try {
+      return JSON.parse(raw) as T; // deserialize
+    } catch {
+      // corrupted value - delete it and treat it as a miss
+      await c.del(namespacedKey(key));
+      return null;
+    }
   }
 
   async set(key: string, value: unknown, ttlSeconds: number): Promise<void> {
@@ -63,15 +69,16 @@ export class RedisAdapter implements Cache {
   async invalidatePrefix(prefix: string): Promise<number> {
     const c = await getClient();
     const pattern = namespacedKey(prefix) + '*'; // match all keys under this prefix
-    let deleted = 0;
+    const keys: string[] = [];
 
     // SCAN iterates keys incrementally
     for await (const key of c.scanIterator({ MATCH: pattern, COUNT: 100 })) {
-      await c.del(key);
-      deleted++;
+      keys.push(...key);
     }
-
-    return deleted;
+    if (keys.length > 0) {
+      await c.del(keys);
+    }
+    return keys.length;
   }
 
   async getOrSet<T>(
