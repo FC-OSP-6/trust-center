@@ -136,8 +136,13 @@ export const typeDefs = /* GraphQL */ `
   # source of truth: .claude/changes/spec.md — Data Contract section
   # do NOT add or remove fields without updating spec.md first
 
+  enum AiMode {
+    ONLINE
+    OFFLINE
+  }
+
   type AiCitation {
-    id: String!
+    id: ID!
     label: String!
     kind: String!
     category: String
@@ -149,7 +154,7 @@ export const typeDefs = /* GraphQL */ `
     provider: String!
     mode: String!
     status: String!
-    fallbackUsed: Boolean
+    fallbackUsed: Boolean!
     error: String
   }
 
@@ -214,7 +219,11 @@ export const typeDefs = /* GraphQL */ `
     adminDeleteFaq(id: ID!): DeleteResult!
 
     # ai assistant mutation  -->  cyqu assistant / ai rail
-    aiAnswer(question: String!): AiAnswerResponse!
+    aiAnswer(
+      question: String!
+      mode: AiMode = ONLINE
+      provider: String
+    ): AiAnswerResponse!
   }
 
   # ----------  FUTURE-ONLY NOTES (COMMENTS ONLY)  ----------

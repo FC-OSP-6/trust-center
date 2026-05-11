@@ -13,6 +13,8 @@
 
 import type { GraphQLContext } from './context'; // shared request context injected by GraphQL Yoga
 import { mutationResolvers } from './mutations'; // admin-ready invalidation + CRUD mutation hooks
+import { runAiAnswer } from '../ai/graph'; // AI orchestration entrypoint
+import type { AiMode } from '../ai/types'; // AI mode type for resolver arg narrowing
 import { isValidCursor, encodeCursor, toIso } from '../services/pagination'; // shared cursor + timestamp helpers
 import {
   getControlsPage,
@@ -177,5 +179,28 @@ export const resolvers = {
     }
   },
 
-  Mutation: mutationResolvers.Mutation // wire invalidation + CRUD mutations into the executable resolver map
+  Mutation: {
+    ...mutationResolvers.Mutation, // admin invalidation + CRUD mutations
+    aiAnswer: async (
+      _parent: unknown,
+      args: { question: string; mode?: string; provider?: string },
+      ctx: GraphQLContext
+    ) => {
+      // GraphQL enum values arrive as uppercase strings — convert to AiMode
+      const mode: AiMode | undefined =
+        args.mode === 'OFFLINE'
+          ? 'offline'
+          : args.mode === 'ONLINE'
+            ? 'online'
+            : undefined;
+      return runAiAnswer(
+        {
+          question: args.question,
+          ...(mode !== undefined ? { mode } : {}),
+          ...(args.provider !== undefined ? { provider: args.provider } : {})
+        },
+        ctx
+      );
+    }
+  }
 };

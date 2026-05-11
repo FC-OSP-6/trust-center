@@ -1,0 +1,48 @@
+{
+  "rc_version": "RC-1",
+  "demo_date": "2026-04-22T23:32:25.397Z",
+  "commit_sha": "2e0b236ca06907299897a08d8beff91ba168ffdf",
+  "runtime_used": "PENDING — set to: bun-local | compose",
+  "cache_mode": "lru",
+  "ai_mode": "none",
+  "test_results": {
+    "typecheck": "PENDING — run: bun run typecheck",
+    "format_check": "PENDING — run: bun run format:check",
+    "unit": "PENDING — run: bun run test:unit",
+    "integration": "PENDING — run: bun run test:integration (requires live DB)",
+    "stencil": "skip (no specs)",
+    "e2e_smoke": "PENDING — run: bun run test:e2e",
+    "e2e_controls": "PENDING — run: bun run test:e2e"
+  },
+  "build": {
+    "stencil": "PENDING — run: bun run build:stencil",
+    "client": "PENDING — run: bun run build:client",
+    "dist_exists": "PENDING — verify: ls dist/"
+  },
+  "runtime_health": {
+    "api_health_200": "PENDING — verify: GET /api/health returns 200",
+    "graphql_reachable": "PENDING — verify: POST /graphql with { hello } query"
+  },
+  "ai_verification": {
+    "idle_state_visible": true,
+    "error_state_reachable": true,
+    "retry_button_visible": true,
+    "success_state_reachable": false,
+    "fallback_state_reachable": false,
+    "note": "Backend mutation not implemented. Error state is the only terminal state at runtime."
+  },
+  "lighthouse": {
+    "status": "not-configured",
+    "routes_checked": [],
+    "scores": {}
+  },
+  "known_limitations": [
+    "W-01: test:stencil has 0 spec files — script exits 0 but tests nothing",
+    "W-02: /trust-center/resources has no Playwright e2e test",
+    "W-03: AI success and fallback states unreachable at runtime — backend mutation not implemented",
+    "W-04: Redis cache adapter is a stub — CACHE_ADAPTER=lru forced in all modes",
+    "W-05: Lighthouse CI not configured — no .lighthouserc, no CI workflow",
+    "W-06: Admin CRUD mutations have no UI and no e2e test"
+  ],
+  "demo_fallback_plan": "PENDING — describe contingency: e.g. switch runtime, use seed fallback, present Playwright HTML report as evidence"
+}

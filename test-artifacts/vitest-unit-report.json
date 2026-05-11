@@ -1,0 +1,292 @@
+{
+  "numTotalTestSuites": 8,
+  "numPassedTestSuites": 8,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 25,
+  "numPassedTests": 25,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "snapshot": {
+    "added": 0,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0,
+    "didUpdate": false
+  },
+  "startTime": 1776900750646,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["api mock fallback"],
+          "fullName": "api mock fallback returns seed-backed controls when graphql responds with an upstream failure",
+          "status": "passed",
+          "title": "returns seed-backed controls when graphql responds with an upstream failure",
+          "duration": 44.00120799999999,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["api mock fallback"],
+          "fullName": "api mock fallback returns seed-backed faqs and grouped overview search when graphql throws transport errors",
+          "status": "passed",
+          "title": "returns seed-backed faqs and grouped overview search when graphql throws transport errors",
+          "duration": 15.221416000000033,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1776900750891,
+      "endTime": 1776900750950.2214,
+      "status": "passed",
+      "message": "",
+      "name": "/Users/annie/Desktop/trust-center/trust-center/testing/unit/api.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers toIso normalizes valid timestamps and preserves invalid values as strings",
+          "status": "passed",
+          "title": "toIso normalizes valid timestamps and preserves invalid values as strings",
+          "duration": 2.0885000000000105,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers clampFirst defaults invalid/non-positive values and caps large values",
+          "status": "passed",
+          "title": "clampFirst defaults invalid/non-positive values and caps large values",
+          "duration": 0.1564170000000047,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers normalizes text and escapes LIKE wildcard characters",
+          "status": "passed",
+          "title": "normalizes text and escapes LIKE wildcard characters",
+          "duration": 0.17404200000001424,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers round-trips cursor payloads and rejects invalid cursors",
+          "status": "passed",
+          "title": "round-trips cursor payloads and rejects invalid cursors",
+          "duration": 0.8460420000000113,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers buildCategorySearchWhere returns empty clause when no usable filters are provided",
+          "status": "passed",
+          "title": "buildCategorySearchWhere returns empty clause when no usable filters are provided",
+          "duration": 0.18975000000000364,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers buildCategorySearchWhere builds category + search predicates with escaped params",
+          "status": "passed",
+          "title": "buildCategorySearchWhere builds category + search predicates with escaped params",
+          "duration": 0.14400000000000546,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers buildAfterBoundary returns sql + params for a valid cursor and throws for invalid cursor",
+          "status": "passed",
+          "title": "buildAfterBoundary returns sql + params for a valid cursor and throws for invalid cursor",
+          "duration": 0.5940830000000119,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers filterRowsByCategorySearch applies case-insensitive category equality + contains search",
+          "status": "passed",
+          "title": "filterRowsByCategorySearch applies case-insensitive category equality + contains search",
+          "duration": 0.41312500000000796,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers pageFromRows returns first page with hasNextPage/endCursor and totalCount (post-filter pre-page)",
+          "status": "passed",
+          "title": "pageFromRows returns first page with hasNextPage/endCursor and totalCount (post-filter pre-page)",
+          "duration": 0.24591600000002245,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers pageFromRows applies after cursor boundary for descending order and computes next page metadata",
+          "status": "passed",
+          "title": "pageFromRows applies after cursor boundary for descending order and computes next page metadata",
+          "duration": 0.18770899999998392,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["pagination helpers"],
+          "fullName": "pagination helpers pageFromRows returns empty page metadata when cursor is beyond available rows",
+          "status": "passed",
+          "title": "pageFromRows returns empty page metadata when cursor is beyond available rows",
+          "duration": 0.09062499999998863,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1776900750875,
+      "endTime": 1776900750880.1877,
+      "status": "passed",
+      "message": "",
+      "name": "/Users/annie/Desktop/trust-center/trust-center/testing/unit/pagination.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["shared search contract"],
+          "fullName": "shared search contract normalizeSearchInput trims outer whitespace and collapses internal whitespace",
+          "status": "passed",
+          "title": "normalizeSearchInput trims outer whitespace and collapses internal whitespace",
+          "duration": 0.6810419999999908,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["shared search contract"],
+          "fullName": "shared search contract normalizeSearchInput returns undefined for blank and whitespace-only values",
+          "status": "passed",
+          "title": "normalizeSearchInput returns undefined for blank and whitespace-only values",
+          "duration": 0.12049999999999272,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["shared search contract"],
+          "fullName": "shared search contract assertOverviewSearchInput accepts a useful two-character search term",
+          "status": "passed",
+          "title": "assertOverviewSearchInput accepts a useful two-character search term",
+          "duration": 0.09000000000000341,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["shared search contract"],
+          "fullName": "shared search contract assertOverviewSearchInput rejects blank and too-short overview queries",
+          "status": "passed",
+          "title": "assertOverviewSearchInput rejects blank and too-short overview queries",
+          "duration": 0.48400000000000887,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["shared search contract"],
+          "fullName": "shared search contract assertOverviewSearchInput rejects search terms longer than the contract max",
+          "status": "passed",
+          "title": "assertOverviewSearchInput rejects search terms longer than the contract max",
+          "duration": 0.09737499999999955,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1776900750874,
+      "endTime": 1776900750876.0974,
+      "status": "passed",
+      "message": "",
+      "name": "/Users/annie/Desktop/trust-center/trust-center/testing/unit/search-contract.test.ts"
+    },
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers resolves a known controls category and applies the default subcategory when omitted",
+          "status": "passed",
+          "title": "resolves a known controls category and applies the default subcategory when omitted",
+          "duration": 0.9523750000000177,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers resolves a known faq category with case-insensitive labels while preserving canonical casing",
+          "status": "passed",
+          "title": "resolves a known faq category with case-insensitive labels while preserving canonical casing",
+          "duration": 0.10666700000001583,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers throws a readable error when the manifest fields drift from the frozen 006-B contract",
+          "status": "passed",
+          "title": "throws a readable error when the manifest fields drift from the frozen 006-B contract",
+          "duration": 0.530333000000013,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers throws a readable error for an unknown category",
+          "status": "passed",
+          "title": "throws a readable error for an unknown category",
+          "duration": 0.14216600000000312,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers throws a readable error for a bad section/category combo",
+          "status": "passed",
+          "title": "throws a readable error for a bad section/category combo",
+          "duration": 0.1355840000000228,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers throws a readable error for a bad subcategory/category combo",
+          "status": "passed",
+          "title": "throws a readable error for a bad subcategory/category combo",
+          "duration": 0.11945800000000872,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["taxonomy contract + seed helpers"],
+          "fullName": "taxonomy contract + seed helpers buildSearchText preserves taxonomy metadata pieces in deterministic lowercase form",
+          "status": "passed",
+          "title": "buildSearchText preserves taxonomy metadata pieces in deterministic lowercase form",
+          "duration": 0.21616700000001288,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1776900750920,
+      "endTime": 1776900750922.216,
+      "status": "passed",
+      "message": "",
+      "name": "/Users/annie/Desktop/trust-center/trust-center/testing/unit/taxonomy-seed.test.ts"
+    }
+  ]
+}

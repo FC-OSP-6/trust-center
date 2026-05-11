@@ -201,7 +201,17 @@ Notes:
 - GraphiQL: `http://localhost:${SERVER_PORT:-4000}/graphql`
 - Health endpoint: `http://localhost:${SERVER_PORT:-4000}/api/health`
 
-### 8. Common commands
+### 8. Test Setup (Required Before First E2E Run)
+
+Playwright requires browser binaries and ffmpeg that are not bundled with `bun install`. Run this once per machine or CI environment before executing any E2E tests:
+
+```bash
+bun run test:e2e:setup
+```
+
+This installs all Playwright-managed browser binaries including ffmpeg (required for video capture on test failure). Re-run after any Playwright version upgrade.
+
+### 9. Common commands
 
 ```bash
 bun run dev              # server + client + stencil watch (API 4000-4099, UI 5173-5199)
@@ -223,6 +233,7 @@ bun run db:explain
 bun run test
 bun run test:unit
 bun run test:integration
+bun run test:e2e:setup   # one-time playwright browser install
 bun run test:e2e
 bun run test:stencil
 
